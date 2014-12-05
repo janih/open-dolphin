@@ -1,18 +1,12 @@
 // To produce '${buildDir}/opendolphin.js' from the typescript files underneath 'js/dolphin' do the following:
 //
-// Run typescript compiler (needs nodejs and tsc installation) from within the folder 'open-dolphin/subprojects/client-javascript':
-//  ../..//gradlew compileTypeScript
-//    which reads *.ts files from 'js/dolphin' and transpiles them into *.js and *.map files into 'js/dolphin'
-// Then run:
-//  ../../gradlew requireJS
-// which produces 'build/opendolphin.js' containing all the dolphin code.
+// Running "install" will compile all typescript files into a single js file and will update
+// the artefacts in the example grails server installation.
 //
-// Then run:
-//  ../../gradlew updateGrailsJs
-// so that 'build/opendolphin.js' is copied to the folder of the grails application
-//
-// see also: https://github.com/eriwen/gradle-js-plugin
-// Pull the plugin from Maven Central
+// You can also run the tasks compileTypeScript, jsZip, and updateGrailsJs in isolation.
+
+// This build file requires a nodejs and tsc installation.
+
 
 buildscript {
     repositories {
@@ -23,55 +17,24 @@ buildscript {
 		}
     }
     dependencies {
-        classpath 'com.eriwen:gradle-js-plugin:1.12.1'
 		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.5'
     }
 }
 // Invoke the plugin
-apply plugin: 'js'
 apply plugin: 'typescript'
-
-// Declare the js sources
-javascript.source {
-    dev {
-        js {
-            srcDir "js"
-            include "**/*.js"
-            exclude "**/*.min.js"
-        }
-    }
-}
-
-// does not work with Java 8 !
-requireJs {
-    source = javascript.source.dev.js.files
-    dest = file("${buildDir}/raw-opendolphin.js")
-    requirejs.options = [
-        name: "OpenDolphin",
-        baseUrl: "js/dolphin",
-        optimize: "none"            // comment this line for full ugly minification
-    ]
-} << {
-    copy {
-        from   file("${buildDir}/raw-opendolphin.js")
-        into   buildDir
-        rename ".*", "opendolphin.js"
-		// Collapse paths like '../../js/dolphin/../../js/dolphin/../../js/dolphin/Command' to 'Command'
-		// and replace 'define('OpenDolphin'...' (coming from 'OpenDolphin.ts') with 'define('opendolphin'...' so that the all-in-one opendolphin.js contains the correct name 'opendolphin' for the entry module:
-        filter { String line -> line.replaceAll(/\.{2}\/\.{2}\/js\/dolphin\//, '').replace('define(\'OpenDolphin\'', 'define(\'opendolphin\'') }
-    }
-}
 
 task updateGrailsJs << {
     ant.delete dir: '../../dolphin-grails/web-app/js/dolphin'
+    // copy single ts and js files for use with ts examples
     copy {
         from 'js'
         into '../../dolphin-grails/web-app/js'
     }
-    copy {
-        from 'libs'
-        into '../../dolphin-grails/web-app/libs'
-    }
+    // copying libs is currently not needed since we do not rely on anything atm
+//    copy {
+//        from 'libs'
+//        into '../../dolphin-grails/web-app/libs'
+//    }
     copy {
         from "${buildDir}/opendolphin.js"
         into '../../dolphin-grails/web-app/dolphin'
@@ -83,7 +46,7 @@ task jsZip (type: Zip) {
     destinationDir = buildDir
     from '.', {
         include 'js/**'
-        include 'libs/**'
+//        include 'libs/**' // not needed since we do not rely on anything atm
     }
 }
 
@@ -92,8 +55,7 @@ compileTypeScript {
 	outputDir = file('js/dolphin')
 	module = 'amd'
 	sourcemap = true
-	// does not seem to work:
-	//out = file('build/ts/opendolphin.js')
+	out = file('build/opendolphin.js')
 }
 
-task install (dependsOn: [jsZip, requireJs, updateGrailsJs])
+task install (dependsOn: [compileTypeScript, jsZip, updateGrailsJs])

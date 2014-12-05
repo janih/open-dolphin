@@ -1,46 +1,46 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import cpm    = require("../../js/dolphin/ClientPresentationModel")
-import cd     = require("../../js/dolphin/ClientDolphin")
-import cms    = require("../../js/dolphin/ClientModelStore")
-import cc     = require("../../js/dolphin/ClientConnector")
-import cmd    = require("../../js/dolphin/Command")
-import tag    = require("../../js/dolphin/Tag")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
+/// <reference path="../../js/dolphin/ClientDolphin.ts"/>
+/// <reference path="../../js/dolphin/ClientModelStore.ts"/>
+/// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/Command.ts"/>
+/// <reference path="../../js/dolphin/Tag.ts"/>
 
 
-export module dolphin {
-    export class ClientDolphinTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class ClientDolphinTests extends tsUnit.TestClass {
 
         getPmFromFactoryMethod() {
-            var clientDolphin:cd.dolphin.ClientDolphin = new cd.dolphin.ClientDolphin();
-            var clientModelStore:cms.dolphin.ClientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin:ClientDolphin = new ClientDolphin();
+            var clientModelStore:ClientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientModelStore(clientModelStore);
-            clientDolphin.setClientConnector(new cc.dolphin.ClientConnector({signal:undefined, transmit: (result:cmd.dolphin.Command[]) => {
+            clientDolphin.setClientConnector(new ClientConnector({signal:undefined, transmit: (result:Command[]) => {
             } },clientDolphin));
 
-            var pm1:cpm.dolphin.ClientPresentationModel = clientDolphin.presentationModel("myId1", "myType");
+            var pm1:ClientPresentationModel = clientDolphin.presentationModel("myId1", "myType");
             this.areIdentical(pm1.id, "myId1");
             this.areIdentical(pm1.getAttributes().length, 0);
 
-            var ca1 = new ca.dolphin.ClientAttribute("prop1", "qual1", "val");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2", "qual2", "val");
+            var ca1 = new ClientAttribute("prop1", "qual1", "val");
+            var ca2 = new ClientAttribute("prop2", "qual2", "val");
 
-            var pm2:cpm.dolphin.ClientPresentationModel = clientDolphin.presentationModel("myId2", "myType", ca1, ca2);
+            var pm2:ClientPresentationModel = clientDolphin.presentationModel("myId2", "myType", ca1, ca2);
             this.areIdentical(pm2.id, "myId2");
             this.areIdentical(pm2.getAttributes().length, 2);
         }
 
         tagTheAttribute(){
-            var clientDolphin:cd.dolphin.ClientDolphin = new cd.dolphin.ClientDolphin();
-            var clientModelStore:cms.dolphin.ClientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin:ClientDolphin = new ClientDolphin();
+            var clientModelStore:ClientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientModelStore(clientModelStore);
-            clientDolphin.setClientConnector(new cc.dolphin.ClientConnector({signal:undefined, transmit: (result:cmd.dolphin.Command[]) => {
+            clientDolphin.setClientConnector(new ClientConnector({signal:undefined, transmit: (result:Command[]) => {
             } },clientDolphin));
 
-            var pm:cpm.dolphin.ClientPresentationModel = clientDolphin.presentationModel("myId", "myType");
+            var pm:ClientPresentationModel = clientDolphin.presentationModel("myId", "myType");
             this.areIdentical(pm.getAttributes().length, 0);
 
-            clientDolphin.tag(pm,"property","value",tag.dolphin.Tag.tooltip());
+            clientDolphin.tag(pm,"property","value",Tag.tooltip());
             this.areIdentical(pm.getAttributes().length, 1);
             this.areIdentical(pm.getAttributes()[0].tag, "TOOLTIP");
         }

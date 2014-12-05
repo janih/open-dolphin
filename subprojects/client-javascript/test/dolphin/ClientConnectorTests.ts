@@ -1,46 +1,42 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import cc     = require("../../js/dolphin/ClientConnector")
-import hcc    = require("../../js/dolphin/HttpTransmitter")
-import cmd    = require("../../js/dolphin/Command")
-import scmd   = require("../../js/dolphin/SignalCommand")
-import cd     = require("../../js/dolphin/ClientDolphin")
-import cms    = require("../../js/dolphin/ClientModelStore")
-import cpm    = require("../../js/dolphin/ClientPresentationModel")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import cna    = require("../../js/dolphin/CallNamedActionCommand");
-import amdcc  = require("../../js/dolphin/AttributeMetadataChangedCommand");
-import pmrc   = require("../../js/dolphin/PresentationModelResetedCommand");
-import spmn   = require("../../js/dolphin/SavedPresentationModelNotification");
-import iac    = require("../../js/dolphin/InitializeAttributeCommand");
-import spmc   = require("../../js/dolphin/SwitchPresentationModelCommand");
-import bvcc   = require("../../js/dolphin/BaseValueChangedCommand");
-import vcc    = require("../../js/dolphin/ValueChangedCommand");
-import dapm   = require("../../js/dolphin/DeleteAllPresentationModelsOfTypeCommand");
-import dapmc  = require("../../js/dolphin/DeleteAllPresentationModelsOfTypeCommand");
-import dpmc   = require("../../js/dolphin/DeletePresentationModelCommand");
-import cpmc   = require("../../js/dolphin/CreatePresentationModelCommand");
+/// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/HttpTransmitter.ts"/>
+/// <reference path="../../js/dolphin/Command.ts"/>
+/// <reference path="../../js/dolphin/SignalCommand.ts"/>
+/// <reference path="../../js/dolphin/ClientDolphin.ts"/>
+/// <reference path="../../js/dolphin/ClientModelStore.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/CallNamedActionCommand.ts" />
+/// <reference path="../../js/dolphin/SavedPresentationModelNotification.ts" />
+/// <reference path="../../js/dolphin/InitializeAttributeCommand.ts" />
+/// <reference path="../../js/dolphin/BaseValueChangedCommand.ts" />");
+/// <reference path="../../js/dolphin/ValueChangedCommand.ts" />
+/// <reference path="../../js/dolphin/DeleteAllPresentationModelsOfTypeCommand.ts" />
+/// <reference path="../../js/dolphin/DeletePresentationModelCommand.ts" />
+/// <reference path="../../js/dolphin/CreatePresentationModelCommand.ts" />
 
 
-export module dolphin {
+module opendolphin {
 
-    class TestTransmitter implements cc.dolphin.Transmitter {
+    class TestTransmitter implements Transmitter {
         constructor(public clientCommands, public serverCommands) {
         }
 
-        transmit(commands:cmd.dolphin.Command[], onDone: (result: cmd.dolphin.Command[]) => void ) : void {
+        transmit(commands:Command[], onDone: (result: Command[]) => void ) : void {
             this.clientCommands = commands;
             onDone(this.serverCommands);
         }
-        signal(command: scmd.dolphin.SignalCommand) : void { /** do nothing */ }
+        signal(command: SignalCommand) : void { /** do nothing */ }
     }
 
-    export class ClientConnectorTests extends tsUnit.tsUnit.TestClass {
+    export class ClientConnectorTests extends tsUnit.TestClass {
 
         sendingOneCommandMustCallTheTransmission() {
-            var singleCommand   = new cmd.dolphin.Command();
-            var serverCommand:cmd.dolphin.Command[]=[];
+            var singleCommand   = new Command();
+            var serverCommand:Command[]=[];
             var transmitter     = new TestTransmitter(singleCommand, serverCommand)
-            var clientConnector = new cc.dolphin.ClientConnector(transmitter,null);
+            var clientConnector = new ClientConnector(transmitter,null);
 
             clientConnector.send(singleCommand, undefined)
 
@@ -49,11 +45,11 @@ export module dolphin {
         }
 
         sendingMultipleCommands() {
-            var singleCommand   = new cmd.dolphin.Command();
-            var serverCommand:cmd.dolphin.Command[]=[];
-            var lastCommand     = new cmd.dolphin.Command();
+            var singleCommand   = new Command();
+            var serverCommand:Command[]=[];
+            var lastCommand     = new Command();
             var transmitter     = new TestTransmitter(undefined, serverCommand)
-            var clientConnector = new cc.dolphin.ClientConnector(transmitter,null);
+            var clientConnector = new ClientConnector(transmitter,null);
 
             clientConnector.send(singleCommand, undefined)
             clientConnector.send(singleCommand, undefined)
@@ -65,7 +61,7 @@ export module dolphin {
 
         handleDeletePresentationModelCommand(){
             TestHelper.initialize();
-            var serverCommand:dpmc.dolphin.DeletePresentationModelCommand = new dpmc.dolphin.DeletePresentationModelCommand("pmId1")
+            var serverCommand:DeletePresentationModelCommand = new DeletePresentationModelCommand("pmId1")
 
             //before calling DeletePresentationModelCommand
             var pm1 = TestHelper.clientDolphin.findPresentationModelById("pmId1");
@@ -81,14 +77,14 @@ export module dolphin {
             this.areIdentical(pm2.id,"pmId2");
 
             //deleting with dummyId
-            serverCommand  = new dpmc.dolphin.DeletePresentationModelCommand("dummyId")
+            serverCommand  = new DeletePresentationModelCommand("dummyId")
             var result = TestHelper.clientConnector.handle(serverCommand);
             this.areIdentical(result,null);// there is no pm with dummyId
         }
 
         handleDeleteAllPresentationModelOfTypeCommand(){
             TestHelper.initialize();
-            var serverCommand:dapmc.dolphin.DeleteAllPresentationModelsOfTypeCommand = new dapmc.dolphin.DeleteAllPresentationModelsOfTypeCommand("pmType")
+            var serverCommand:DeleteAllPresentationModelsOfTypeCommand = new DeleteAllPresentationModelsOfTypeCommand("pmType")
 
             //before calling DeleteAllPresentationModelsOfTypeCommand
             var pms = TestHelper.clientDolphin.findAllPresentationModelByType("pmType");
@@ -102,7 +98,7 @@ export module dolphin {
             //initialize again
             TestHelper.initialize();
             //sending dummyType
-            serverCommand = new dapmc.dolphin.DeleteAllPresentationModelsOfTypeCommand("dummyType")
+            serverCommand = new DeleteAllPresentationModelsOfTypeCommand("dummyType")
             TestHelper.clientConnector.handle(serverCommand);
             var pms = TestHelper.clientDolphin.findAllPresentationModelByType("pmType");
             this.areIdentical(pms.length,2);// nothing is deleted
@@ -110,7 +106,7 @@ export module dolphin {
 
         handleValueChangedCommand(){
             TestHelper.initialize();
-            var serverCommand:vcc.dolphin.ValueChangedCommand = new vcc.dolphin.ValueChangedCommand(TestHelper.attr1.id,0,10);
+            var serverCommand:ValueChangedCommand = new ValueChangedCommand(TestHelper.attr1.id,0,10);
 
             //before calling ValueChangedCommand
             var attribute = TestHelper.clientDolphin.getClientModelStore().findAttributeById(TestHelper.attr1.id);
@@ -126,7 +122,7 @@ export module dolphin {
 
         handleBaseValueChangedCommand(){
             TestHelper.initialize();
-            var serverCommand:bvcc.dolphin.BaseValueChangedCommand = new bvcc.dolphin.BaseValueChangedCommand(TestHelper.attr1.id);
+            var serverCommand:BaseValueChangedCommand = new BaseValueChangedCommand(TestHelper.attr1.id);
 
             //before calling ValueChangedCommand
             var attribute = TestHelper.clientDolphin.getClientModelStore().findAttributeById(TestHelper.attr1.id);
@@ -143,7 +139,7 @@ export module dolphin {
 
         handleSwitchPresentationModelCommand(){
             TestHelper.initialize();
-            var serverCommand:spmc.dolphin.SwitchPresentationModelCommand = new spmc.dolphin.SwitchPresentationModelCommand("pmId1","pmId2");
+            var serverCommand:SwitchPresentationModelCommand = new SwitchPresentationModelCommand("pmId1","pmId2");
 
             //before calling SwitchPresentationModelCommand
             var pms = TestHelper.clientDolphin.findAllPresentationModelByType("pmType");
@@ -164,7 +160,7 @@ export module dolphin {
 
         handleSavedPresentationModelNotification(){
             TestHelper.initialize();
-            var serverCommand:spmn.dolphin.SavedPresentationModelNotification = new spmn.dolphin.SavedPresentationModelNotification("pmId1");
+            var serverCommand:SavedPresentationModelNotification = new SavedPresentationModelNotification("pmId1");
 
             //before calling SavedPresentationModelNotification
             var pm = TestHelper.clientDolphin.findPresentationModelById("pmId1");
@@ -185,7 +181,7 @@ export module dolphin {
         }
         handlePresentationModelResetedCommand(){
             TestHelper.initialize();
-            var serverCommand: pmrc.dolphin.PresentationModelResetedCommand = new  pmrc.dolphin.PresentationModelResetedCommand("pmId1");
+            var serverCommand: PresentationModelResetedCommand = new  PresentationModelResetedCommand("pmId1");
 
             //before calling PresentationModelResetedCommand
             var pm = TestHelper.clientDolphin.findPresentationModelById("pmId1");
@@ -207,7 +203,7 @@ export module dolphin {
         handleInitializeAttributeCommand(){
             TestHelper.initialize();
             //new PM with existing attribute qualifier
-            var serverCommand: iac.dolphin.InitializeAttributeCommand = new  iac.dolphin.InitializeAttributeCommand("newPm","newPmType","newProp","qual1","newValue");
+            var serverCommand: InitializeAttributeCommand = new  InitializeAttributeCommand("newPm","newPmType","newProp","qual1","newValue");
             //before calling InitializeAttributeCommand
             var attribute = TestHelper.clientDolphin.getClientModelStore().findAllAttributesByQualifier("qual1");
             this.areIdentical(attribute[0].getValue(), 0);
@@ -220,7 +216,7 @@ export module dolphin {
             this.areIdentical(TestHelper.clientDolphin.listPresentationModelIds().length, 3);
 
             //existing PM with existing attribute qualifier
-            var serverCommand: iac.dolphin.InitializeAttributeCommand = new  iac.dolphin.InitializeAttributeCommand("pmId1","pmType1","newProp","qual3","newValue");
+            var serverCommand: InitializeAttributeCommand = new  InitializeAttributeCommand("pmId1","pmType1","newProp","qual3","newValue");
             //before calling InitializeAttributeCommand
             var attribute = TestHelper.clientDolphin.getClientModelStore().findAllAttributesByQualifier("qual3");
             this.areIdentical(attribute[0].getValue(), 5);
@@ -237,26 +233,26 @@ export module dolphin {
 
     class TestHelper{
         static transmitter:TestTransmitter;
-        static clientDolphin:cd.dolphin.ClientDolphin;
-        static clientConnector:cc.dolphin.ClientConnector;
-        static clientModelStore:cms.dolphin.ClientModelStore;
-        static attr1:ca.dolphin.ClientAttribute;// to access for id
-        static attr3:ca.dolphin.ClientAttribute;// to access for id
+        static clientDolphin:ClientDolphin;
+        static clientConnector:ClientConnector;
+        static clientModelStore:ClientModelStore;
+        static attr1:ClientAttribute;// to access for id
+        static attr3:ClientAttribute;// to access for id
 
         static initialize(){
-            var serverCommand:cmd.dolphin.Command[]=[];//to test
+            var serverCommand:Command[]=[];//to test
             this.transmitter = new TestTransmitter(undefined, serverCommand);
-            this.clientDolphin = new cd.dolphin.ClientDolphin();
-            this.clientConnector = new cc.dolphin.ClientConnector(this.transmitter,this.clientDolphin);
-            this.clientModelStore = new cms.dolphin.ClientModelStore(this.clientDolphin);
+            this.clientDolphin = new ClientDolphin();
+            this.clientConnector = new ClientConnector(this.transmitter,this.clientDolphin);
+            this.clientModelStore = new ClientModelStore(this.clientDolphin);
             this.clientDolphin.setClientModelStore(this.clientModelStore);
             this.clientDolphin.setClientConnector(this.clientConnector);
 
-            this.attr1 = new ca.dolphin.ClientAttribute("prop1", "qual1", 0);
-            var attr2 = new ca.dolphin.ClientAttribute("prop2", "qual2", 0);
+            this.attr1 = new ClientAttribute("prop1", "qual1", 0);
+            var attr2 = new ClientAttribute("prop2", "qual2", 0);
 
-            this.attr3 = new ca.dolphin.ClientAttribute("prop1", "qual3", 5);
-            var attr4 = new ca.dolphin.ClientAttribute("prop4", "qual4", 5);
+            this.attr3 = new ClientAttribute("prop1", "qual3", 5);
+            var attr4 = new ClientAttribute("prop4", "qual4", 5);
 
             this.clientDolphin.presentationModel("pmId1", "pmType",this.attr1,attr2);
             this.clientDolphin.presentationModel("pmId2", "pmType",this.attr3,attr4);

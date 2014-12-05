@@ -1,6 +1,6 @@
 <html ng-app="weatherApp">
 <head>
-  <script data-main="../../dolphin/opendolphin.js" src="../../libs/require.js"></script>
+  <script src="../../dolphin/opendolphin.js"></script>
   <script src="lib/angular.min.js"></script>
   <link  href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -42,23 +42,21 @@
 
         // dolphin binding from presentation model to widget model
 
-        require([ 'opendolphin' ], function (dol) {
-            var dolphin = dol.dolphin(window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/", true);
+        var dolphin = opendolphin.dolphin(window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/", true);
 
-            var addButton = document.getElementById("addButton");
-            addButton.addEventListener("click", function () {
-              dolphin.send("org.opendolphin.demo.Tutorial.add", null);
-            });
+        var addButton = document.getElementById("addButton");
+        addButton.addEventListener("click", function () {
+          dolphin.send("org.opendolphin.demo.Tutorial.add", null);
+        });
 
-            dolphin.getClientModelStore().onModelStoreChange(function (modelStoreEvent) {
-                if (modelStoreEvent.eventType != 'ADDED') return;
-                var cpm = modelStoreEvent.clientPresentationModel
-                if (cpm.presentationModelType != "weather") return;
-                $scope.addRow( {
-                    temp : cpm.getAt("temperature").getValue(),
-                    humid: cpm.getAt("humidity").getValue()
-                })
-            });
+        dolphin.getClientModelStore().onModelStoreChange(function (modelStoreEvent) {
+            if (modelStoreEvent.eventType != 'ADDED') return;
+            var cpm = modelStoreEvent.clientPresentationModel
+            if (cpm.presentationModelType != "weather") return;
+            $scope.addRow( {
+                temp : cpm.getAt("temperature").getValue(),
+                humid: cpm.getAt("humidity").getValue()
+            })
         });
     });
 </script>

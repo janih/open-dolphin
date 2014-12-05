@@ -1,4 +1,4 @@
-export module dolphin {
+module opendolphin {
 
     export class Attribute {
         public static QUALIFIER_PROPERTY = "qualifier";

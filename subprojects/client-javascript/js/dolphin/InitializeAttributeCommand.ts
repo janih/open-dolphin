@@ -1,15 +1,16 @@
-import cpm  = require("../../js/dolphin/ClientPresentationModel");
-import ca   = require("../../js/dolphin/ClientAttribute");
-import cmd  = require("../../js/dolphin/Command");
-import tags = require("../../js/dolphin/Tag")
-export module dolphin {
+/// <reference path="ClientPresentationModel.ts" />
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="Command.ts" />
+/// <reference path="Tag.ts" />
 
-    export class InitializeAttributeCommand extends cmd.dolphin.Command {
+module opendolphin {
+
+    export class InitializeAttributeCommand extends Command {
 
 
         className:string;
 
-        constructor(public pmId:string, public pmType:string, public propertyName:string, public qualifier:string, public newValue:any, public tag:string = tags.dolphin.Tag.value()) {
+        constructor(public pmId:string, public pmType:string, public propertyName:string, public qualifier:string, public newValue:any, public tag:string = Tag.value()) {
             super();
             this.id = 'InitializeAttribute';
             this.className = "org.opendolphin.core.comm.InitializeAttributeCommand";

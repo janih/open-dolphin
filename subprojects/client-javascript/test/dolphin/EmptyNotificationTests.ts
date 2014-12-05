@@ -1,12 +1,12 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import emptyN     = require("../../js/dolphin/EmptyNotification")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/EmptyNotification.ts"/>
 
 
-export module dolphin {
-    export class EmptyNotificationTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class EmptyNotificationTests extends tsUnit.TestClass {
 
         createEmptyNotificationWithGivenParameter(){
-            var emptyNotification = new emptyN.dolphin.EmptyNotification();
+            var emptyNotification = new EmptyNotification();
             this.areIdentical(emptyNotification.id,"Empty");
             this.areIdentical(emptyNotification.className,"org.opendolphin.core.comm.EmptyNotification");
         }

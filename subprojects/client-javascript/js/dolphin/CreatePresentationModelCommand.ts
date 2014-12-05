@@ -1,9 +1,9 @@
-import cpm  = require("../../js/dolphin/ClientPresentationModel");
-import ca   = require("../../js/dolphin/ClientAttribute");
-import cmd  = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="ClientPresentationModel.ts" />
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="Command.ts" />
+module opendolphin {
 
-    export class CreatePresentationModelCommand extends cmd.dolphin.Command {
+    export class CreatePresentationModelCommand extends Command {
 
         pmId:string;
         className:string;
@@ -11,7 +11,7 @@ export module dolphin {
         attributes:any[] = [];
         clientSideOnly:boolean = false;
 
-        constructor(presentationModel:cpm.dolphin.ClientPresentationModel) {
+        constructor(presentationModel:ClientPresentationModel) {
             super();
             this.id = "CreatePresentationModel";
             this.className = "org.opendolphin.core.comm.CreatePresentationModelCommand";

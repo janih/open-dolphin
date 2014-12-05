@@ -1,7 +1,7 @@
-import cmd = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="Command.ts" />
+module opendolphin {
 
-    export class SwitchPresentationModelCommand extends cmd.dolphin.Command {
+    export class SwitchPresentationModelCommand extends Command {
 
         className:string;
 

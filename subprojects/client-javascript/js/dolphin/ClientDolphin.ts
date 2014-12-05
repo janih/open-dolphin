@@ -1,46 +1,46 @@
-import namedCmd = require("../../js/dolphin/NamedCommand");
-import signlCmd = require("../../js/dolphin/SignalCommand");
-import emptyNot = require("../../js/dolphin/EmptyNotification");
-import pm       = require("../../js/dolphin/ClientPresentationModel");
-import cms      = require("../../js/dolphin/ClientModelStore");
-import cc       = require("../../js/dolphin/ClientConnector");
-import ca       = require("../../js/dolphin/ClientAttribute");
-import acn      = require("../../js/dolphin/AttributeCreatedNotification");
+/// <reference path="NamedCommand.ts" />
+/// <reference path="SignalCommand.ts" />
+/// <reference path="EmptyNotification.ts" />
+/// <reference path="ClientPresentationModel.ts" />
+/// <reference path="ClientModelStore.ts" />
+/// <reference path="ClientConnector.ts" />
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="AttributeCreatedNotification.ts" />
 
-export module dolphin {
+module opendolphin {
 
     export class ClientDolphin {
 
 
-        private clientConnector:cc.dolphin.ClientConnector;
-        private clientModelStore:cms.dolphin.ClientModelStore;
+        private clientConnector:ClientConnector;
+        private clientModelStore:ClientModelStore;
 
-        setClientConnector(clientConnector:cc.dolphin.ClientConnector) {
+        setClientConnector(clientConnector:ClientConnector) {
             this.clientConnector = clientConnector;
         }
 
-        getClientConnector():cc.dolphin.ClientConnector {
+        getClientConnector():ClientConnector {
             return this.clientConnector;
         }
 
-        send(commandName:string, onFinished:cc.dolphin.OnFinishedHandler) {
-            this.clientConnector.send(new namedCmd.dolphin.NamedCommand(commandName), onFinished);
+        send(commandName:string, onFinished:OnFinishedHandler) {
+            this.clientConnector.send(new NamedCommand(commandName), onFinished);
         }
 
-        sendEmpty(onFinished:cc.dolphin.OnFinishedHandler) {
-            this.clientConnector.send(new emptyNot.dolphin.EmptyNotification(), onFinished);
+        sendEmpty(onFinished:OnFinishedHandler) {
+            this.clientConnector.send(new EmptyNotification(), onFinished);
         }
 
         // factory method for attributes
         attribute(propertyName, qualifier, value, tag) {
-            return new ca.dolphin.ClientAttribute(propertyName, qualifier, value, tag);
+            return new ClientAttribute(propertyName, qualifier, value, tag);
         }
 
         // factory method for presentation models
-        presentationModel(id:string, type:string, ...attributes:ca.dolphin.ClientAttribute[]) {
-            var model:pm.dolphin.ClientPresentationModel = new pm.dolphin.ClientPresentationModel(id, type);
+        presentationModel(id:string, type:string, ...attributes:ClientAttribute[]) {
+            var model:ClientPresentationModel = new ClientPresentationModel(id, type);
             if (attributes && attributes.length > 0) {
-                attributes.forEach((attribute:ca.dolphin.ClientAttribute) => {
+                attributes.forEach((attribute:ClientAttribute) => {
                     model.addAttribute(attribute);
                 });
             }
@@ -48,11 +48,11 @@ export module dolphin {
             return model;
         }
 
-        setClientModelStore(clientModelStore:cms.dolphin.ClientModelStore) {
+        setClientModelStore(clientModelStore:ClientModelStore) {
             this.clientModelStore = clientModelStore;
         }
 
-        getClientModelStore():cms.dolphin.ClientModelStore {
+        getClientModelStore():ClientModelStore {
             return this.clientModelStore;
         }
 
@@ -60,22 +60,22 @@ export module dolphin {
             return this.getClientModelStore().listPresentationModelIds();
         }
 
-        listPresentationModels(): pm.dolphin.ClientPresentationModel[]{
+        listPresentationModels(): ClientPresentationModel[]{
             return this.getClientModelStore().listPresentationModels();
         }
 
-        findAllPresentationModelByType(presentationModelType:string):pm.dolphin.ClientPresentationModel[] {
+        findAllPresentationModelByType(presentationModelType:string):ClientPresentationModel[] {
             return this.getClientModelStore().findAllPresentationModelByType(presentationModelType);
         }
 
-        getAt(id:string):pm.dolphin.ClientPresentationModel {
+        getAt(id:string):ClientPresentationModel {
             return this.findPresentationModelById(id);
         }
 
-        findPresentationModelById(id:string):pm.dolphin.ClientPresentationModel {
+        findPresentationModelById(id:string):ClientPresentationModel {
             return this.getClientModelStore().findPresentationModelById(id);
         }
-        deletePresentationModel(modelToDelete:pm.dolphin.ClientPresentationModel) {
+        deletePresentationModel(modelToDelete:ClientPresentationModel) {
             this.getClientModelStore().deletePresentationModel(modelToDelete, true);
         }
 
@@ -83,13 +83,13 @@ export module dolphin {
             this.getClientModelStore().deleteAllPresentationModelOfType(presentationModelType);
         }
 
-        updatePresentationModelQualifier(presentationModel:pm.dolphin.ClientPresentationModel):void{
+        updatePresentationModelQualifier(presentationModel:ClientPresentationModel):void{
             presentationModel.getAttributes().forEach( sourceAttribute =>{
                 this.updateAttributeQualifier(sourceAttribute);
             });
         }
 
-        updateAttributeQualifier(sourceAttribute:ca.dolphin.ClientAttribute):void{
+        updateAttributeQualifier(sourceAttribute:ClientAttribute):void{
             if(!sourceAttribute.getQualifier()) return;
             var attributes = this.getClientModelStore().findAllAttributesByQualifier(sourceAttribute.getQualifier());
             attributes.forEach(targetAttribute => {
@@ -99,17 +99,17 @@ export module dolphin {
             });
         }
 
-        tag(presentationModel: pm.dolphin.ClientPresentationModel,propertyName:string,value:any, tag:string):  ca.dolphin.ClientAttribute{
-            var clientAttribute: ca.dolphin.ClientAttribute = new ca.dolphin.ClientAttribute(propertyName, null, value, tag);
+        tag(presentationModel: ClientPresentationModel,propertyName:string,value:any, tag:string):  ClientAttribute{
+            var clientAttribute: ClientAttribute = new ClientAttribute(propertyName, null, value, tag);
             this.addAttributeToModel(presentationModel, clientAttribute);
             return clientAttribute;
         }
 
-        addAttributeToModel(presentationModel:pm.dolphin.ClientPresentationModel, clientAttribute: ca.dolphin.ClientAttribute){
+        addAttributeToModel(presentationModel:ClientPresentationModel, clientAttribute: ClientAttribute){
             presentationModel.addAttribute(clientAttribute);
             this.getClientModelStore().registerAttribute(clientAttribute);
             if(!presentationModel.clientSideOnly){
-                this.clientConnector.send(new acn.dolphin.AttributeCreatedNotification(
+                this.clientConnector.send(new AttributeCreatedNotification(
                                                     presentationModel.id,
                                                     clientAttribute.id,
                                                     clientAttribute.propertyName,
@@ -122,8 +122,8 @@ export module dolphin {
 
         ////// push support ///////
         startPushListening(pushActionName: string, releaseActionName: string) {
-            this.clientConnector.setPushListener(new namedCmd.dolphin.NamedCommand(pushActionName));
-            this.clientConnector.setReleaseCommand(new signlCmd.dolphin.SignalCommand(releaseActionName));
+            this.clientConnector.setPushListener(new NamedCommand(pushActionName));
+            this.clientConnector.setReleaseCommand(new SignalCommand(releaseActionName));
             this.clientConnector.setPushEnabled(true);
             this.clientConnector.listen();
         }

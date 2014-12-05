@@ -1,4 +1,4 @@
-export module dolphin {
+module opendolphin {
     export class Map<K,V> {
 
         private keys:K[];

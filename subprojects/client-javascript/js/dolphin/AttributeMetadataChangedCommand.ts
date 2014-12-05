@@ -1,7 +1,8 @@
-import cmd = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="Command.ts" />
 
-    export class AttributeMetadataChangedCommand extends cmd.dolphin.Command {
+module opendolphin {
+
+    export class AttributeMetadataChangedCommand extends Command {
 
         className:string;
 

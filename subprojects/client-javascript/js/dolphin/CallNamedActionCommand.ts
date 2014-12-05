@@ -1,7 +1,8 @@
-import cmd = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="Command.ts" />
 
-    export class CallNamedActionCommand extends cmd.dolphin.Command {
+module opendolphin {
+
+    export class CallNamedActionCommand extends Command {
 
         className:string;
 

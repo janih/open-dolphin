@@ -1,23 +1,23 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import pm     = require("../../js/dolphin/ClientPresentationModel")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
 
 
-export module dolphin {
-    export class ClientAttributeTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class ClientAttributeTests extends tsUnit.TestClass {
 
         attributesShouldGetUniqueIds() {
-            var ca1 = new ca.dolphin.ClientAttribute("prop","qual","tag");
-            var ca2 = new ca.dolphin.ClientAttribute("prop","qual","tag");
+            var ca1 = new ClientAttribute("prop","qual","tag");
+            var ca2 = new ClientAttribute("prop","qual","tag");
             this.areNotIdentical(ca1.id, ca2.id);
         }
 
         valueListenersAreCalled() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual", 0);
+            var attr = new ClientAttribute("prop", "qual", 0);
 
             var spoofedOld = -1;
             var spoofedNew = -1;
-            attr.onValueChange( (evt: ca.dolphin.ValueChangedEvent) => {
+            attr.onValueChange( (evt: ValueChangedEvent) => {
                 spoofedOld = evt.oldValue;
                 spoofedNew = evt.newValue;
             } )
@@ -33,11 +33,11 @@ export module dolphin {
         }
 
         attributeListenersAreCalled() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual", 0);
+            var attr = new ClientAttribute("prop", "qual", 0);
 
             var spoofedOldQfr;
             var spoofedNewQfr;
-            attr.onQualifierChange((evt:ca.dolphin.ValueChangedEvent) => {
+            attr.onQualifierChange((evt:ValueChangedEvent) => {
                 spoofedOldQfr = evt.oldValue;
                 spoofedNewQfr = evt.newValue;
             })
@@ -48,17 +48,17 @@ export module dolphin {
         }
 
         valueListenersDoNotInterfere() {
-            var attr1 = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
-            var attr2 = new ca.dolphin.ClientAttribute("prop", "qual2", 0);
+            var attr1 = new ClientAttribute("prop", "qual1", 0);
+            var attr2 = new ClientAttribute("prop", "qual2", 0);
 
             var spoofedNew1 = -1;
-            attr1.onValueChange( (evt: ca.dolphin.ValueChangedEvent) => {
+            attr1.onValueChange( (evt: ValueChangedEvent) => {
                 spoofedNew1 = evt.newValue;
             } )
             attr1.setValue(1);
 
             var spoofedNew2 = -1;
-            attr2.onValueChange( (evt: ca.dolphin.ValueChangedEvent) => {
+            attr2.onValueChange( (evt: ValueChangedEvent) => {
                 spoofedNew2 = evt.newValue;
             } )
             attr2.setValue(2);
@@ -69,15 +69,15 @@ export module dolphin {
         }
 
         checkDirtyListener() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
+            var attr = new ClientAttribute("prop", "qual1", 0);
 
             var dirtyFirst = false;
-            attr.onDirty((evt:ca.dolphin.ValueChangedEvent) => {
+            attr.onDirty((evt:ValueChangedEvent) => {
                 dirtyFirst = evt.newValue;
             });
 
             var dirtySecond = false;
-            attr.onDirty((evt:ca.dolphin.ValueChangedEvent) => {
+            attr.onDirty((evt:ValueChangedEvent) => {
                 dirtySecond = evt.newValue;
             });
 
@@ -85,10 +85,10 @@ export module dolphin {
         }
 
         checkDirtyWhenValueAndBaseValueAreUndefinedOrNull() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
+            var attr = new ClientAttribute("prop", "qual1", 0);
 
             var dirtyValue = false;
-            attr.onDirty((evt:ca.dolphin.ValueChangedEvent) => {
+            attr.onDirty((evt:ValueChangedEvent) => {
                 dirtyValue = evt.newValue;
             });
             // value and baseValue are undefined
@@ -101,10 +101,10 @@ export module dolphin {
         }
 
         checkDirtyWhenValueAndBaseValueAreDifferent() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
+            var attr = new ClientAttribute("prop", "qual1", 0);
 
             var dirtyValue = false;
-            attr.onDirty((evt:ca.dolphin.ValueChangedEvent) => {
+            attr.onDirty((evt:ValueChangedEvent) => {
                 dirtyValue = evt.newValue;
             });
             // value and baseValue are different
@@ -115,7 +115,7 @@ export module dolphin {
         }
 
         checkDirtyAfterRebase() {
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
+            var attr = new ClientAttribute("prop", "qual1", 0);
             attr.setValue(5);
             attr.rebase();// Make base value 5
             this.isFalse(attr.isDirty());
@@ -123,27 +123,27 @@ export module dolphin {
 
         checkValue() {
             //valid values
-            this.areIdentical(5, ca.dolphin.ClientAttribute.checkValue(5));
-            this.areIdentical(0, ca.dolphin.ClientAttribute.checkValue(0));
-            this.areIdentical("test", ca.dolphin.ClientAttribute.checkValue("test"));
+            this.areIdentical(5, ClientAttribute.checkValue(5));
+            this.areIdentical(0, ClientAttribute.checkValue(0));
+            this.areIdentical("test", ClientAttribute.checkValue("test"));
 
             var date = new Date();
-            this.areIdentical(date,ca.dolphin.ClientAttribute.checkValue(date));
+            this.areIdentical(date,ClientAttribute.checkValue(date));
 
-            var attr = new ca.dolphin.ClientAttribute("prop", "qual1", 0);
+            var attr = new ClientAttribute("prop", "qual1", 0);
             attr.setValue(15);
-            this.areIdentical(15, ca.dolphin.ClientAttribute.checkValue(attr));
+            this.areIdentical(15, ClientAttribute.checkValue(attr));
 
             //Wrapper classes
-            this.areIdentical("test", ca.dolphin.ClientAttribute.checkValue(new String("test")));
-            this.areIdentical(false, ca.dolphin.ClientAttribute.checkValue(new Boolean(false)));
-            this.areIdentical(15, ca.dolphin.ClientAttribute.checkValue(new Number(15)));
+            this.areIdentical("test", ClientAttribute.checkValue(new String("test")));
+            this.areIdentical(false, ClientAttribute.checkValue(new Boolean(false)));
+            this.areIdentical(15, ClientAttribute.checkValue(new Number(15)));
 
             //invalid values
-            this.areIdentical(null, ca.dolphin.ClientAttribute.checkValue(null));
-            this.areIdentical(null, ca.dolphin.ClientAttribute.checkValue(undefined)); // null is treated as undefined
+            this.areIdentical(null, ClientAttribute.checkValue(null));
+            this.areIdentical(null, ClientAttribute.checkValue(undefined)); // null is treated as undefined
             try {
-                ca.dolphin.ClientAttribute.checkValue(new pm.dolphin.ClientPresentationModel(undefined, "type"))
+                ClientAttribute.checkValue(new ClientPresentationModel(undefined, "type"))
                 this.fail()
             } catch (error) {
                 this.isTrue(error instanceof Error);
@@ -151,7 +151,7 @@ export module dolphin {
         }
 
         simpleCopy() {
-            var ca1 = new ca.dolphin.ClientAttribute("prop","qual","tag");
+            var ca1 = new ClientAttribute("prop","qual","tag");
             var ca2 = ca1.copy();
 
             this.areNotIdentical(ca1.id, ca2.id); // id must not be copied

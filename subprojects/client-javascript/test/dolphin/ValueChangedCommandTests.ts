@@ -1,12 +1,12 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import valueChangedCmd     = require("../../js/dolphin/ValueChangedCommand")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ValueChangedCommand.ts"/>
 
 
-export module dolphin {
-    export class ValueChangedCommandTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class ValueChangedCommandTests extends tsUnit.TestClass {
 
         createValueChangedCommandWithGivenParameter(){
-            var valueChangedCommand = new valueChangedCmd.dolphin.ValueChangedCommand("10", 10, 20);
+            var valueChangedCommand = new ValueChangedCommand("10", 10, 20);
             this.areIdentical(valueChangedCommand.id,"ValueChanged");
             this.areIdentical(valueChangedCommand.className,"org.opendolphin.core.comm.ValueChangedCommand");
             this.areIdentical(valueChangedCommand.attributeId, "10");

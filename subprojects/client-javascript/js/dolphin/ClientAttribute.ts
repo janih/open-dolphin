@@ -1,8 +1,8 @@
-import cpm  = require("../../js/dolphin/ClientPresentationModel")
-import bus  = require("../../js/dolphin/EventBus")
-import tags = require("../../js/dolphin/Tag")
+/// <reference path="ClientPresentationModel.ts" />
+/// <reference path="EventBus.ts" />
+/// <reference path="Tag.ts" />
 
-export module dolphin {
+module opendolphin {
 
     export interface ValueChangedEvent {
         oldValue;
@@ -17,18 +17,18 @@ export module dolphin {
         private dirty               : boolean = false;
         private baseValue           : any;
         private qualifier           : string;
-        private presentationModel   : cpm.dolphin.ClientPresentationModel;
-        private valueChangeBus      : bus.dolphin.EventBus<ValueChangedEvent>;
-        private qualifierChangeBus  : bus.dolphin.EventBus<ValueChangedEvent>;
-        private dirtyValueChangeBus : bus.dolphin.EventBus<ValueChangedEvent>;
-        private baseValueChangeBus  : bus.dolphin.EventBus<ValueChangedEvent>;
+        private presentationModel   : ClientPresentationModel;
+        private valueChangeBus      : EventBus<ValueChangedEvent>;
+        private qualifierChangeBus  : EventBus<ValueChangedEvent>;
+        private dirtyValueChangeBus : EventBus<ValueChangedEvent>;
+        private baseValueChangeBus  : EventBus<ValueChangedEvent>;
 
-        constructor(public propertyName:string, qualifier:string, value:any, public tag:string = tags.dolphin.Tag.value()) {
+        constructor(public propertyName:string, qualifier:string, value:any, public tag:string = Tag.value()) {
             this.id = "" + (ClientAttribute.clientAttributeInstanceCount++) + "C";
-            this.valueChangeBus = new bus.dolphin.EventBus();
-            this.qualifierChangeBus = new bus.dolphin.EventBus();
-            this.dirtyValueChangeBus = new bus.dolphin.EventBus();
-            this.baseValueChangeBus = new bus.dolphin.EventBus();
+            this.valueChangeBus = new EventBus();
+            this.qualifierChangeBus = new EventBus();
+            this.dirtyValueChangeBus = new EventBus();
+            this.baseValueChangeBus = new EventBus();
             this.setValue(value);
             this.setBaseValue(value);
             this.setQualifier(qualifier);
@@ -49,14 +49,14 @@ export module dolphin {
             return this.baseValue;
         }
 
-        setPresentationModel(presentationModel:cpm.dolphin.ClientPresentationModel) {
+        setPresentationModel(presentationModel:ClientPresentationModel) {
             if (this.presentationModel) {
                 alert("You can not set a presentation model for an attribute that is already bound.");
             }
             this.presentationModel = presentationModel;
         }
 
-        getPresentationModel():cpm.dolphin.ClientPresentationModel {
+        getPresentationModel():ClientPresentationModel {
             return this.presentationModel;
         }
 

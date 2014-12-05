@@ -1,16 +1,16 @@
-import tsUnit            = require("../../testsuite/tsUnit")
-import ca                = require("../../js/dolphin/ClientAttribute")
-import cpm               = require("../../js/dolphin/ClientPresentationModel")
-import map               = require("../../js/dolphin/Map")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
+/// <reference path="../../js/dolphin/Map.ts"/>
 
-export module dolphin {
-    export class MapTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class MapTests extends tsUnit.TestClass {
 
         testAdd() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined, "type1");
-            var pm2 = new cpm.dolphin.ClientPresentationModel(undefined, "type2");
+            var pm1 = new ClientPresentationModel(undefined, "type1");
+            var pm2 = new ClientPresentationModel(undefined, "type2");
 
-            var testMap:map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel> = new map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel>();
+            var testMap:Map<string,ClientPresentationModel> = new Map<string,ClientPresentationModel>();
             testMap.put(pm1.id, pm1);
             testMap.put(pm2.id, pm2);
 
@@ -23,9 +23,9 @@ export module dolphin {
         }
 
         testRemove() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined, "type1");
+            var pm1 = new ClientPresentationModel(undefined, "type1");
 
-            var testMap:map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel> = new map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel>();
+            var testMap:Map<string,ClientPresentationModel> = new Map<string,ClientPresentationModel>();
 
             testMap.put(pm1.id, pm1);
 
@@ -37,16 +37,16 @@ export module dolphin {
         }
 
         testForEach() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined, "type1");
-            var pm2 = new cpm.dolphin.ClientPresentationModel(undefined, "type2");
+            var pm1 = new ClientPresentationModel(undefined, "type1");
+            var pm2 = new ClientPresentationModel(undefined, "type2");
 
-            var testMap:map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel> = new map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel>();
+            var testMap:Map<string,ClientPresentationModel> = new Map<string,ClientPresentationModel>();
             testMap.put(pm1.id, pm1);
             testMap.put(pm2.id, pm2);
 
             var keys:string[] = [];
-            var values:cpm.dolphin.ClientPresentationModel[] = [];
-            testMap.forEach((key:string, value:cpm.dolphin.ClientPresentationModel) => {
+            var values:ClientPresentationModel[] = [];
+            testMap.forEach((key:string, value:ClientPresentationModel) => {
                 keys.push(key);
                 values.push(value);
             })
@@ -59,8 +59,8 @@ export module dolphin {
         }
 
         testGet() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined, "type1");
-            var testMap:map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel> = new map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel>();
+            var pm1 = new ClientPresentationModel(undefined, "type1");
+            var testMap:Map<string,ClientPresentationModel> = new Map<string,ClientPresentationModel>();
             testMap.put(pm1.id, pm1);
 
             var pm = testMap.get(pm1.id);
@@ -71,10 +71,10 @@ export module dolphin {
         }
 
         testKeySetAndValues() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined, "type1");
-            var pm2 = new cpm.dolphin.ClientPresentationModel(undefined, "type2");
+            var pm1 = new ClientPresentationModel(undefined, "type1");
+            var pm2 = new ClientPresentationModel(undefined, "type2");
 
-            var testMap:map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel> = new map.dolphin.Map<string,cpm.dolphin.ClientPresentationModel>();
+            var testMap:Map<string,ClientPresentationModel> = new Map<string,ClientPresentationModel>();
 
             this.areIdentical(testMap.keySet().length, 0);
             this.areIdentical(testMap.values().length, 0);

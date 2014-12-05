@@ -1,7 +1,7 @@
-import cmd = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="Command.ts" />
+module opendolphin {
 
-    export class SavedPresentationModelNotification extends cmd.dolphin.Command {
+    export class SavedPresentationModelNotification extends Command {
 
         className:string;
 

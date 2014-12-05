@@ -1,41 +1,41 @@
-import cpm    = require("../../js/dolphin/ClientPresentationModel");
-import cmd    = require("../../js/dolphin/Command");
-import cb     = require("../../js/dolphin/CommandBatcher");
-import cod    = require("../../js/dolphin/Codec");
-import cna    = require("../../js/dolphin/CallNamedActionCommand");
-import cd     = require("../../js/dolphin/ClientDolphin");
-import amdcc  = require("../../js/dolphin/AttributeMetadataChangedCommand");
-import ca     = require("../../js/dolphin/ClientAttribute");
-import pmrc   = require("../../js/dolphin/PresentationModelResetedCommand");
-import spmn   = require("../../js/dolphin/SavedPresentationModelNotification");
-import iac    = require("../../js/dolphin/InitializeAttributeCommand");
-import spmc   = require("../../js/dolphin/SwitchPresentationModelCommand");
-import bvcc   = require("../../js/dolphin/BaseValueChangedCommand");
-import vcc    = require("../../js/dolphin/ValueChangedCommand");
-import dapm   = require("../../js/dolphin/DeleteAllPresentationModelsOfTypeCommand");
-import dapmc  = require("../../js/dolphin/DeleteAllPresentationModelsOfTypeCommand");
-import dpmc   = require("../../js/dolphin/DeletePresentationModelCommand");
-import cpmc   = require("../../js/dolphin/CreatePresentationModelCommand");
-import dcmd   = require("../../js/dolphin/DataCommand");
-import ncmd   = require("../../js/dolphin/NamedCommand");
-import scmd   = require("../../js/dolphin/SignalCommand");
-import tags   = require("../../js/dolphin/Tag");
+/// <reference path="ClientPresentationModel.ts" />
+/// <reference path="Command.ts" />
+/// <reference path="CommandBatcher.ts" />
+/// <reference path="Codec.ts" />
+/// <reference path="CallNamedActionCommand.ts" />
+/// <reference path="ClientDolphin.ts" />
+/// <reference path="AttributeMetadataChangedCommand.ts" />
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="PresentationModelResetedCommand.ts" />
+/// <reference path="SavedPresentationModelNotification.ts" />
+/// <reference path="InitializeAttributeCommand.ts" />
+/// <reference path="SwitchPresentationModelCommand.ts" />
+/// <reference path="BaseValueChangedCommand.ts" />
+/// <reference path="ValueChangedCommand.ts" />
+/// <reference path="DeleteAllPresentationModelsOfTypeCommand.ts" />
+/// <reference path="DeleteAllPresentationModelsOfTypeCommand.ts" />
+/// <reference path="DeletePresentationModelCommand.ts" />
+/// <reference path="CreatePresentationModelCommand.ts" />
+/// <reference path="DataCommand.ts" />
+/// <reference path="NamedCommand.ts" />
+/// <reference path="SignalCommand.ts" />
+/// <reference path="Tag.ts" />
 
-export module dolphin {
+module opendolphin {
 
     export interface OnFinishedHandler {
-        onFinished(models:cpm.dolphin.ClientPresentationModel[]):void
+        onFinished(models: ClientPresentationModel[]):void
         onFinishedData(listOfData:any[]):void
     }
 
     export interface CommandAndHandler {
-        command : cmd.dolphin.Command;
+        command :  Command;
         handler : OnFinishedHandler;
     }
 
     export interface Transmitter {
-        transmit(commands:cmd.dolphin.Command[], onDone:(result:cmd.dolphin.Command[]) => void) : void ;
-        signal(command:scmd.dolphin.SignalCommand) : void;
+        transmit(commands: Command[], onDone:(result: Command[]) => void) : void ;
+        signal(command: SignalCommand) : void;
     }
 
     export class ClientConnector {
@@ -44,38 +44,38 @@ export module dolphin {
         private currentlySending :  boolean = false;
         private slackMS:            number; // slack milliseconds for rendering and batching
         private transmitter :       Transmitter;
-        private codec :             cod.dolphin.Codec;
-        private clientDolphin :     cd.dolphin.ClientDolphin;
-        private commandBatcher:     cb.dolphin.CommandBatcher = new cb.dolphin.BlindCommandBatcher(true);
+        private codec :              Codec;
+        private clientDolphin :      ClientDolphin;
+        private commandBatcher:      CommandBatcher = new  BlindCommandBatcher(true);
 
         /////// push support state  ///////
-        private pushListener:       ncmd.dolphin.NamedCommand;
-        private releaseCommand:     scmd.dolphin.SignalCommand;
+        private pushListener:        NamedCommand;
+        private releaseCommand:      SignalCommand;
         private pushEnabled:        boolean = false;
         private waiting:            boolean = false;
 
 
-        constructor(transmitter:Transmitter, clientDolphin:cd.dolphin.ClientDolphin, slackMS: number = 0) {
+        constructor(transmitter:Transmitter, clientDolphin: ClientDolphin, slackMS: number = 0) {
             this.transmitter = transmitter;
             this.clientDolphin = clientDolphin;
             this.slackMS = slackMS;
-            this.codec = new cod.dolphin.Codec();
+            this.codec = new  Codec();
         }
 
-        setCommandBatcher(newBatcher: cb.dolphin.CommandBatcher) {
+        setCommandBatcher(newBatcher:  CommandBatcher) {
             this.commandBatcher = newBatcher;
         }
         setPushEnabled(enabled:boolean) {
             this.pushEnabled = enabled;
         }
-        setPushListener(newListener: ncmd.dolphin.NamedCommand) {
+        setPushListener(newListener:  NamedCommand) {
             this.pushListener = newListener
         }
-        setReleaseCommand(newCommand: scmd.dolphin.SignalCommand) {
+        setReleaseCommand(newCommand:  SignalCommand) {
             this.releaseCommand = newCommand
         }
 
-        send(command:cmd.dolphin.Command, onFinished:OnFinishedHandler) {
+        send(command: Command, onFinished:OnFinishedHandler) {
             this.commandQueue.push({command: command, handler: onFinished });
             if (this.currentlySending) {
                 if(command != this.pushListener) this.release(); // there is not point in releasing if we do not send atm
@@ -94,12 +94,12 @@ export module dolphin {
             var cmdsAndHandlers = this.commandBatcher.batch(this.commandQueue);
             var callback = cmdsAndHandlers[cmdsAndHandlers.length-1].handler;
             var commands = cmdsAndHandlers.map( cah => { return cah.command });
-            this.transmitter.transmit(commands, (response:cmd.dolphin.Command[]) => {
+            this.transmitter.transmit(commands, (response: Command[]) => {
 
                 //console.log("server response: [" + response.map(it => it.id).join(", ") + "] ");
 
-                var touchedPMs : cpm.dolphin.ClientPresentationModel[] = []
-                response.forEach((command:cmd.dolphin.Command) => {
+                var touchedPMs :  ClientPresentationModel[] = []
+                response.forEach((command: Command) => {
                     var touched = this.handle(command);
                     if (touched) touchedPMs.push(touched);
                 });
@@ -117,64 +117,64 @@ export module dolphin {
 
 
 
-        handle(command:cmd.dolphin.Command): cpm.dolphin.ClientPresentationModel{
+        handle(command: Command):  ClientPresentationModel{
             if(command.id == "Data"){
-                return this.handleDataCommand(<dcmd.dolphin.DataCommand>command);
+                return this.handleDataCommand(< DataCommand>command);
             }else if(command.id == "DeletePresentationModel"){
-                return this.handleDeletePresentationModelCommand(<dpmc.dolphin.DeletePresentationModelCommand>command);
+                return this.handleDeletePresentationModelCommand(< DeletePresentationModelCommand>command);
             }else if(command.id == "DeleteAllPresentationModelsOfType"){
-                return this.handleDeleteAllPresentationModelOfTypeCommand(<dapmc.dolphin.DeleteAllPresentationModelsOfTypeCommand>command);
+                return this.handleDeleteAllPresentationModelOfTypeCommand(< DeleteAllPresentationModelsOfTypeCommand>command);
             }else if(command.id == "CreatePresentationModel"){
-                return this.handleCreatePresentationModelCommand(<cpmc.dolphin.CreatePresentationModelCommand>command);
+                return this.handleCreatePresentationModelCommand(< CreatePresentationModelCommand>command);
             }else if(command.id == "ValueChanged"){
-                return this.handleValueChangedCommand(<vcc.dolphin.ValueChangedCommand>command);
+                return this.handleValueChangedCommand(< ValueChangedCommand>command);
             }else if(command.id == "BaseValueChanged"){
-                return this.handleBaseValueChangedCommand(<bvcc.dolphin.BaseValueChangedCommand>command);
+                return this.handleBaseValueChangedCommand(< BaseValueChangedCommand>command);
             }else if(command.id == "SwitchPresentationModel"){
-                return this.handleSwitchPresentationModelCommand(<spmc.dolphin.SwitchPresentationModelCommand>command);
+                return this.handleSwitchPresentationModelCommand(< SwitchPresentationModelCommand>command);
             }else if(command.id == "InitializeAttribute"){
-                return this.handleInitializeAttributeCommand(<iac.dolphin.InitializeAttributeCommand>command);
+                return this.handleInitializeAttributeCommand(< InitializeAttributeCommand>command);
             }else if(command.id == "SavedPresentationModel"){
-                return this.handleSavedPresentationModelNotification(<spmn.dolphin.SavedPresentationModelNotification>command);
+                return this.handleSavedPresentationModelNotification(< SavedPresentationModelNotification>command);
             }else if(command.id == "PresentationModelReseted"){
-                return this.handlePresentationModelResetedCommand(<pmrc.dolphin.PresentationModelResetedCommand>command);
+                return this.handlePresentationModelResetedCommand(< PresentationModelResetedCommand>command);
             }else if(command.id == "AttributeMetadataChanged"){
-                return this.handleAttributeMetadataChangedCommand(<amdcc.dolphin.AttributeMetadataChangedCommand>command);
+                return this.handleAttributeMetadataChangedCommand(< AttributeMetadataChangedCommand>command);
             }else if(command.id == "CallNamedAction"){
-                return this.handleCallNamedActionCommand(<cna.dolphin.CallNamedActionCommand>command);
+                return this.handleCallNamedActionCommand(< CallNamedActionCommand>command);
             }else{
                 console.log("Cannot handle, unknown command "+command);
             }
 
             return null;
         }
-        private handleDataCommand(serverCommand: dcmd.dolphin.DataCommand): any{
+        private handleDataCommand(serverCommand:  DataCommand): any{
             return serverCommand.data;
         }
-        private handleDeletePresentationModelCommand(serverCommand:dpmc.dolphin.DeletePresentationModelCommand):cpm.dolphin.ClientPresentationModel{
-            var model:cpm.dolphin.ClientPresentationModel =  this.clientDolphin.findPresentationModelById(serverCommand.pmId);
+        private handleDeletePresentationModelCommand(serverCommand: DeletePresentationModelCommand): ClientPresentationModel{
+            var model: ClientPresentationModel =  this.clientDolphin.findPresentationModelById(serverCommand.pmId);
             if(!model) return null;
             this.clientDolphin.getClientModelStore().deletePresentationModel(model, true);
             return model;
         }
-        private handleDeleteAllPresentationModelOfTypeCommand(serverCommand:dapmc.dolphin.DeleteAllPresentationModelsOfTypeCommand){
+        private handleDeleteAllPresentationModelOfTypeCommand(serverCommand: DeleteAllPresentationModelsOfTypeCommand){
             this.clientDolphin.deleteAllPresentationModelOfType(serverCommand.pmType);
             return null;
         }
-        private handleCreatePresentationModelCommand(serverCommand:cpmc.dolphin.CreatePresentationModelCommand):cpm.dolphin.ClientPresentationModel{
+        private handleCreatePresentationModelCommand(serverCommand: CreatePresentationModelCommand): ClientPresentationModel{
             if(this.clientDolphin.getClientModelStore().containsPresentationModel(serverCommand.pmId)){
                 throw new Error("There already is a presentation model with id "+serverCommand.pmId+"  known to the client.");
             }
-            var attributes:ca.dolphin.ClientAttribute[] = [];
+            var attributes: ClientAttribute[] = [];
             serverCommand.attributes.forEach((attr) =>{
-                var clientAttribute = this.clientDolphin.attribute(attr.propertyName,attr.qualifier,attr.value, attr.tag ? attr.tag : tags.dolphin.Tag.value());
+                var clientAttribute = this.clientDolphin.attribute(attr.propertyName,attr.qualifier,attr.value, attr.tag ? attr.tag :  Tag.value());
                 clientAttribute.setBaseValue(attr.baseValue);
                 if(attr.id && attr.id.match(".*S$")) {
                     clientAttribute.id = attr.id;
                 }
                 attributes.push(clientAttribute);
             });
-            var clientPm = new cpm.dolphin.ClientPresentationModel(serverCommand.pmId, serverCommand.pmType);
+            var clientPm = new  ClientPresentationModel(serverCommand.pmId, serverCommand.pmType);
             clientPm.addAttributes(attributes);
             if(serverCommand.clientSideOnly){
                 clientPm.clientSideOnly = true;
@@ -185,8 +185,8 @@ export module dolphin {
             clientPm.updateDirty();
             return clientPm;
         }
-        private handleValueChangedCommand(serverCommand:vcc.dolphin.ValueChangedCommand):cpm.dolphin.ClientPresentationModel{
-            var clientAttribute: ca.dolphin.ClientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
+        private handleValueChangedCommand(serverCommand: ValueChangedCommand): ClientPresentationModel{
+            var clientAttribute:  ClientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
             if(!clientAttribute){
                 console.log("attribute with id "+serverCommand.attributeId+" not found, cannot update old value "+serverCommand.oldValue+" to new value "+serverCommand.newValue);
                 return null;
@@ -205,8 +205,8 @@ export module dolphin {
             clientAttribute.setValue(serverCommand.newValue);
             return null;
         }
-        private handleBaseValueChangedCommand(serverCommand:bvcc.dolphin.BaseValueChangedCommand):cpm.dolphin.ClientPresentationModel{
-            var clientAttribute: ca.dolphin.ClientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
+        private handleBaseValueChangedCommand(serverCommand: BaseValueChangedCommand): ClientPresentationModel{
+            var clientAttribute:  ClientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
             if(!clientAttribute){
                 console.log("attribute with id "+serverCommand.attributeId+" not found, cannot set base value.");
                 return null;
@@ -214,8 +214,8 @@ export module dolphin {
             clientAttribute.rebase();
             return null;
         }
-        private handleSwitchPresentationModelCommand(serverCommand:spmc.dolphin.SwitchPresentationModelCommand):cpm.dolphin.ClientPresentationModel{
-            var switchPm:cpm.dolphin.ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
+        private handleSwitchPresentationModelCommand(serverCommand: SwitchPresentationModelCommand): ClientPresentationModel{
+            var switchPm: ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
             if(!switchPm){
                 console.log("switch model with id "+serverCommand.pmId+" not found, cannot switch.");
                 return null;
@@ -228,10 +228,10 @@ export module dolphin {
             switchPm.syncWith(sourcePm);
             return switchPm;
         }
-        private handleInitializeAttributeCommand(serverCommand: iac.dolphin.InitializeAttributeCommand):cpm.dolphin.ClientPresentationModel{
-            var attribute = new ca.dolphin.ClientAttribute(serverCommand.propertyName,serverCommand.qualifier,serverCommand.newValue, serverCommand.tag);
+        private handleInitializeAttributeCommand(serverCommand:  InitializeAttributeCommand): ClientPresentationModel{
+            var attribute = new  ClientAttribute(serverCommand.propertyName,serverCommand.qualifier,serverCommand.newValue, serverCommand.tag);
             if(serverCommand.qualifier){
-                var attributesCopy:ca.dolphin.ClientAttribute[]= this.clientDolphin.getClientModelStore().findAllAttributesByQualifier(serverCommand.qualifier);
+                var attributesCopy: ClientAttribute[]= this.clientDolphin.getClientModelStore().findAllAttributesByQualifier(serverCommand.qualifier);
                 if(attributesCopy){
                     if(!serverCommand.newValue){
                         var attr = attributesCopy.shift();
@@ -245,21 +245,21 @@ export module dolphin {
                     }
                 }
             }
-            var presentationModel: cpm.dolphin.ClientPresentationModel;
+            var presentationModel:  ClientPresentationModel;
             if(serverCommand.pmId){
                 presentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
             }
             if(!presentationModel){
-                presentationModel = new cpm.dolphin.ClientPresentationModel(serverCommand.pmId,serverCommand.pmType);
+                presentationModel = new  ClientPresentationModel(serverCommand.pmId,serverCommand.pmType);
                 this.clientDolphin.getClientModelStore().add(presentationModel);
             }
             this.clientDolphin.addAttributeToModel(presentationModel,attribute);
             this.clientDolphin.updatePresentationModelQualifier(presentationModel);
             return presentationModel;
         }
-        private handleSavedPresentationModelNotification(serverCommand: spmn.dolphin.SavedPresentationModelNotification){
+        private handleSavedPresentationModelNotification(serverCommand:  SavedPresentationModelNotification){
             if(!serverCommand.pmId) return null;
-            var model:cpm.dolphin.ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
+            var model: ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
             if(!model){
                 console.log("model with id "+serverCommand.pmId+" not found, cannot rebase.");
                 return null;
@@ -267,9 +267,9 @@ export module dolphin {
             model.rebase();
             return model;
         }
-        private handlePresentationModelResetedCommand(serverCommand: pmrc.dolphin.PresentationModelResetedCommand): cpm.dolphin.ClientPresentationModel{
+        private handlePresentationModelResetedCommand(serverCommand:  PresentationModelResetedCommand):  ClientPresentationModel{
             if(!serverCommand.pmId) return null;
-            var model:cpm.dolphin.ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
+            var model: ClientPresentationModel = this.clientDolphin.getClientModelStore().findPresentationModelById(serverCommand.pmId);
             if(!model){
                 console.log("model with id "+serverCommand.pmId+" not found, cannot reset.");
                 return null;
@@ -277,13 +277,13 @@ export module dolphin {
             model.reset();
             return model;
         }
-        private handleAttributeMetadataChangedCommand(serverCommand: amdcc.dolphin.AttributeMetadataChangedCommand): cpm.dolphin.ClientPresentationModel{
+        private handleAttributeMetadataChangedCommand(serverCommand:  AttributeMetadataChangedCommand):  ClientPresentationModel{
             var clientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
             if(!clientAttribute) return null;
             clientAttribute[serverCommand.metadataName] = serverCommand.value
             return null;
         }
-        private handleCallNamedActionCommand(serverCommand: cna.dolphin.CallNamedActionCommand): cpm.dolphin.ClientPresentationModel{
+        private handleCallNamedActionCommand(serverCommand:  CallNamedActionCommand):  ClientPresentationModel{
             this.clientDolphin.send(serverCommand.actionName,null);
             return null;
         }

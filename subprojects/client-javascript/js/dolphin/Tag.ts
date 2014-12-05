@@ -1,5 +1,5 @@
-export module dolphin {
-    export class Tag{
+module opendolphin {
+    export class Tag {
 
         //Implemented as function so that it will never be changed from outside
         /** The actual value of the attribute. This is the default if no tag is given.*/

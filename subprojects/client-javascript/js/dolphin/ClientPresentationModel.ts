@@ -1,8 +1,8 @@
-import ca   = require("../../js/dolphin/ClientAttribute");
-import bus  = require("../../js/dolphin/EventBus")
-import tags = require("../../js/dolphin/Tag")
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="EventBus.ts" />
+/// <reference path="Tag.ts" />
 
-export module dolphin {
+module opendolphin {
 
     export interface InvalidationEvent {
         source: ClientPresentationModel;
@@ -11,11 +11,11 @@ export module dolphin {
 
     export class ClientPresentationModel {
 
-        private attributes:ca.dolphin.ClientAttribute[] = [];
+        private attributes:ClientAttribute[] = [];
         clientSideOnly:boolean = false;
         private dirty:boolean = false;
-        private invalidBus:bus.dolphin.EventBus<InvalidationEvent>;
-        private dirtyValueChangeBus:bus.dolphin.EventBus<ca.dolphin.ValueChangedEvent>;
+        private invalidBus:EventBus<InvalidationEvent>;
+        private dirtyValueChangeBus:EventBus<ValueChangedEvent>;
 
         constructor(public id:string, public presentationModelType:string) {
             if (typeof id !== 'undefined' && id != null) { // even an empty string is a valid id
@@ -23,8 +23,8 @@ export module dolphin {
             } else {
                 this.id = (presentationModelInstanceCount++).toString();
             }
-            this.invalidBus = new bus.dolphin.EventBus();
-            this.dirtyValueChangeBus = new bus.dolphin.EventBus();
+            this.invalidBus = new EventBus();
+            this.dirtyValueChangeBus = new EventBus();
         }
 
         // todo dk: align with Java version: move to ClientDolphin and auto-add to model store
@@ -32,7 +32,7 @@ export module dolphin {
         copy() {
             var result = new ClientPresentationModel(null, this.presentationModelType);
             result.clientSideOnly = true;
-            this.getAttributes().forEach( (attribute: ca.dolphin.ClientAttribute) => {
+            this.getAttributes().forEach( (attribute: ClientAttribute) => {
                 var attributeCopy = attribute.copy();
                 result.addAttribute(attributeCopy);
             });
@@ -40,13 +40,13 @@ export module dolphin {
         }
 
         //add array of attributes
-        addAttributes(attributes:ca.dolphin.ClientAttribute[]){
+        addAttributes(attributes:ClientAttribute[]){
             if(!attributes || attributes.length < 1) return;
             attributes.forEach(attr => {
                 this.addAttribute(attr);
             });
         }
-        addAttribute(attribute:ca.dolphin.ClientAttribute) {
+        addAttribute(attribute:ClientAttribute) {
             if(!attribute || (this.attributes.indexOf(attribute)>-1)){
                 return;
             }
@@ -60,10 +60,10 @@ export module dolphin {
             }
             attribute.setPresentationModel(this);
             this.attributes.push(attribute);
-            if(attribute.tag == tags.dolphin.Tag.value()){ // the consideration here is that only VALUE changes can make a PM dirty. TODO: consistency check with Java client.
+            if(attribute.tag == Tag.value()){ // the consideration here is that only VALUE changes can make a PM dirty. TODO: consistency check with Java client.
                 this.updateDirty();
             }
-            attribute.onValueChange((evt:ca.dolphin.ValueChangedEvent)=> {
+            attribute.onValueChange((evt:ValueChangedEvent)=> {
                 this.invalidBus.trigger({source: this});
             });
         }
@@ -94,18 +94,18 @@ export module dolphin {
         }
 
         reset(): void{
-            this.attributes.forEach((attribute:ca.dolphin.ClientAttribute) => {
+            this.attributes.forEach((attribute:ClientAttribute) => {
                 attribute.reset();
             });
         }
 
         rebase(): void{
-            this.attributes.forEach((attribute:ca.dolphin.ClientAttribute) => {
+            this.attributes.forEach((attribute:ClientAttribute) => {
                 attribute.rebase();
             });
         }
 
-        onDirty(eventHandler:(event:ca.dolphin.ValueChangedEvent) => void) {
+        onDirty(eventHandler:(event:ValueChangedEvent) => void) {
             this.dirtyValueChangeBus.onEvent(eventHandler);
         }
         onInvalidated(handleInvalidate:(InvalidationEvent) => void) {
@@ -113,21 +113,21 @@ export module dolphin {
         }
 
         /** returns a copy of the internal state */
-        getAttributes(): ca.dolphin.ClientAttribute[]{
+        getAttributes(): ClientAttribute[]{
             return this.attributes.slice(0);
         }
-        getAt(propertyName:string, tag:string = tags.dolphin.Tag.value()):ca.dolphin.ClientAttribute{
+        getAt(propertyName:string, tag:string = Tag.value()):ClientAttribute{
             return this.findAttributeByPropertyNameAndTag(propertyName, tag);
         }
 
-        findAttributeByPropertyName(propertyName: string): ca.dolphin.ClientAttribute{
-            return this.findAttributeByPropertyNameAndTag(propertyName, tags.dolphin.Tag.value());
+        findAttributeByPropertyName(propertyName: string): ClientAttribute{
+            return this.findAttributeByPropertyNameAndTag(propertyName, Tag.value());
         }
 
-        findAllAttributesByPropertyName(propertyName: string): ca.dolphin.ClientAttribute[]{
-            var result:ca.dolphin.ClientAttribute[] = [];
+        findAllAttributesByPropertyName(propertyName: string): ClientAttribute[]{
+            var result:ClientAttribute[] = [];
             if(!propertyName) return null;
-            this.attributes.forEach((attribute:ca.dolphin.ClientAttribute) => {
+            this.attributes.forEach((attribute:ClientAttribute) => {
                 if(attribute.propertyName == propertyName){
                     result.push(attribute);
                 }
@@ -135,7 +135,7 @@ export module dolphin {
             return result;
         }
 
-        findAttributeByPropertyNameAndTag(propertyName:string, tag:string): ca.dolphin.ClientAttribute{
+        findAttributeByPropertyNameAndTag(propertyName:string, tag:string): ClientAttribute{
             if(!propertyName || !tag) return null;
             for(var i=0;i<this.attributes.length;i++){
                 if((this.attributes[i].propertyName == propertyName) && (this.attributes[i].tag == tag)){
@@ -144,7 +144,7 @@ export module dolphin {
             }
             return null;
         }
-        findAttributeByQualifier(qualifier:string): ca.dolphin.ClientAttribute{
+        findAttributeByQualifier(qualifier:string): ClientAttribute{
             if(!qualifier) return null;
             for(var i=0;i<this.attributes.length;i++){
                 if(this.attributes[i].getQualifier() == qualifier){
@@ -154,7 +154,7 @@ export module dolphin {
             return null;
         }
 
-        findAttributeById(id:string): ca.dolphin.ClientAttribute{
+        findAttributeById(id:string): ClientAttribute{
             if(!id) return null;
             for(var i=0;i<this.attributes.length;i++){
                 if(this.attributes[i].id == id){ 
@@ -165,7 +165,7 @@ export module dolphin {
         }
 
         syncWith(sourcePresentationModel: ClientPresentationModel): void{
-            this.attributes.forEach((targetAttribute:ca.dolphin.ClientAttribute) => {
+            this.attributes.forEach((targetAttribute:ClientAttribute) => {
                 var sourceAttribute = sourcePresentationModel.getAt(targetAttribute.propertyName,targetAttribute.tag);
                 if(sourceAttribute){
                     targetAttribute.syncWith(sourceAttribute);

@@ -1,7 +1,7 @@
-import cmd = require("../../js/dolphin/Command");
-export module dolphin {
+/// <reference path="Command.ts" />
+module opendolphin {
 
-    export class DeletePresentationModelCommand extends cmd.dolphin.Command {
+    export class DeletePresentationModelCommand extends Command {
 
         className:string;
 

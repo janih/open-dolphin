@@ -1,19 +1,19 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import cpm    = require("../../js/dolphin/ClientPresentationModel")
-import createPMCmd     = require("../../js/dolphin/CreatePresentationModelCommand")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
+/// <reference path="../../js/dolphin/CreatePresentationModelCommand.ts"/>
 
 
-export module dolphin {
-    export class CreatePresentationModelCommandTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class CreatePresentationModelCommandTests extends tsUnit.TestClass {
 
         createPresentationModelCommandWithGivenParameter(){
-            var pm = new cpm.dolphin.ClientPresentationModel("MyId","MyType");
-            var clientAttribute1 = new ca.dolphin.ClientAttribute("prop1", "qual1", 0);
-            var clientAttribute2 = new ca.dolphin.ClientAttribute("prop2", "qual2", 0);
+            var pm = new ClientPresentationModel("MyId","MyType");
+            var clientAttribute1 = new ClientAttribute("prop1", "qual1", 0);
+            var clientAttribute2 = new ClientAttribute("prop2", "qual2", 0);
             pm.addAttribute(clientAttribute1);
             pm.addAttribute(clientAttribute2);
-            var createPMCommand = new createPMCmd.dolphin.CreatePresentationModelCommand(pm);
+            var createPMCommand = new CreatePresentationModelCommand(pm);
             this.areIdentical(createPMCommand.id,"CreatePresentationModel");
             this.areIdentical(createPMCommand.className,"org.opendolphin.core.comm.CreatePresentationModelCommand");
             this.areIdentical(createPMCommand.pmId,"MyId");

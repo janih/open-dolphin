@@ -1,22 +1,22 @@
-import cmd = require("../../js/dolphin/Command");
-import cc  = require("../../js/dolphin/ClientConnector");
-import vcc = require("../../js/dolphin/ValueChangedCommand");
-import nc  = require("../../js/dolphin/NamedCommand");
-import en  = require("../../js/dolphin/EmptyNotification");
+/// <reference path="Command.ts"/>
+/// <reference path="ClientConnector.ts"/>
+/// <reference path="ValueChangedCommand.ts"/>
+/// <reference path="NamedCommand.ts"/>
+/// <reference path="EmptyNotification.ts"/>
 
-export module dolphin {
+module opendolphin {
 
     export interface CommandBatcher {
         /** create a batch of commands from the queue and remove the batched commands from the queue */
 
         // adding to the queue was via push such that fifo reading needs to be via shift
 
-        batch(queue : cc.dolphin.CommandAndHandler[]) : cc.dolphin.CommandAndHandler[];
+        batch(queue : CommandAndHandler[]) : CommandAndHandler[];
     }
 
     /** A Batcher that does no batching but merely takes the first element of the queue as the single item in the batch */
     export class NoCommandBatcher implements CommandBatcher {
-        batch(queue : cc.dolphin.CommandAndHandler[]) : cc.dolphin.CommandAndHandler[] {
+        batch(queue : CommandAndHandler[]) : CommandAndHandler[] {
             return [ queue.shift() ];
         }
     }
@@ -27,23 +27,23 @@ export module dolphin {
         /** folding: whether we should try folding ValueChangedCommands */
         constructor(public folding:boolean = true){}
 
-        batch(queue : cc.dolphin.CommandAndHandler[]) : cc.dolphin.CommandAndHandler[] {
+        batch(queue : CommandAndHandler[]) : CommandAndHandler[] {
             var result = [];
             this.processNext(queue, result);
             return result;
         }
 
         // recursive impl method to side-effect both queue and batch
-        private processNext(queue : cc.dolphin.CommandAndHandler[], batch : cc.dolphin.CommandAndHandler[]) : void {
+        private processNext(queue : CommandAndHandler[], batch : CommandAndHandler[]) : void {
             if (queue.length < 1) return;
             var candidate = queue.shift();
 
-            if (this.folding && candidate.command instanceof vcc.dolphin.ValueChangedCommand && (!candidate.handler)) { // see whether we can merge
-                var found  : vcc.dolphin.ValueChangedCommand = null;
-                var canCmd : vcc.dolphin.ValueChangedCommand = <vcc.dolphin.ValueChangedCommand> candidate.command;
+            if (this.folding && candidate.command instanceof ValueChangedCommand && (!candidate.handler)) { // see whether we can merge
+                var found  : ValueChangedCommand = null;
+                var canCmd : ValueChangedCommand = <ValueChangedCommand> candidate.command;
                 for( var i = 0; i < batch.length && found == null; i++) { // a shame there is no "find" in TS
-                    if (batch[i].command instanceof vcc.dolphin.ValueChangedCommand) {
-                        var batchCmd : vcc.dolphin.ValueChangedCommand = <vcc.dolphin.ValueChangedCommand> batch[i].command;
+                    if (batch[i].command instanceof ValueChangedCommand) {
+                        var batchCmd : ValueChangedCommand = <ValueChangedCommand> batch[i].command;
                         if (canCmd.attributeId == batchCmd.attributeId && batchCmd.newValue == canCmd.oldValue) {
                             found = batchCmd;
                         }

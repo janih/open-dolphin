@@ -1,14 +1,14 @@
-import cmd  = require("../../js/dolphin/Command")
-import scmd = require("../../js/dolphin/SignalCommand")
-import cc   = require("../../js/dolphin/ClientConnector")
-import cod  = require("../../js/dolphin/Codec")
+/// <reference path="Command.ts"/>
+/// <reference path="SignalCommand.ts"/>
+/// <reference path="ClientConnector.ts"/>
+/// <reference path="Codec.ts"/>
 
-export module dolphin {
+module opendolphin {
 
-    export class HttpTransmitter implements cc.dolphin.Transmitter {
+    export class HttpTransmitter implements Transmitter {
 
         http:XMLHttpRequest;
-        codec:cod.dolphin.Codec
+        codec:Codec
 
         HttpCodes = {
             finished: 4,
@@ -17,13 +17,13 @@ export module dolphin {
         constructor(public url: string, reset: boolean = true) {
             this.http = new XMLHttpRequest();
 //            this.http.withCredentials = true; // not supported in all browsers
-            this.codec = new cod.dolphin.Codec();
+            this.codec = new Codec();
             if (reset) {
                 this.invalidate();
             }
         }
 
-        transmit(commands:cmd.dolphin.Command[], onDone:(result:cmd.dolphin.Command[]) => void):void {
+        transmit(commands:Command[], onDone:(result:Command[]) => void):void {
 
             this.http.onerror = (evt:ErrorEvent) => {
                 alert("could not fetch " + this.url + ", message: " + evt.message); // todo dk: make this injectable
@@ -48,7 +48,7 @@ export module dolphin {
 
         }
 
-        signal(command : scmd.dolphin.SignalCommand) {
+        signal(command : SignalCommand) {
             var sig = new XMLHttpRequest(); // the signal commands need an extra connection
             sig.open('POST', this.url, true);
             sig.send(this.codec.encode([command]));

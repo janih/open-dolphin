@@ -1,42 +1,42 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import cpm    = require("../../js/dolphin/ClientPresentationModel")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
 
 
-export module dolphin {
-    export class ClientPresentationModelTests extends tsUnit.tsUnit.TestClass {
+module opendolphin {
+    export class ClientPresentationModelTests extends tsUnit.TestClass {
 
         createPmWithAutomaticId() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var pm2 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
+            var pm1 = new ClientPresentationModel(undefined,undefined);
+            var pm2 = new ClientPresentationModel(undefined,undefined);
             this.areNotIdentical(pm1.id, pm2.id);
         }
 
         createPmWithGivenId() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel("MyId",undefined);
+            var pm1 = new ClientPresentationModel("MyId",undefined);
             this.areIdentical(pm1.id, "MyId");
         }
 
         createPmWithGivenType() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined,"MyType");
+            var pm1 = new ClientPresentationModel(undefined,"MyType");
             this.areIdentical(pm1.presentationModelType, "MyType");
         }
 
         addingClientAttributes() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
+            var pm1 = new ClientPresentationModel(undefined,undefined);
             this.areIdentical(pm1.getAttributes().length, 0);
-            var firstAttribute = new ca.dolphin.ClientAttribute("prop", "qual", 0);
+            var firstAttribute = new ClientAttribute("prop", "qual", 0);
             pm1.addAttribute(firstAttribute);
             this.areIdentical(pm1.getAttributes().length, 1);
             this.areIdentical(pm1.getAttributes()[0], firstAttribute);
         }
 
         invalidateClientPresentationModelEvent(){
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var clientAttribute = new ca.dolphin.ClientAttribute("prop", "qual", 0);
+            var pm1 = new ClientPresentationModel(undefined,undefined);
+            var clientAttribute = new ClientAttribute("prop", "qual", 0);
             pm1.addAttribute(clientAttribute);
             var source;
-            pm1.onInvalidated((event:cpm.dolphin.InvalidationEvent) => {
+            pm1.onInvalidated((event:InvalidationEvent) => {
                 source=event.source;
             });
             clientAttribute.setValue("newValue");
@@ -44,9 +44,9 @@ export module dolphin {
         }
 
         checkPresentationModelIsDirty(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2","qual2","value2","VALUE");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop2","qual2","value2","VALUE");
 
             pm.addAttribute(ca1);
             pm.addAttribute(ca2);
@@ -64,9 +64,9 @@ export module dolphin {
         }
 
         checkPresentationModelIsDirtyAfterRebase(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2","qual2","value2","VALUE");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop2","qual2","value2","VALUE");
 
             pm.addAttribute(ca1);
             pm.addAttribute(ca2);
@@ -86,9 +86,9 @@ export module dolphin {
         }
 
         checkPresentationModelIsDirtyAfterReset(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2","qual2","value2","VALUE");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop2","qual2","value2","VALUE");
 
             pm.addAttribute(ca1);
             pm.addAttribute(ca2);
@@ -109,8 +109,8 @@ export module dolphin {
         }
 
         findAttributeById(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
 
             pm.addAttribute(ca1);
             var result = pm.findAttributeById(ca1.id);
@@ -121,8 +121,8 @@ export module dolphin {
         }
 
         findAttributeByQualifier(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
 
             pm.addAttribute(ca1);
             var result = pm.findAttributeByQualifier("qual1");
@@ -133,9 +133,9 @@ export module dolphin {
         }
 
         findAttributeByPropertyNameAndTag(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2", "qual", 0);
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop2", "qual", 0);
 
             pm.addAttribute(ca1);
             pm.addAttribute(ca2);
@@ -147,9 +147,9 @@ export module dolphin {
         }
 
         findAllAttributesByPropertyName(){
-            var pm = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop1","qual2","value2","TOOLTIP");
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop1","qual2","value2","TOOLTIP");
 
             pm.addAttribute(ca1);
             pm.addAttribute(ca2);
@@ -163,9 +163,9 @@ export module dolphin {
         }
 
         simpleCopy() {
-            var ca1 = new ca.dolphin.ClientAttribute("prop1","qual1","value1","VALUE");
-            var ca2 = new ca.dolphin.ClientAttribute("prop2","qual2","value2","VALUE");
-            var pm1 = new cpm.dolphin.ClientPresentationModel("pmId","pmType");
+            var ca1 = new ClientAttribute("prop1","qual1","value1","VALUE");
+            var ca2 = new ClientAttribute("prop2","qual2","value2","VALUE");
+            var pm1 = new ClientPresentationModel("pmId","pmType");
             pm1.addAttribute(ca1);
             pm1.addAttribute(ca2);
 

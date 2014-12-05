@@ -1,4 +1,4 @@
-export module dolphin {
+module opendolphin {
 
     export class EventBus<T> {
         private eventHandlers = [];

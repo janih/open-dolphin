@@ -1,19 +1,19 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import cb     = require("../../js/dolphin/CommandBatcher")
-import cc     = require("../../js/dolphin/ClientConnector")
-import cmd    = require("../../js/dolphin/Command")
-import vcc    = require("../../js/dolphin/ValueChangedCommand")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/CommandBatcher.ts"/>
+/// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/Command.ts"/>
+/// <reference path="../../js/dolphin/ValueChangedCommand.ts"/>
 
 
-export module dolphin {
+module opendolphin {
 
-    export class CommandBatcherTests extends tsUnit.tsUnit.TestClass {
+    export class CommandBatcherTests extends tsUnit.TestClass {
 
         noBatcherDoesNotBatch() {
-            var whateverCommandAndHandler : cc.dolphin.CommandAndHandler = {command: null, handler: null};
+            var whateverCommandAndHandler : CommandAndHandler = {command: null, handler: null};
             var queue = [ whateverCommandAndHandler, whateverCommandAndHandler, whateverCommandAndHandler ];
 
-            var batcher = new cb.dolphin.NoCommandBatcher();
+            var batcher = new NoCommandBatcher();
 
             var result = batcher.batch(queue);
             this.areIdentical( result.length, 1);
@@ -30,10 +30,10 @@ export module dolphin {
         }
 
         simpleBlindBatching() {
-            var whateverCommandAndHandler : cc.dolphin.CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
+            var whateverCommandAndHandler : CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
             var queue = [ whateverCommandAndHandler, whateverCommandAndHandler, whateverCommandAndHandler ];
 
-            var batcher = new cb.dolphin.BlindCommandBatcher();
+            var batcher = new BlindCommandBatcher();
 
             var result = batcher.batch(queue);
 
@@ -42,13 +42,13 @@ export module dolphin {
         }
 
         blindBatchingWithNonBlind() {
-            var blind   : cc.dolphin.CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
-            var finisher: cc.dolphin.OnFinishedHandler = { onFinished : null, onFinishedData: null };
-            var handled : cc.dolphin.CommandAndHandler = { command: { id:"x", className:"command"}, handler: finisher };
+            var blind   : CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
+            var finisher: OnFinishedHandler = { onFinished : null, onFinishedData: null };
+            var handled : CommandAndHandler = { command: { id:"x", className:"command"}, handler: finisher };
 
             var queue = [ handled, blind, blind, handled, blind, handled ]; // batch sizes 1, 3, 2
 
-            var batcher = new cb.dolphin.BlindCommandBatcher();
+            var batcher = new BlindCommandBatcher();
 
             var result = batcher.batch(queue);
             this.areIdentical( result.length, 1);
@@ -66,9 +66,9 @@ export module dolphin {
         }
 
         blindFolding() {
-            var cmd1    : vcc.dolphin.ValueChangedCommand = new vcc.dolphin.ValueChangedCommand("1", 0, 1);
-            var cmd2    : vcc.dolphin.ValueChangedCommand = new vcc.dolphin.ValueChangedCommand("2", 0, 1); // other id, will be batched
-            var cmd3    : vcc.dolphin.ValueChangedCommand = new vcc.dolphin.ValueChangedCommand("1", 1, 2); // will be folded
+            var cmd1    : ValueChangedCommand = new ValueChangedCommand("1", 0, 1);
+            var cmd2    : ValueChangedCommand = new ValueChangedCommand("2", 0, 1); // other id, will be batched
+            var cmd3    : ValueChangedCommand = new ValueChangedCommand("1", 1, 2); // will be folded
 
             var queue = [
                 { command: cmd1, handler: null },
@@ -77,7 +77,7 @@ export module dolphin {
             ];
             var unfolded = queue[1];
 
-            var batcher = new cb.dolphin.BlindCommandBatcher();
+            var batcher = new BlindCommandBatcher();
 
             var result = batcher.batch(queue);
             this.areIdentical( result.length, 2);

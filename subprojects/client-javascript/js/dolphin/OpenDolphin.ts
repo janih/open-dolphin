@@ -1,9 +1,9 @@
-import cat = require('../../js/dolphin/ClientAttribute');
-import dol = require('../../js/dolphin/ClientDolphin');
-import mst = require('../../js/dolphin/ClientModelStore');
-import cc  = require('../../js/dolphin/ClientConnector');
-import ntm = require('../../js/dolphin/NoTransmitter');
-import htm = require('../../js/dolphin/HttpTransmitter');
+/// <reference path="ClientAttribute.ts"/>
+/// <reference path="ClientDolphin.ts"/>
+/// <reference path="ClientModelStore.ts"/>
+/// <reference path="ClientConnector.ts"/>
+/// <reference path="NoTransmitter.ts"/>
+/// <reference path="HttpTransmitter.ts"/>
 
 /**
  * JS-friendly facade to avoid too many dependencies in plain JS code.
@@ -14,16 +14,20 @@ import htm = require('../../js/dolphin/HttpTransmitter');
  * Dierk Koenig
  */
 
+module opendolphin {
 // factory method for the initialized dolphin
-export function dolphin(url : string, reset : boolean, slackMS: number = 300) : dol.dolphin.ClientDolphin  {
-    var dolphin = new dol.dolphin.ClientDolphin();
-    var transmitter ;
-    if (url != null && url.length > 0) {
-        transmitter = new htm.dolphin.HttpTransmitter(url, reset);
-    } else {
-        transmitter = new ntm.dolphin.NoTransmitter();
+    export function dolphin(url:string, reset:boolean, slackMS:number = 300):ClientDolphin {
+        console.log("OpenDolphin js found");
+        var clientDolphin = new ClientDolphin();
+        var transmitter;
+        if (url != null && url.length > 0) {
+            transmitter = new HttpTransmitter(url, reset);
+        } else {
+            transmitter = new NoTransmitter();
+        }
+        clientDolphin.setClientConnector(new ClientConnector(transmitter, clientDolphin, slackMS));
+        clientDolphin.setClientModelStore(new ClientModelStore(clientDolphin));
+        console.log("ClientDolphin initialized");
+        return clientDolphin;
     }
-    dolphin.setClientConnector(new cc.dolphin.ClientConnector(transmitter, dolphin, slackMS));
-    dolphin.setClientModelStore(new mst.dolphin.ClientModelStore(dolphin));
-    return dolphin;
 }

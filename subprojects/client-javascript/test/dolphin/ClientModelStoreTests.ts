@@ -1,60 +1,60 @@
-import tsUnit = require("../../testsuite/tsUnit")
-import cpm    = require("../../js/dolphin/ClientPresentationModel")
-import cc     = require("../../js/dolphin/ClientConnector")
-import map    = require("../../js/dolphin/Map")
-import cd     = require("../../js/dolphin/ClientDolphin")
-import cms    = require("../../js/dolphin/ClientModelStore")
-import ca     = require("../../js/dolphin/ClientAttribute")
-import cmd    = require("../../js/dolphin/Command")
-import scmd   = require("../../js/dolphin/SignalCommand")
+/// <reference path="../../testsuite/tsUnit.ts"/>
+/// <reference path="../../js/dolphin/ClientPresentationModel.ts"/>
+/// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/Map.ts"/>
+/// <reference path="../../js/dolphin/ClientDolphin.ts"/>
+/// <reference path="../../js/dolphin/ClientModelStore.ts"/>
+/// <reference path="../../js/dolphin/ClientAttribute.ts"/>
+/// <reference path="../../js/dolphin/Command.ts"/>
+/// <reference path="../../js/dolphin/SignalCommand.ts"/>
 
 
-export module dolphin {
+module opendolphin {
 
-    class TestTransmitter implements cc.dolphin.Transmitter {
+    class TestTransmitter implements Transmitter {
         constructor(public clientCommands, public serverCommands) {
         }
 
-        signal(command:scmd.dolphin.SignalCommand) : void { /* do nothing */; }
+        signal(command:SignalCommand) : void { /* do nothing */; }
 
-        transmit(commands:cmd.dolphin.Command[], onDone:(result:cmd.dolphin.Command[]) => void):void {
+        transmit(commands:Command[], onDone:(result:Command[]) => void):void {
             this.clientCommands = commands;
             onDone(this.serverCommands);
         }
     }
-    export class ClientModelStoreTests extends tsUnit.tsUnit.TestClass {
+    export class ClientModelStoreTests extends tsUnit.TestClass {
 
         addAndRemovePresentationModel() {
-            var serverCommand:cmd.dolphin.Command[]=[];//to test
+            var serverCommand:Command[]=[];//to test
             var transmitter = new TestTransmitter(undefined, serverCommand);
-            var clientDolphin = new cd.dolphin.ClientDolphin();
-            var clientConnector = new cc.dolphin.ClientConnector(transmitter,clientDolphin);
-            var clientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin = new ClientDolphin();
+            var clientConnector = new ClientConnector(transmitter,clientDolphin);
+            var clientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientConnector(clientConnector);
             clientDolphin.setClientModelStore(clientModelStore);
 
-            var type:cms.dolphin.Type;
-            var pm:cpm.dolphin.ClientPresentationModel;
-            clientModelStore.onModelStoreChange((evt:cms.dolphin.ModelStoreEvent) => {
+            var type:Type;
+            var pm:ClientPresentationModel;
+            clientModelStore.onModelStoreChange((evt:ModelStoreEvent) => {
                 type = evt.eventType;
                 pm = evt.clientPresentationModel;
             })
 
-            var pm1 = new cpm.dolphin.ClientPresentationModel("id1", "type");
-            var pm2 = new cpm.dolphin.ClientPresentationModel("id2", "type");
+            var pm1 = new ClientPresentationModel("id1", "type");
+            var pm2 = new ClientPresentationModel("id2", "type");
             clientModelStore.add(pm1);
-            this.areIdentical(type, cms.dolphin.Type.ADDED);
+            this.areIdentical(type, Type.ADDED);
             this.areIdentical(pm, pm1);
 
             clientModelStore.add(pm2);
-            this.areIdentical(type, cms.dolphin.Type.ADDED);
+            this.areIdentical(type, Type.ADDED);
             this.areIdentical(pm, pm2);
 
             var ids:string[] = clientModelStore.listPresentationModelIds();
             this.areIdentical(ids.length, 2);
             this.areIdentical(ids[1], "id2");
 
-            var pms:cpm.dolphin.ClientPresentationModel[] = clientModelStore.listPresentationModels();
+            var pms:ClientPresentationModel[] = clientModelStore.listPresentationModels();
             this.areIdentical(pms.length, 2);
             this.areIdentical(pms[0], pm1);
 
@@ -63,29 +63,82 @@ export module dolphin {
             this.isTrue(clientModelStore.containsPresentationModel("id1"));
 
             clientModelStore.remove(pm1);
-            this.areIdentical(type, cms.dolphin.Type.REMOVED);
+            this.areIdentical(type, Type.REMOVED);
             this.areIdentical(pm, pm1);
 
             var ids:string[] = clientModelStore.listPresentationModelIds();
             this.areIdentical(ids.length, 1);
             this.areIdentical(ids[0], "id2");
 
-            var pms:cpm.dolphin.ClientPresentationModel[] = clientModelStore.listPresentationModels();
+            var pms:ClientPresentationModel[] = clientModelStore.listPresentationModels();
             this.areIdentical(pms.length, 1);
             this.areIdentical(pms[0], pm2);
 
             this.isFalse(clientModelStore.containsPresentationModel("id1"));
         }
 
-        addAndRemovePresentationModelByType() {
-            var pm1 = new cpm.dolphin.ClientPresentationModel("id1", "type");
-            var pm2 = new cpm.dolphin.ClientPresentationModel("id2", "type");
+        listenForPresentationModelChangesByType() {
+            var serverCommand:Command[]=[];//to test
+            var transmitter = new TestTransmitter(undefined, serverCommand);
+            var clientDolphin = new ClientDolphin();
+            var clientConnector = new ClientConnector(transmitter,clientDolphin);
+            var clientModelStore = new ClientModelStore(clientDolphin);
+            clientDolphin.setClientConnector(clientConnector);
+            clientDolphin.setClientModelStore(clientModelStore);
 
-            var clientDolphin = new cd.dolphin.ClientDolphin();
-            var clientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var type:Type;
+            var pm:ClientPresentationModel;
+            // only listen for a specific type
+            clientModelStore.onModelStoreChangeForType("type", (evt:ModelStoreEvent) => {
+                type = evt.eventType;
+                pm = evt.clientPresentationModel;
+            })
+
+            var pm1 = new ClientPresentationModel("id1", "type");
+            var pm2 = new ClientPresentationModel("id2", "type");
+            var pm3 = new ClientPresentationModel("id3", "some other type");
+
+            clientModelStore.add(pm1);
+            this.areIdentical(type, Type.ADDED);
+            this.areIdentical(pm, pm1);
+
+            clientModelStore.add(pm2);
+            this.areIdentical(type, Type.ADDED);
+            this.areIdentical(pm, pm2);
+
+            clientModelStore.add(pm3);
+            this.areIdentical(pm, pm2); // adding pm3 did not change the last pm !!!
+
+            // but it is in the model store
+            var ids:string[] = clientModelStore.listPresentationModelIds();
+            this.areIdentical(ids.length, 3);
+            this.areIdentical(ids[2], "id3");
+
+            var pms:ClientPresentationModel[] = clientModelStore.listPresentationModels();
+            this.areIdentical(pms.length, 3);
+            this.areIdentical(pms[0], pm1);
+
+            var pm = clientModelStore.findPresentationModelById("id3");
+            this.areIdentical(pm, pm3);
+            this.isTrue(clientModelStore.containsPresentationModel("id3"));
+
+            clientModelStore.remove(pm1);
+            this.areIdentical(type, Type.REMOVED);
+            this.areIdentical(pm, pm1);
+
+            clientModelStore.remove(pm3); // listener ist _not_ triggered!
+            this.areIdentical(pm, pm1);
+        }
+
+        addAndRemovePresentationModelByType() {
+            var pm1 = new ClientPresentationModel("id1", "type");
+            var pm2 = new ClientPresentationModel("id2", "type");
+
+            var clientDolphin = new ClientDolphin();
+            var clientModelStore = new ClientModelStore(clientDolphin);
 
             clientModelStore.addPresentationModelByType(pm1);
-            var pms:cpm.dolphin.ClientPresentationModel[] = clientModelStore.findAllPresentationModelByType(pm1.presentationModelType);
+            var pms:ClientPresentationModel[] = clientModelStore.findAllPresentationModelByType(pm1.presentationModelType);
 
             this.areIdentical(pms.length, 1);
             this.areIdentical(pms[0].id, "id1");
@@ -103,11 +156,11 @@ export module dolphin {
         }
 
         addAndRemoveAttributeById() {
-            var clientDolphin = new cd.dolphin.ClientDolphin();
-            var clientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin = new ClientDolphin();
+            var clientModelStore = new ClientModelStore(clientDolphin);
 
-            var attr1 = new ca.dolphin.ClientAttribute("prop1", "qual1", 0);
-            var attr2 = new ca.dolphin.ClientAttribute("prop2", "qual2", 0);
+            var attr1 = new ClientAttribute("prop1", "qual1", 0);
+            var attr2 = new ClientAttribute("prop2", "qual2", 0);
 
             clientModelStore.addAttributeById(attr1);
             clientModelStore.addAttributeById(attr2);
@@ -125,34 +178,34 @@ export module dolphin {
         }
 
         addAndRemoveClientAttributeByQualifier() {
-            var attr1 = new ca.dolphin.ClientAttribute("prop1", "qual1", 0);
-            var attr2 = new ca.dolphin.ClientAttribute("prop2", "qual2", 0);
+            var attr1 = new ClientAttribute("prop1", "qual1", 0);
+            var attr2 = new ClientAttribute("prop2", "qual2", 0);
 
-            var attr3 = new ca.dolphin.ClientAttribute("prop3", "qual1", 0);
-            var attr4 = new ca.dolphin.ClientAttribute("prop4", "qual2", 0);
+            var attr3 = new ClientAttribute("prop3", "qual1", 0);
+            var attr4 = new ClientAttribute("prop4", "qual2", 0);
 
-            var clientDolphin = new cd.dolphin.ClientDolphin();
-            var clientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin = new ClientDolphin();
+            var clientModelStore = new ClientModelStore(clientDolphin);
 
             clientModelStore.addAttributeByQualifier(attr1);
             clientModelStore.addAttributeByQualifier(attr2);
             clientModelStore.addAttributeByQualifier(attr3);
             clientModelStore.addAttributeByQualifier(attr4);
 
-            var clientAttrs1:ca.dolphin.ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual1");
+            var clientAttrs1:ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual1");
 
             this.areIdentical(clientAttrs1.length, 2);
             this.areIdentical(clientAttrs1[0].getQualifier(), "qual1");
             this.areIdentical(clientAttrs1[1].getQualifier(), "qual1");
 
-            var clientAttrs2:ca.dolphin.ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual2");
+            var clientAttrs2:ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual2");
 
             this.areIdentical(clientAttrs2.length, 2);
             this.areIdentical(clientAttrs2[0].getQualifier(), "qual2");
             this.areIdentical(clientAttrs2[1].getQualifier(), "qual2");
 
             clientModelStore.removeAttributeByQualifier(attr1);
-            var clientAttrs1:ca.dolphin.ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual1");
+            var clientAttrs1:ClientAttribute[] = clientModelStore.findAllAttributesByQualifier("qual1");
             this.areIdentical(clientAttrs1.length, 1);
             this.areIdentical(clientAttrs1[0].getQualifier(), "qual1");
             this.areIdentical(clientAttrs1[1], undefined);
@@ -161,19 +214,19 @@ export module dolphin {
         }
 
         checkAttributeBaseValueChangeForSameQualifier(){
-            var serverCommand:cmd.dolphin.Command[]=[];//to test
+            var serverCommand:Command[]=[];//to test
             var transmitter = new TestTransmitter(undefined, serverCommand);
-            var clientDolphin = new cd.dolphin.ClientDolphin();
-            var clientConnector = new cc.dolphin.ClientConnector(transmitter,clientDolphin);
-            var clientModelStore = new cms.dolphin.ClientModelStore(clientDolphin);
+            var clientDolphin = new ClientDolphin();
+            var clientConnector = new ClientConnector(transmitter,clientDolphin);
+            var clientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientConnector(clientConnector);
             clientDolphin.setClientModelStore(clientModelStore);
 
-            var pm1 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var clientAttr1 = new ca.dolphin.ClientAttribute("property1","same-qualifier","value1","VALUE");
+            var pm1 = new ClientPresentationModel(undefined,undefined);
+            var clientAttr1 = new ClientAttribute("property1","same-qualifier","value1","VALUE");
 
-            var pm2 = new cpm.dolphin.ClientPresentationModel(undefined,undefined);
-            var clientAttr2 = new ca.dolphin.ClientAttribute("property2","same-qualifier","value2","VALUE");
+            var pm2 = new ClientPresentationModel(undefined,undefined);
+            var clientAttr2 = new ClientAttribute("property2","same-qualifier","value2","VALUE");
 
             pm1.addAttribute(clientAttr1);
             pm2.addAttribute(clientAttr2);

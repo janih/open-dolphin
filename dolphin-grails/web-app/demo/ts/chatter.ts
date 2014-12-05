@@ -1,17 +1,16 @@
-import dol = require('../../js/dolphin/OpenDolphin');
-import cd  = require('../../js/dolphin/ClientDolphin');
-import cms = require('../../js/dolphin/ClientModelStore');
-import cpm = require('../../js/dolphin/ClientPresentationModel');
+/// <reference path="../../js/dolphin/OpenDolphin.ts"/>
+/// <reference path="../../js/dolphin/ClientDolphin.ts"/>
+/// <reference path="../../js/dolphin/Tag.ts"/>
 
 // html elements
+var nameElement     = <HTMLInputElement>    document.getElementById('name');
 var postings        = <HTMLTableElement>    document.getElementById('postings');
-var name            = <HTMLInputElement>    document.getElementById('name');
 var message         = <HTMLTextAreaElement> document.getElementById('message');
-var postMessage     = <HTMLButtonElement>   document.getElementById('post-message');
+var postMessageText = <HTMLButtonElement>   document.getElementById('post-message');
 
 // dolphin setup
 var SERVER_URL      = window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/";
-var dolphin         = <cd.dolphin.ClientDolphin> dol.dolphin(SERVER_URL, true, 0); // slack
+var dolphin         = <opendolphin.ClientDolphin> opendolphin.dolphin(SERVER_URL, true, 0); // slack
 
 // main entry pm
 var nameAtt         = dolphin.attribute("name",     null, '',  'VALUE');
@@ -20,10 +19,10 @@ var dateAtt         = dolphin.attribute("date",     null, '',  'VALUE');
 var myChat          = dolphin.presentationModel("chatter.input", null, nameAtt, messageAtt, dateAtt);
 
 // bind input form bidirectionally
-name.oninput     = (event) => {    nameAtt.setValue(   name.value);  };
+nameElement.oninput     = (event) => {    nameAtt.setValue(   nameElement.value);  };
 message.oninput  = (event) => { messageAtt.setValue(message.value);  };
 
-nameAtt.onValueChange(   (event) => name.value    = event.newValue);
+nameAtt.onValueChange(   (event) => nameElement.value    = event.newValue);
 messageAtt.onValueChange((event) => message.value = event.newValue);
 
 // bind collection of posts
@@ -55,18 +54,18 @@ function onPostRemoved(pm) {
 
 dolphin.getClientModelStore().onModelStoreChange((event) => {
     if (event.clientPresentationModel.presentationModelType != "chatter.type.post") return;
-    if (event.eventType == cms.dolphin.Type.ADDED) {
+    if (event.eventType == opendolphin.Type.ADDED) {
         onPostAdded(event.clientPresentationModel);
     }
-    if (event.eventType == cms.dolphin.Type.REMOVED) {
+    if (event.eventType == opendolphin.Type.REMOVED) {
         onPostRemoved(event.clientPresentationModel);
     }
 });
 
 // handle the button click
-postMessage.onclick = (event) => {
-    postMessage.disabled = true; // double-click protection
-    dolphin.send('chatter.post', { onFinished : () => postMessage.disabled = false, onFinishedData : null });
+postMessageText.onclick = (event) => {
+    postMessageText.disabled = true; // double-click protection
+    dolphin.send('chatter.post', { onFinished : () => postMessageText.disabled = false, onFinishedData : null });
     message.focus();
 };
 

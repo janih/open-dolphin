@@ -1,19 +1,19 @@
-import pm               = require("../../js/dolphin/ClientPresentationModel")
-import cd               = require("../../js/dolphin/ClientDolphin")
-import cc               = require("../../js/dolphin/ClientConnector")
-import createPMCmd      = require("../../js/dolphin/CreatePresentationModelCommand")
-import ca               = require("../../js/dolphin/ClientAttribute");
-import valueChangedCmd  = require("../../js/dolphin/ValueChangedCommand")
-import changeAttMD      = require("../../js/dolphin/ChangeAttributeMetadataCommand")
-import attr             = require("../../js/dolphin/Attribute")
-import map              = require("../../js/dolphin/Map")
-import dpmoftn          = require("../../js/dolphin/DeletedAllPresentationModelsOfTypeNotification")
-import bus              = require("../../js/dolphin/EventBus")
-import cpm              = require("../../js/dolphin/ClientPresentationModel")
-import dpmn             = require("../../js/dolphin/DeletedPresentationModelNotification")
-import bvcc             = require("../../js/dolphin/BaseValueChangedCommand")
+/// <reference path="ClientPresentationModel.ts"/>
+/// <reference path="ClientDolphin.ts"/>
+/// <reference path="ClientConnector.ts"/>
+/// <reference path="CreatePresentationModelCommand.ts"/>
+/// <reference path="ClientAttribute.ts" />
+/// <reference path="ValueChangedCommand.ts"/>
+/// <reference path="ChangeAttributeMetadataCommand.ts"/>
+/// <reference path="Attribute.ts"/>
+/// <reference path="Map.ts"/>
+/// <reference path="DeletedAllPresentationModelsOfTypeNotification.ts"/>
+/// <reference path="EventBus.ts"/>
+/// <reference path="ClientPresentationModel.ts"/>
+/// <reference path="DeletedPresentationModelNotification.ts"/>
+/// <reference path="BaseValueChangedCommand.ts"/>
 
-export module dolphin {
+module opendolphin {
 
     export enum Type{
         ADDED   = <any> 'ADDED',
@@ -21,88 +21,88 @@ export module dolphin {
     }
     export interface ModelStoreEvent {
         eventType:Type;
-        clientPresentationModel:cpm.dolphin.ClientPresentationModel;
+        clientPresentationModel:ClientPresentationModel;
     }
 
     export class ClientModelStore {
 
         // the indexes we maintain for fast access
-        private presentationModels          : map.dolphin.Map<string,pm.dolphin.ClientPresentationModel>;
-        private presentationModelsPerType   : map.dolphin.Map<string,pm.dolphin.ClientPresentationModel[]>;
-        private attributesPerId             : map.dolphin.Map<string,ca.dolphin.ClientAttribute>;
-        private attributesPerQualifier      : map.dolphin.Map<string,ca.dolphin.ClientAttribute[]>;
+        private presentationModels          : Map<string,ClientPresentationModel>;
+        private presentationModelsPerType   : Map<string,ClientPresentationModel[]>;
+        private attributesPerId             : Map<string,ClientAttribute>;
+        private attributesPerQualifier      : Map<string,ClientAttribute[]>;
 
-        private modelStoreChangeBus         : bus.dolphin.EventBus<ModelStoreEvent>;
-        private clientDolphin               : cd.dolphin.ClientDolphin;
+        private modelStoreChangeBus         : EventBus<ModelStoreEvent>;
+        private clientDolphin               : ClientDolphin;
 
-        constructor(clientDolphin:cd.dolphin.ClientDolphin) {
+        constructor(clientDolphin:ClientDolphin) {
 
             this.clientDolphin = clientDolphin;
-            this.presentationModels         = new map.dolphin.Map<string,pm.dolphin.ClientPresentationModel>();
-            this.presentationModelsPerType  = new map.dolphin.Map<string,pm.dolphin.ClientPresentationModel[]>();
-            this.attributesPerId            = new map.dolphin.Map<string,ca.dolphin.ClientAttribute>();
-            this.attributesPerQualifier     = new map.dolphin.Map<string,ca.dolphin.ClientAttribute[]>();
-            this.modelStoreChangeBus        = new bus.dolphin.EventBus();
+            this.presentationModels         = new Map<string,ClientPresentationModel>();
+            this.presentationModelsPerType  = new Map<string,ClientPresentationModel[]>();
+            this.attributesPerId            = new Map<string,ClientAttribute>();
+            this.attributesPerQualifier     = new Map<string,ClientAttribute[]>();
+            this.modelStoreChangeBus        = new EventBus();
         }
 
         getClientDolphin() {
             return this.clientDolphin;
         }
 
-        registerModel(model:pm.dolphin.ClientPresentationModel) {
+        registerModel(model:ClientPresentationModel) {
             if (model.clientSideOnly) {
                 return;
             }
-            var connector:cc.dolphin.ClientConnector = this.clientDolphin.getClientConnector();
-            var createPMCommand:createPMCmd.dolphin.CreatePresentationModelCommand = new createPMCmd.dolphin.CreatePresentationModelCommand(model);
+            var connector:ClientConnector = this.clientDolphin.getClientConnector();
+            var createPMCommand:CreatePresentationModelCommand = new CreatePresentationModelCommand(model);
             connector.send(createPMCommand, null);
             model.getAttributes().forEach(attribute => { // todo dk: validate. Note that we work on a clone.
                 this.registerAttribute(attribute);
             });
         }
 
-        registerAttribute(attribute:ca.dolphin.ClientAttribute) {
+        registerAttribute(attribute:ClientAttribute) {
             this.addAttributeById(attribute);
             if(attribute.getQualifier()){
                 this.addAttributeByQualifier(attribute);
             }
             // whenever an attribute changes its value, the server needs to be notified
             // and all other attributes with the same qualifier are given the same value
-            attribute.onValueChange((evt:ca.dolphin.ValueChangedEvent)=> {
-                var valueChangeCommand:valueChangedCmd.dolphin.ValueChangedCommand = new valueChangedCmd.dolphin.ValueChangedCommand(attribute.id, evt.oldValue, evt.newValue);
+            attribute.onValueChange((evt:ValueChangedEvent)=> {
+                var valueChangeCommand:ValueChangedCommand = new ValueChangedCommand(attribute.id, evt.oldValue, evt.newValue);
                 this.clientDolphin.getClientConnector().send(valueChangeCommand, null);
 
                 if (attribute.getQualifier()) {
-                    var attrs = this.findAttributesByFilter((attr:ca.dolphin.ClientAttribute) => {
+                    var attrs = this.findAttributesByFilter((attr:ClientAttribute) => {
                         return attr !== attribute && attr.getQualifier() == attribute.getQualifier();
                     })
-                    attrs.forEach((attr:ca.dolphin.ClientAttribute) => {
+                    attrs.forEach((attr:ClientAttribute) => {
                         attr.setValue(attribute.getValue());
                     })
                 }
             });
             // all attributes with the same qualifier should have the same base value
-            attribute.onBaseValueChange((evt:ca.dolphin.ValueChangedEvent)=> {
-                var baseValueChangeCommand:bvcc.dolphin.BaseValueChangedCommand = new bvcc.dolphin.BaseValueChangedCommand(attribute.id);
+            attribute.onBaseValueChange((evt:ValueChangedEvent)=> {
+                var baseValueChangeCommand:BaseValueChangedCommand = new BaseValueChangedCommand(attribute.id);
                 this.clientDolphin.getClientConnector().send(baseValueChangeCommand, null);
                 if (attribute.getQualifier()) {
-                    var attrs = this.findAttributesByFilter((attr:ca.dolphin.ClientAttribute) => {
+                    var attrs = this.findAttributesByFilter((attr:ClientAttribute) => {
                         return attr !== attribute && attr.getQualifier() == attribute.getQualifier();
                     })
-                    attrs.forEach((attr:ca.dolphin.ClientAttribute) => {
+                    attrs.forEach((attr:ClientAttribute) => {
                         attr.setBaseValue(attribute.getBaseValue());
                     })
                 }
             });
 
-            attribute.onQualifierChange((evt:ca.dolphin.ValueChangedEvent)=> {
-                var changeAttrMetadataCmd:changeAttMD.dolphin.ChangeAttributeMetadataCommand =
-                    new changeAttMD.dolphin.ChangeAttributeMetadataCommand(attribute.id, attr.dolphin.Attribute.QUALIFIER_PROPERTY, evt.newValue);
+            attribute.onQualifierChange((evt:ValueChangedEvent)=> {
+                var changeAttrMetadataCmd:ChangeAttributeMetadataCommand =
+                    new ChangeAttributeMetadataCommand(attribute.id, Attribute.QUALIFIER_PROPERTY, evt.newValue);
                 this.clientDolphin.getClientConnector().send(changeAttrMetadataCmd, null);
             });
 
         }
-        add(model:pm.dolphin.ClientPresentationModel):boolean {
+        add(model:ClientPresentationModel):boolean {
             if (!model) {
                 return false;
             }
@@ -121,7 +121,7 @@ export module dolphin {
             return added;
         }
 
-        remove(model:pm.dolphin.ClientPresentationModel):boolean {
+        remove(model:ClientPresentationModel):boolean {
             if (!model) {
                 return false;
             }
@@ -129,7 +129,7 @@ export module dolphin {
             if (this.presentationModels.containsValue(model)) {
                 this.removePresentationModelByType(model);
                 this.presentationModels.remove(model.id);
-                model.getAttributes().forEach((attribute:ca.dolphin.ClientAttribute) => {
+                model.getAttributes().forEach((attribute:ClientAttribute) => {
                     this.removeAttributeById(attribute);
                     if (attribute.getQualifier()) {
                         this.removeAttributeByQualifier(attribute);
@@ -142,9 +142,9 @@ export module dolphin {
             return removed;
         }
 
-        findAttributesByFilter(filter:(atr:ca.dolphin.ClientAttribute) => boolean) {
-            var matches:ca.dolphin.ClientAttribute[] = [];
-            this.presentationModels.forEach((key:string, model:pm.dolphin.ClientPresentationModel) => {
+        findAttributesByFilter(filter:(atr:ClientAttribute) => boolean) {
+            var matches:ClientAttribute[] = [];
+            this.presentationModels.forEach((key:string, model:ClientPresentationModel) => {
                 model.getAttributes().forEach((attr) => {
                     if (filter(attr)) {
                         matches.push(attr);
@@ -154,7 +154,7 @@ export module dolphin {
             return matches;
         }
 
-        addPresentationModelByType(model:pm.dolphin.ClientPresentationModel) { // todo: check findAllPMsByType is working on an updated index
+        addPresentationModelByType(model:ClientPresentationModel) { // todo: check findAllPMsByType is working on an updated index
             if (!model) {
                 return;
             }
@@ -162,7 +162,7 @@ export module dolphin {
             if (!type) {
                 return;
             }
-            var presentationModels:pm.dolphin.ClientPresentationModel[] = this.presentationModelsPerType.get(type);
+            var presentationModels:ClientPresentationModel[] = this.presentationModelsPerType.get(type);
             if (!presentationModels) {
                 presentationModels = [];
                 this.presentationModelsPerType.put(type, presentationModels);
@@ -172,12 +172,12 @@ export module dolphin {
             }
         }
 
-        removePresentationModelByType(model:pm.dolphin.ClientPresentationModel) {
+        removePresentationModelByType(model:ClientPresentationModel) {
             if (!model || !(model.presentationModelType)) {
                 return;
             }
 
-            var presentationModels:pm.dolphin.ClientPresentationModel[] = this.presentationModelsPerType.get(model.presentationModelType);
+            var presentationModels:ClientPresentationModel[] = this.presentationModelsPerType.get(model.presentationModelType);
             if (!presentationModels) {
                 return;
             }
@@ -193,15 +193,15 @@ export module dolphin {
             return this.presentationModels.keySet().slice(0);
         }
 
-        listPresentationModels():pm.dolphin.ClientPresentationModel[] {
+        listPresentationModels():ClientPresentationModel[] {
             return this.presentationModels.values();
         }
 
-        findPresentationModelById(id:string):pm.dolphin.ClientPresentationModel {
+        findPresentationModelById(id:string):ClientPresentationModel {
             return this.presentationModels.get(id);
         }
 
-        findAllPresentationModelByType(type:string):pm.dolphin.ClientPresentationModel[] {
+        findAllPresentationModelByType(type:string):ClientPresentationModel[] {
             if (!type || !this.presentationModelsPerType.containsKey(type)) {
                 return [];
             }
@@ -209,14 +209,14 @@ export module dolphin {
         }
 
         deleteAllPresentationModelOfType(presentationModelType:string) {
-            var presentationModels:pm.dolphin.ClientPresentationModel[] = this.findAllPresentationModelByType(presentationModelType);
+            var presentationModels:ClientPresentationModel[] = this.findAllPresentationModelByType(presentationModelType);
             presentationModels.forEach(pm => {
                 this.deletePresentationModel(pm, false);
             });
-            this.clientDolphin.getClientConnector().send(new dpmoftn.dolphin.DeletedAllPresentationModelsOfTypeNotification(presentationModelType), undefined);
+            this.clientDolphin.getClientConnector().send(new DeletedAllPresentationModelsOfTypeNotification(presentationModelType), undefined);
         }
 
-        deletePresentationModel(model:pm.dolphin.ClientPresentationModel, notify:boolean) {
+        deletePresentationModel(model:ClientPresentationModel, notify:boolean) {
             if (!model) {
                 return;
             }
@@ -225,7 +225,7 @@ export module dolphin {
                 if (!notify || model.clientSideOnly) {
                     return;
                 }
-                this.clientDolphin.getClientConnector().send(new dpmn.dolphin.DeletedPresentationModelNotification(model.id), null);
+                this.clientDolphin.getClientConnector().send(new DeletedPresentationModelNotification(model.id), null);
             }
         }
 
@@ -233,29 +233,29 @@ export module dolphin {
             return this.presentationModels.containsKey(id);
         }
 
-        addAttributeById(attribute:ca.dolphin.ClientAttribute) {
+        addAttributeById(attribute:ClientAttribute) {
             if (!attribute || this.attributesPerId.containsKey(attribute.id)) {
                 return
             }
             this.attributesPerId.put(attribute.id, attribute);
         }
 
-        removeAttributeById(attribute:ca.dolphin.ClientAttribute) {
+        removeAttributeById(attribute:ClientAttribute) {
             if (!attribute || !this.attributesPerId.containsKey(attribute.id)) {
                 return
             }
             this.attributesPerId.remove(attribute.id);
         }
 
-        findAttributeById(id:string):ca.dolphin.ClientAttribute {
+        findAttributeById(id:string):ClientAttribute {
             return this.attributesPerId.get(id);
         }
 
-        addAttributeByQualifier(attribute:ca.dolphin.ClientAttribute) {
+        addAttributeByQualifier(attribute:ClientAttribute) {
             if (!attribute || !attribute.getQualifier()) {
                 return;
             }
-            var attributes:ca.dolphin.ClientAttribute[] = this.attributesPerQualifier.get(attribute.getQualifier());
+            var attributes:ClientAttribute[] = this.attributesPerQualifier.get(attribute.getQualifier());
             if (!attributes) {
                 attributes = [];
                 this.attributesPerQualifier.put(attribute.getQualifier(), attributes);
@@ -266,11 +266,11 @@ export module dolphin {
 
         }
 
-        removeAttributeByQualifier(attribute:ca.dolphin.ClientAttribute) {
+        removeAttributeByQualifier(attribute:ClientAttribute) {
             if (!attribute || !attribute.getQualifier()) {
                 return;
             }
-            var attributes:ca.dolphin.ClientAttribute[] = this.attributesPerQualifier.get(attribute.getQualifier());
+            var attributes:ClientAttribute[] = this.attributesPerQualifier.get(attribute.getQualifier());
             if (!attributes) {
                 return;
             }
@@ -282,7 +282,7 @@ export module dolphin {
             }
         }
 
-        findAllAttributesByQualifier(qualifier:string):ca.dolphin.ClientAttribute[] {
+        findAllAttributesByQualifier(qualifier:string):ClientAttribute[] {
             if (!qualifier || !this.attributesPerQualifier.containsKey(qualifier)) {
                 return [];
             }
@@ -291,6 +291,13 @@ export module dolphin {
 
         onModelStoreChange(eventHandler:(event:ModelStoreEvent) => void) {
             this.modelStoreChangeBus.onEvent(eventHandler);
+        }
+        onModelStoreChangeForType(presentationModelType:String, eventHandler:(event:ModelStoreEvent) => void) {
+            this.modelStoreChangeBus.onEvent( pmStoreEvent => {
+                if (pmStoreEvent.clientPresentationModel.presentationModelType == presentationModelType) {
+                    eventHandler(pmStoreEvent);
+                }
+            });
         }
     }
 }

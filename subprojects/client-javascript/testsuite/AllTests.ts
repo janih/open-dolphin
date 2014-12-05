@@ -1,36 +1,55 @@
-import tsUnit               = require('./tsUnit');
-import cat                  = require('../test/dolphin/ClientAttributeTests');
-import cpmt                 = require('../test/dolphin/ClientPresentationModelTests');
-import namedCmdt            = require('../test/dolphin/NamedCommandTests');
-import valChangedCmdt       = require('../test/dolphin/ValueChangedCommandTests');
-import changedAttrMDCmdt    = require('../test/dolphin/ChangeAttributeMetadataCommandTests');
-import emptyNt              = require('../test/dolphin/EmptyNotificationTests');
-import createPMCmdt         = require('../test/dolphin/CreatePresentationModelCommandTests');
-import cdt                  = require('../test/dolphin/ClientDolphinTests');
-import cct                  = require('../test/dolphin/ClientConnectorTests');
-import cbt                  = require('../test/dolphin/CommandBatcherTests');
-import mt                   = require('../test/dolphin/MapTests');
-import cmst                 = require('../test/dolphin/ClientModelStoreTests');
-import codect               = require('../test/dolphin/CodecTest')
+/// <reference path="./tsUnit.ts"/>
+/// <reference path="../test/dolphin/ClientAttributeTests.ts"/>
+/// <reference path="../test/dolphin/ClientPresentationModelTests.ts"/>
+/// <reference path="../test/dolphin/NamedCommandTests.ts"/>
+/// <reference path="../test/dolphin/ValueChangedCommandTests.ts"/>
+/// <reference path="../test/dolphin/ChangeAttributeMetadataCommandTests.ts"/>
+/// <reference path="../test/dolphin/EmptyNotificationTests.ts"/>
+/// <reference path="../test/dolphin/CreatePresentationModelCommandTests.ts"/>
+/// <reference path="../test/dolphin/ClientDolphinTests.ts"/>
+/// <reference path="../test/dolphin/ClientConnectorTests.ts"/>
+/// <reference path="../test/dolphin/CommandBatcherTests.ts"/>
+/// <reference path="../test/dolphin/MapTests.ts"/>
+/// <reference path="../test/dolphin/ClientModelStoreTests.ts"/>
+/// <reference path="../test/dolphin/CodecTest.ts"/>
 
 
 // new instance of tsUnit
-var test = new tsUnit.tsUnit.Test();
 
-// add your test class (you can call this multiple times)
-test.addTestClass(new cat.dolphin.ClientAttributeTests(), "ClientAttributeTests");
-test.addTestClass(new cpmt.dolphin.ClientPresentationModelTests(), "ClientPresentationModelTests");
-test.addTestClass(new namedCmdt.dolphin.NamedCommandTests(), "NamedCommandTests");
-test.addTestClass(new valChangedCmdt.dolphin.ValueChangedCommandTests(), "ValueChangedCommandTests");
-test.addTestClass(new changedAttrMDCmdt.dolphin.ChangeAttributeMetadataCommandTests(), "ChangeAttributeMetadataCommandTests");
-test.addTestClass(new emptyNt.dolphin.EmptyNotificationTests(), "EmptyNotificationTests");
-test.addTestClass(new createPMCmdt.dolphin.CreatePresentationModelCommandTests(), "CreatePresentationModelCommandTests");
-test.addTestClass(new cdt.dolphin.ClientDolphinTests(), "ClientDolphinTests");
-test.addTestClass(new cct.dolphin.ClientConnectorTests(), "ClientConnectorTests");
-test.addTestClass(new cbt.dolphin.CommandBatcherTests(), "CommandBatcherTests");
-test.addTestClass(new mt.dolphin.MapTests(), "MapTests");
-test.addTestClass(new cmst.dolphin.ClientModelStoreTests(), "ClientModelStoreTests");
-test.addTestClass(new codect.dolphin.CodecTest(), "CodecTest");
+module allTests {
+    export function testall(resultElement : HTMLDivElement) {
 
-// Use the built in results display
-test.showResults(document.getElementById('results'), test.run());
+        console.log("start tests")
+
+        var test = new tsUnit.Test();
+
+        // add your test class (you can call this multiple times)
+        test.addTestClass(new opendolphin.ClientAttributeTests(), "ClientAttributeTests");
+        test.addTestClass(new opendolphin.ClientPresentationModelTests(), "ClientPresentationModelTests");
+        test.addTestClass(new opendolphin.NamedCommandTests(), "NamedCommandTests");
+        test.addTestClass(new opendolphin.ValueChangedCommandTests(), "ValueChangedCommandTests");
+        test.addTestClass(new opendolphin.ChangeAttributeMetadataCommandTests(), "ChangeAttributeMetadataCommandTests");
+        test.addTestClass(new opendolphin.EmptyNotificationTests(), "EmptyNotificationTests");
+        test.addTestClass(new opendolphin.CreatePresentationModelCommandTests(), "CreatePresentationModelCommandTests");
+        test.addTestClass(new opendolphin.ClientDolphinTests(), "ClientDolphinTests");
+        test.addTestClass(new opendolphin.ClientConnectorTests(), "ClientConnectorTests");
+        test.addTestClass(new opendolphin.CommandBatcherTests(), "CommandBatcherTests");
+        test.addTestClass(new opendolphin.MapTests(), "MapTests");
+        test.addTestClass(new opendolphin.ClientModelStoreTests(), "ClientModelStoreTests");
+        test.addTestClass(new opendolphin.CodecTest(), "CodecTest");
+
+        var result = test.run();
+
+        // Use the built in results display
+        if (resultElement != null){
+            test.showResults(resultElement, result);
+        } else {
+            console.log(result);
+        }
+
+        console.log("tests done")
+    }
+}
+
+allTests.testall(null);
+
