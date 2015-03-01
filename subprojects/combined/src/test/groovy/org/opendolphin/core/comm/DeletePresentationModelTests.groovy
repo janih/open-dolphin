@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package org.opendolphin.core.comm
 
 import org.opendolphin.core.client.ClientDolphin
-import org.opendolphin.core.server.ServerDolphin
+import org.opendolphin.core.server.GServerDolphin
 
 import java.util.concurrent.TimeUnit
 
 class DeletePresentationModelTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    ServerDolphin serverDolphin
+    GServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override

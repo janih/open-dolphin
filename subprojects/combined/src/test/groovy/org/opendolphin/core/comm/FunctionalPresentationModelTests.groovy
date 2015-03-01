@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.opendolphin.core.comm
 
 import org.opendolphin.LogConfig
-import org.opendolphin.core.PresentationModel
 import org.opendolphin.core.Tag
 import org.opendolphin.core.client.ClientAttribute
 import org.opendolphin.core.client.ClientDolphin
@@ -31,7 +30,7 @@ import org.opendolphin.core.client.comm.UiThreadHandler
 import org.opendolphin.core.client.comm.WithPresentationModelHandler
 import org.opendolphin.core.server.DTO
 import org.opendolphin.core.server.ServerAttribute
-import org.opendolphin.core.server.ServerDolphin
+import org.opendolphin.core.server.GServerDolphin
 import org.opendolphin.core.server.ServerPresentationModel
 import org.opendolphin.core.server.Slot
 import org.opendolphin.core.server.comm.NamedCommandHandler
@@ -49,7 +48,7 @@ import java.util.logging.Level
 class FunctionalPresentationModelTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    ServerDolphin serverDolphin
+    GServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override
@@ -224,7 +223,7 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
         serverDolphin.action "loginCmd", { cmd, response ->
             def user = context.serverDolphin.findPresentationModelById('user')
             if (user.name.value == 'Dierk' && user.password.value == 'Koenig') {
-                ServerDolphin.changeValue(response, user.loggedIn, 'true')
+                GServerDolphin.changeValue(response, user.loggedIn, 'true')
             }
         }
         def user = clientDolphin.presentationModel 'user', name: null, password: null, loggedIn: null
@@ -323,8 +322,8 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
     void testIdNotFoundInVariousCommands() {
         clientDolphin.clientConnector.send new BaseValueChangedCommand(attributeId: 0)
         clientDolphin.clientConnector.send new ValueChangedCommand(attributeId: 0)
-        ServerDolphin.changeValue(null, null, null)
-        ServerDolphin.changeValue(null, new ServerAttribute('a',42), 42)
+        GServerDolphin.changeValue(null, null, null)
+        GServerDolphin.changeValue(null, new ServerAttribute('a',42), 42)
         context.assertionsDone()
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ServerPresentationModelTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    ServerDolphin serverDolphin
+    GServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override
@@ -184,7 +184,7 @@ class ServerPresentationModelTests extends GroovyTestCase {
             assert pm.dirty
             pm.rebase()
             assert ! pm.dirty
-            ServerDolphin.rebase(null, (ServerAttribute) null) // throws no exception but logs and returns
+            GServerDolphin.rebase(null, (ServerAttribute) null) // throws no exception but logs and returns
         }
 
         serverDolphin.action "assertNewPristine", { cmd, response ->

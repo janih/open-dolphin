@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ dependencies {
     compile project(':logo-javafx'),
             project(':demo-javafx-shared'),
             project(':client-javafx'),
+            "org.codehaus.groovy:groovy-swing:$groovyVersion",
             'org.codehaus.groovyfx:groovyfx:0.2',
             'org.jfxtras:jfxtras-labs:2.2-r4'
 

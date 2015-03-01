@@ -1,5 +1,5 @@
-/*
- * Copyright 2012-2013 Canoo Engineering AG.
+ /*
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,14 @@ subprojects {
         }
     }
 
+    configurations { // only needed such that groovydoc can work with groovy core plus groovy-ant module only
+        groovyAnt.extendsFrom(runtime)
+    }
+
+    groovydoc {
+        groovyClasspath = project.configurations.groovyAnt
+    }
+
     archivesBaseName = "dolphin-${project.name}"
 
     repositories {
@@ -68,9 +76,13 @@ subprojects {
     }
 
     dependencies {
-        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+        compile "org.codehaus.groovy:groovy:$groovyVersion"
+
+        groovyAnt  "org.codehaus.groovy:groovy-ant:$groovyVersion"
+
+        testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
         testCompile 'org.spockframework:spock-core:0.7-groovy-2.0', {
-            exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+            exclude group: 'org.codehaus.groovy'
         }
     }
 

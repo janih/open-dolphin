@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ class CreatePresentationModelCommand extends Command {
     // note: we always need a paramless ctor for the codec
 
     /** @deprecated use ServerFacade convenience methods (it is ok to use it from the client atm)*/
-    static CreatePresentationModelCommand makeFrom(PresentationModel model) {
+    static <T extends Attribute> CreatePresentationModelCommand makeFrom(PresentationModel<T> model) {
         def result = new CreatePresentationModelCommand()
         result.pmId = model.id
         result.pmType = model.presentationModelType
-        for (Attribute attr in model.attributes) {
+        for (T attr in model.attributes) {
             result.attributes << [
                 propertyName:   attr.propertyName,
                 id:             attr.id,

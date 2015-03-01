@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@ import groovy.transform.EqualsAndHashCode;
 
 @CompileStatic
 @EqualsAndHashCode
-public class ModelStoreEvent {
+public class ModelStoreEvent<A extends Attribute, P extends PresentationModel<A>> {
     public enum Type {
         ADDED, REMOVED
     }
 
     private final Type type;
-    private final PresentationModel presentationModel;
+    private final P presentationModel;
 
-    public ModelStoreEvent(Type eventType, PresentationModel presentationModel) {
+    public ModelStoreEvent(Type eventType, P presentationModel) {
         this.type = eventType;
         this.presentationModel = presentationModel;
     }
@@ -38,7 +38,7 @@ public class ModelStoreEvent {
         return type;
     }
 
-    public PresentationModel getPresentationModel() {
+    public P getPresentationModel() {
         return presentationModel;
     }
 

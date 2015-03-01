@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import org.opendolphin.core.BaseAttribute
 import org.opendolphin.core.Tag
 import groovy.transform.CompileStatic
 import org.opendolphin.core.comm.AttributeMetadataChangedCommand
-import org.opendolphin.core.comm.BaseValueChangedCommand
-import org.opendolphin.core.comm.ChangeAttributeMetadataCommand
 
 @CompileStatic
 class ServerAttribute extends BaseAttribute {
@@ -45,7 +43,7 @@ class ServerAttribute extends BaseAttribute {
     @Override
     void setValue(Object value) {
         if (notifyClient) {
-            ServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, value)
+            GServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, value)
         }
         super.setValue(value)
     }
@@ -70,7 +68,7 @@ class ServerAttribute extends BaseAttribute {
     void reset() {
         super.reset()
         if (notifyClient) {
-            ServerDolphin.reset(presentationModel.modelStore.currentResponse, this)
+            GServerDolphin.reset(presentationModel.modelStore.currentResponse, this)
         }
     }
 
@@ -78,7 +76,7 @@ class ServerAttribute extends BaseAttribute {
     void rebase() {
         super.rebase()
         if (notifyClient) {
-            ServerDolphin.rebaseCommand(presentationModel.modelStore.currentResponse, this)
+            GServerDolphin.rebaseCommand(presentationModel.modelStore.currentResponse, this)
         }
         if (qualifier) { // other attributes with the same qualifier must also rebase
             for (ServerAttribute sameQualified in (List<ServerAttribute>) presentationModel.modelStore.findAllAttributesByQualifier(qualifier)) {

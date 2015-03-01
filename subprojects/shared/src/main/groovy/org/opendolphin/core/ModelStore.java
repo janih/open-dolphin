@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,23 @@ import java.util.*;
  * both on the client (view) and on the server (controller) side for separate access.
  */
 
-public class ModelStore {
+public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     // We maintain four indexes in this data structure in order to efficiently access
     // - presentation models by id or by type
     // - attributes by id or by qualifier
 
-    private final Map<String, PresentationModel>        presentationModels;
-    private final Map<String, List<PresentationModel>>  modelsPerType;
-    private final Map<String, Attribute>                attributesPerId;
-    private final Map<String, List<Attribute>>          attributesPerQualifier;
+    private final Map<String, P>        presentationModels;
+    private final Map<String, List<P>>  modelsPerType;
+    private final Map<String, A>                attributesPerId;
+    private final Map<String, List<A>>          attributesPerQualifier;
 
-    private final Set<ModelStoreListenerWrapper> modelStoreListeners = new LinkedHashSet<ModelStoreListenerWrapper>();
+    private final Set<ModelStoreListenerWrapper<A, P>> modelStoreListeners = new LinkedHashSet<ModelStoreListenerWrapper<A, P>>();
 
     private final PropertyChangeListener ATTRIBUTE_WORKER = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent event) {
-            Attribute attribute = (Attribute) event.getSource();
+            A attribute = (A) event.getSource();
             String oldQualifier = (String) event.getOldValue();
             String newQualifier = (String) event.getNewValue();
 
@@ -58,10 +58,10 @@ public class ModelStore {
     }
 
     public ModelStore(ModelStoreConfig config) {
-        presentationModels      = new HashMap<String, PresentationModel>        (config.getPmCapacity());
-        modelsPerType           = new HashMap<String, List<PresentationModel>>  (config.getTypeCapacity());
-        attributesPerId         = new HashMap<String, Attribute>                (config.getAttributeCapacity());
-        attributesPerQualifier  = new HashMap<String, List<Attribute>>          (config.getQualifierCapacity());
+        presentationModels      = new HashMap<String, P>        (config.getPmCapacity());
+        modelsPerType           = new HashMap<String, List<P>>  (config.getTypeCapacity());
+        attributesPerId         = new HashMap<String, A>                (config.getAttributeCapacity());
+        attributesPerQualifier  = new HashMap<String, List<A>>          (config.getQualifierCapacity());
     }
 
     /**
@@ -80,7 +80,7 @@ public class ModelStore {
      *
      * @return a {@code Collection} of all presentation models found in this store.
      */
-    public Collection<PresentationModel> listPresentationModels() {
+    public Collection<P> listPresentationModels() {
         return Collections.unmodifiableCollection(presentationModels.values());
     }
 
@@ -92,7 +92,7 @@ public class ModelStore {
      * @param model the model to be added.
      * @return if the add operation was successful or not.
      */
-    public boolean add(PresentationModel model) {
+    public boolean add(P model) {
         if (null == model) return false;
 
         if (presentationModels.containsKey(model.getId())) {
@@ -102,7 +102,7 @@ public class ModelStore {
         if (!presentationModels.containsValue(model)) {
             presentationModels.put(model.getId(), model);
             addPresentationModelByType(model);
-            for (Attribute attribute : model.getAttributes()) {
+            for (A attribute : model.getAttributes()) {
                 addAttributeById(attribute);
                 attribute.addPropertyChangeListener(Attribute.QUALIFIER_PROPERTY, ATTRIBUTE_WORKER);
                 if (!StringUtil.isBlank(attribute.getQualifier())) addAttributeByQualifier(attribute);
@@ -119,13 +119,13 @@ public class ModelStore {
      * @param model the model to be removed from the store.
      * @return if the remove operation was successful or not.
      */
-    public boolean remove(PresentationModel model) {
+    public boolean remove(P model) {
         if (null == model) return false;
         boolean removed = false;
         if (presentationModels.containsValue(model)) {
             removePresentationModelByType(model);
             presentationModels.remove(model.getId());
-            for (Attribute attribute : model.getAttributes()) {
+            for (A attribute : model.getAttributes()) {
                 removeAttributeById(attribute);
                 removeAttributeByQualifier(attribute);
                 attribute.removePropertyChangeListener(Attribute.QUALIFIER_PROPERTY, ATTRIBUTE_WORKER);
@@ -136,55 +136,55 @@ public class ModelStore {
         return removed;
     }
 
-    protected void addAttributeById(Attribute attribute) {
+    protected void addAttributeById(A attribute) {
         if (null == attribute || attributesPerId.containsKey(attribute.getId())) return;
         attributesPerId.put(attribute.getId(), attribute);
     }
 
-    protected void removeAttributeById(Attribute attribute) {
+    protected void removeAttributeById(A attribute) {
         if (null == attribute) return;
         attributesPerId.remove(attribute.getId());
     }
 
-    protected void addAttributeByQualifier(Attribute attribute) {
+    protected void addAttributeByQualifier(A attribute) {
         if (null == attribute) return;
         String qualifier = attribute.getQualifier();
         if (StringUtil.isBlank(qualifier)) return;
-        List<Attribute> list = attributesPerQualifier.get(qualifier);
+        List<A> list = attributesPerQualifier.get(qualifier);
         if (null == list) {
-            list = new ArrayList<Attribute>();
+            list = new ArrayList<A>();
             attributesPerQualifier.put(qualifier, list);
         }
         if (!list.contains(attribute)) list.add(attribute);
     }
 
-    protected void removeAttributeByQualifier(Attribute attribute) {
+    protected void removeAttributeByQualifier(A attribute) {
         if (null == attribute) return;
         String qualifier = attribute.getQualifier();
         if (StringUtil.isBlank(qualifier)) return;
-        List<Attribute> list = attributesPerQualifier.get(qualifier);
+        List<A> list = attributesPerQualifier.get(qualifier);
         if (null != list) {
             list.remove(attribute);
         }
     }
 
-    protected void addPresentationModelByType(PresentationModel model) {
+    protected void addPresentationModelByType(P model) {
         if (null == model) return;
         String type = model.getPresentationModelType();
         if (StringUtil.isBlank(type)) return;
-        List<PresentationModel> list = modelsPerType.get(type);
+        List<P> list = modelsPerType.get(type);
         if (null == list) {
-            list = new ArrayList<PresentationModel>();
+            list = new ArrayList<P>();
             modelsPerType.put(type, list);
         }
         if (!list.contains(model)) list.add(model);
     }
 
-    protected void removePresentationModelByType(PresentationModel model) {
+    protected void removePresentationModelByType(P model) {
         if (null == model) return;
         String type = model.getPresentationModelType();
         if (StringUtil.isBlank(type)) return;
-        List<PresentationModel> list = modelsPerType.get(type);
+        List<P> list = modelsPerType.get(type);
         if (null == list) return;
         list.remove(model);
         if (list.isEmpty()) {
@@ -192,9 +192,9 @@ public class ModelStore {
         }
     }
 
-    protected void removeAttributeByQualifier(Attribute attribute, String qualifier) {
+    protected void removeAttributeByQualifier(A attribute, String qualifier) {
         if (StringUtil.isBlank(qualifier)) return;
-        List<Attribute> list = attributesPerQualifier.get(qualifier);
+        List<A> list = attributesPerQualifier.get(qualifier);
         if (null == list) return;
         list.remove(attribute);
         if (list.isEmpty()) {
@@ -209,7 +209,7 @@ public class ModelStore {
      * @param id the id to search
      * @return a presentation model instance of there's an id match, {@code null} otherwise.
      */
-    public PresentationModel findPresentationModelById(String id) {
+    public P findPresentationModelById(String id) {
         return presentationModels.get(id);
     }
 
@@ -220,7 +220,7 @@ public class ModelStore {
      * @param type the type to search for
      * @return a {@code List} of all presentation models for which there was a match in their type.
      */
-    public List<PresentationModel> findAllPresentationModelsByType(String type) {
+    public List<P> findAllPresentationModelsByType(String type) {
         if (StringUtil.isBlank(type) || !modelsPerType.containsKey(type)) return Collections.emptyList();
         return Collections.unmodifiableList(modelsPerType.get(type));
     }
@@ -242,7 +242,7 @@ public class ModelStore {
      * @param id the id to search for.
      * @return an attribute whose id matches the parameter, {@code null} otherwise.
      */
-    public Attribute findAttributeById(String id) {
+    public A findAttributeById(String id) {
         return attributesPerId.get(id);
     }
 
@@ -252,12 +252,12 @@ public class ModelStore {
      *
      * @return a {@code List} of all attributes fo which their qualifier was a match.
      */
-    public List<Attribute> findAllAttributesByQualifier(String qualifier) {
+    public List<A> findAllAttributesByQualifier(String qualifier) {
         if (StringUtil.isBlank(qualifier) || !attributesPerQualifier.containsKey(qualifier)) return Collections.emptyList();
         return Collections.unmodifiableList(attributesPerQualifier.get(qualifier));
     }
 
-    public void registerAttribute(Attribute attribute) {
+    public void registerAttribute(A attribute) {
         if (null == attribute) return;
         boolean listeningAlready = false;
         for (PropertyChangeListener listener : attribute.getPropertyChangeListeners(Attribute.QUALIFIER_PROPERTY)) {
@@ -275,38 +275,38 @@ public class ModelStore {
         addAttributeById(attribute);
     }
 
-    public void addModelStoreListener(ModelStoreListener listener) {
+    public void addModelStoreListener(ModelStoreListener<A, P> listener) {
         addModelStoreListener(null, listener);
     }
 
-    public void addModelStoreListener(String presentationModelType, ModelStoreListener listener) {
+    public void addModelStoreListener(String presentationModelType, ModelStoreListener<A, P> listener) {
         if (null == listener) return;
-        ModelStoreListenerWrapper wrapper = new ModelStoreListenerWrapper(presentationModelType, listener);
+        ModelStoreListenerWrapper<A, P> wrapper = new ModelStoreListenerWrapper<A, P>(presentationModelType, listener);
         if (!modelStoreListeners.contains(wrapper)) modelStoreListeners.add(wrapper);
     }
 
-    public void removeModelStoreListener(ModelStoreListener listener) {
+    public void removeModelStoreListener(ModelStoreListener<A, P> listener) {
         removeModelStoreListener(null, listener);
     }
 
-    public void removeModelStoreListener(String presentationModelType, ModelStoreListener listener) {
+    public void removeModelStoreListener(String presentationModelType, ModelStoreListener<A, P> listener) {
         if (null == listener) return;
-        modelStoreListeners.remove(new ModelStoreListenerWrapper(presentationModelType, listener));
+        modelStoreListeners.remove(new ModelStoreListenerWrapper<A, P>(presentationModelType, listener));
     }
 
-    public boolean hasModelStoreListener(ModelStoreListener listener) {
+    public boolean hasModelStoreListener(ModelStoreListener<A, P> listener) {
         return hasModelStoreListener(null, listener);
     }
 
-    public boolean hasModelStoreListener(String presentationModelType, ModelStoreListener listener) {
+    public boolean hasModelStoreListener(String presentationModelType, ModelStoreListener<A, P> listener) {
         return null != listener &&
-                modelStoreListeners.contains(new ModelStoreListenerWrapper(presentationModelType, listener));
+                modelStoreListeners.contains(new ModelStoreListenerWrapper<A, P>(presentationModelType, listener));
     }
 
-    protected void fireModelStoreChangedEvent(PresentationModel model, ModelStoreEvent.Type eventType) {
+    protected void fireModelStoreChangedEvent(P model, ModelStoreEvent.Type eventType) {
         if (modelStoreListeners.isEmpty()) return;
-        ModelStoreEvent event = new ModelStoreEvent(eventType, model);
-        for (ModelStoreListener listener : modelStoreListeners) {
+        ModelStoreEvent<A, P> event = new ModelStoreEvent<A, P>(eventType, model);
+        for (ModelStoreListener<A, P> listener : modelStoreListeners) {
             listener.modelStoreChanged(event);
         }
     }

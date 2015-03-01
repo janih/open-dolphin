@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,16 @@ import org.opendolphin.core.ModelStoreEvent
 import org.opendolphin.core.ModelStoreListener
 
 public class ServerDolphinTest extends GroovyTestCase {
-    ServerDolphin dolphin
+    GServerDolphin dolphin
 
     @Override
     protected void setUp() throws Exception {
-        dolphin = new ServerDolphin()
+        dolphin = ServerDolphinFactory.create()
         dolphin.serverModelStore.currentResponse = []
     }
 
     void testUniqueIds() {
-        def other = new ServerDolphin()
+        def other = ServerDolphinFactory.create()
         assert dolphin.id != other.id
     }
 

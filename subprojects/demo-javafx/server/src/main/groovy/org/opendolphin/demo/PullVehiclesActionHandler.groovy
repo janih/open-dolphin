@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.opendolphin.demo
 import org.opendolphin.core.comm.Command
 import org.opendolphin.core.comm.NamedCommand
 import org.opendolphin.core.server.DTO
-import org.opendolphin.core.server.ServerDolphin
+import org.opendolphin.core.server.GServerDolphin
 import org.opendolphin.core.server.Slot
 import org.opendolphin.core.server.comm.NamedCommandHandler
 
@@ -39,7 +39,7 @@ class PullVehiclesActionHandler implements NamedCommandHandler {
                 new Slot(ATT_ROTATE,   rand(),  "vehicle-${ pmId }.rotate"),
                 new Slot(ATT_COLOR,    pmId,    "vehicle-${ pmId }.color")
             )
-            ServerDolphin.presentationModel(response, pmId, TYPE_VEHICLE, model)
+            GServerDolphin.presentationModel(response, pmId, TYPE_VEHICLE, model)
         }
     }
 }

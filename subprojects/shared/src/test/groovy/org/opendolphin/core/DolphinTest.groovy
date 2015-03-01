@@ -13,7 +13,7 @@ class DolphinTest extends Specification {
                 return [attributeMock]
             }
         }
-        def dolphin = new Dolphin() {
+        def dolphin = new AbstractDolphin() {
             @Override
             protected ModelStore getModelStore() {
                 return storeStub

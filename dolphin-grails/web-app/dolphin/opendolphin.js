@@ -1066,6 +1066,13 @@ var opendolphin;
         ClientModelStore.prototype.onModelStoreChange = function (eventHandler) {
             this.modelStoreChangeBus.onEvent(eventHandler);
         };
+        ClientModelStore.prototype.onModelStoreChangeForType = function (presentationModelType, eventHandler) {
+            this.modelStoreChangeBus.onEvent(function (pmStoreEvent) {
+                if (pmStoreEvent.clientPresentationModel.presentationModelType == presentationModelType) {
+                    eventHandler(pmStoreEvent);
+                }
+            });
+        };
         return ClientModelStore;
     })();
     opendolphin.ClientModelStore = ClientModelStore;

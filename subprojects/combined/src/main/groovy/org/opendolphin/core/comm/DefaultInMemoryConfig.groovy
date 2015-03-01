@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ package org.opendolphin.core.comm
 import org.opendolphin.LogConfig
 import org.opendolphin.core.client.ClientDolphin
 import org.opendolphin.core.client.ClientModelStore
-import org.opendolphin.core.client.comm.ClientConnector
 import org.opendolphin.core.client.comm.InMemoryClientConnector
-import org.opendolphin.core.server.ServerDolphin
+import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.ServerDolphinFactory
 
 class DefaultInMemoryConfig {
 
     ClientDolphin clientDolphin = new ClientDolphin()
-    ServerDolphin serverDolphin = new ServerDolphin()
+    GServerDolphin serverDolphin = ServerDolphinFactory.create()
 
     DefaultInMemoryConfig() {
         LogConfig.logCommunication()

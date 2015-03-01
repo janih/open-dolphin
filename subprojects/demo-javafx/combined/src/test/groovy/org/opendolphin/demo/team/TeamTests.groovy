@@ -6,8 +6,6 @@ import org.opendolphin.core.client.ClientDolphin
 import org.opendolphin.core.comm.TestInMemoryConfig
 import org.opendolphin.core.server.DTO
 import org.opendolphin.core.server.EventBus
-import org.opendolphin.core.server.ServerDolphin
-import org.opendolphin.demo.crud.PortfolioConstants
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit

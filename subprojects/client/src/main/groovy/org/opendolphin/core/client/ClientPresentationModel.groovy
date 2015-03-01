@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.opendolphin.core.Tag
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class ClientPresentationModel extends BasePresentationModel {
+class ClientPresentationModel extends BasePresentationModel<ClientAttribute> {
 
     public  static final String AUTO_ID_SUFFIX = "-AUTO-CLT"
     boolean clientSideOnly = false
@@ -39,15 +39,5 @@ class ClientPresentationModel extends BasePresentationModel {
         if (id?.endsWith(AUTO_ID_SUFFIX)) {
             throw new IllegalArgumentException("presentation model with self-provided id '$id' may not end with suffix '$AUTO_ID_SUFFIX' since that is reserved.")
         }
-    }
-
-    // override with client specific return values to avoid casting in client code
-
-    ClientAttribute getAt(String propertyName) {
-        return (ClientAttribute) super.getAt(propertyName)
-    }
-
-    ClientAttribute getAt(String propertyName, Tag tag) {
-        return (ClientAttribute) super.getAt(propertyName, tag)
     }
 }

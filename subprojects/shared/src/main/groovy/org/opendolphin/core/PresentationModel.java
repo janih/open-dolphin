@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,31 @@ package org.opendolphin.core;
 
 import java.util.List;
 
-public interface PresentationModel extends Observable {
+public interface PresentationModel<A extends Attribute> extends Observable {
     String DIRTY_PROPERTY = "dirty";
 
     String getId();
 
-    List<Attribute> getAttributes();
+    List<A> getAttributes();
 
-    Attribute getAt(String propertyName);
+    A getAt(String propertyName);
 
-    Attribute getAt(String propertyName, Tag tag);
+    A getAt(String propertyName, Tag tag);
 
     /**
      * Convenience method to get the value of an attribute if it exists or a default value otherwise.
      */
     public int getValue(String attributeName, int defaultValue);
 
-    Attribute findAttributeByPropertyName(String propertyName);
+    A findAttributeByPropertyName(String propertyName);
 
-    List<Attribute> findAllAttributesByPropertyName(String propertyName);
+    List<A> findAllAttributesByPropertyName(String propertyName);
 
-    Attribute findAttributeByPropertyNameAndTag(String propertyName, Tag tag);
+    A findAttributeByPropertyNameAndTag(String propertyName, Tag tag);
 
-    Attribute findAttributeByQualifier(String qualifier);
+    A findAttributeByQualifier(String qualifier);
 
-    Attribute findAttributeById(String id);
+    A findAttributeById(String id);
 
     void syncWith(PresentationModel other);
 
@@ -53,7 +53,7 @@ public interface PresentationModel extends Observable {
      * since it does not register all required listeners. Consider using ClientDolphin.addAttributeToModel().
      * @param attribute
      */
-    void _internal_addAttribute(Attribute attribute);
+    void _internal_addAttribute(A attribute);
 
     boolean isDirty();
     void    updateDirty();

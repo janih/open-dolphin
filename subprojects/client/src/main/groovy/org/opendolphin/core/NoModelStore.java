@@ -2,6 +2,7 @@ package org.opendolphin.core;
 
 import org.opendolphin.core.client.ClientDolphin;
 import org.opendolphin.core.client.ClientModelStore;
+import org.opendolphin.core.client.ClientPresentationModel;
 
 /**
  * A model store that does not store, i.e. neither adds nor removes presentation models.
@@ -16,12 +17,12 @@ public class NoModelStore extends ClientModelStore {
     }
 
     @Override
-    public boolean add(PresentationModel model) {
+    public boolean add(ClientPresentationModel model) {
         return false;
     }
 
     @Override
-    public boolean remove(PresentationModel model) {
+    public boolean remove(ClientPresentationModel model) {
         return false;
     }
 }

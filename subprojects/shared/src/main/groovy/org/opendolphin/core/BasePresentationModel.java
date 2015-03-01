@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import java.util.List;
  * a specialized "PersonPresentationModel" or so.
  */
 
-public class BasePresentationModel extends AbstractObservable implements PresentationModel {
-    protected final List<Attribute> attributes = new LinkedList<Attribute>();
+public class BasePresentationModel<A extends Attribute> extends AbstractObservable implements PresentationModel<A> {
+    protected final List<A> attributes = new LinkedList<A>();
     private final String id;
     private       String presentationModelType;
     private boolean dirty = false;
@@ -40,15 +40,15 @@ public class BasePresentationModel extends AbstractObservable implements Present
     /**
      * @throws AssertionError if the list of attributes is null or empty
      */
-    public BasePresentationModel(String id, List attributes) {
+    public BasePresentationModel(String id, List<A> attributes) {
         this.id = id;
-        for (Object attr : attributes) {
-            _internal_addAttribute((Attribute) attr);
+        for (A attr : attributes) {
+            _internal_addAttribute(attr);
         }
     }
 
     public void updateDirty() {
-        for (Attribute attr : attributes) {
+        for (A attr : attributes) {
             if (attr.getTag() == Tag.VALUE && attr.isDirty()) {
                 setDirty(true);
                 return;
@@ -57,7 +57,7 @@ public class BasePresentationModel extends AbstractObservable implements Present
         setDirty(false);
     }
 
-    public void _internal_addAttribute(Attribute attribute) {
+    public void _internal_addAttribute(A attribute) {
         if (null == attribute || attributes.contains(attribute)) return;
         if (null != findAttributeByPropertyNameAndTag(attribute.getPropertyName(), attribute.getTag())) {
             throw new IllegalStateException("There already is an attribute with property name '"
@@ -96,13 +96,13 @@ public class BasePresentationModel extends AbstractObservable implements Present
     }
 
     public void reset() {
-        for (Attribute attr : attributes) {
+        for (A attr : attributes) {
             attr.reset();
         }
     }
 
     public void rebase() {
-        for (Attribute attr : attributes) {
+        for (A attr : attributes) {
             attr.rebase();
         }
     }
@@ -110,11 +110,11 @@ public class BasePresentationModel extends AbstractObservable implements Present
     /**
      * @return the immutable internal representation
      */
-    public List<Attribute> getAttributes() {
+    public List<A> getAttributes() {
         return Collections.unmodifiableList(attributes);
     }
 
-    public Attribute getAt(String propertyName) {
+    public A getAt(String propertyName) {
         return findAttributeByPropertyName(propertyName);
     }
 
@@ -124,24 +124,24 @@ public class BasePresentationModel extends AbstractObservable implements Present
      * Convenience method to get the value of an attribute if it exists or a default value otherwise.
      */
     public int getValue(String attributeName, int defaultValue) {
-        Attribute attribute = getAt(attributeName);
+        A attribute = getAt(attributeName);
         Object attributeValue = (attribute == null) ? null : attribute.getValue();
         return (attributeValue == null) ? defaultValue : Integer.parseInt(attributeValue.toString());
     }
 
-    public Attribute getAt(String propertyName, Tag tag) {
+    public A getAt(String propertyName, Tag tag) {
         return findAttributeByPropertyNameAndTag(propertyName, tag);
     }
 
-    public Attribute findAttributeByPropertyName(String propertyName) {
+    public A findAttributeByPropertyName(String propertyName) {
         return findAttributeByPropertyNameAndTag(propertyName, Tag.VALUE);
     }
 
 
-    public List<Attribute> findAllAttributesByPropertyName(String propertyName) {
-        List<Attribute> result = new LinkedList<Attribute>();
+    public List<A> findAllAttributesByPropertyName(String propertyName) {
+        List<A> result = new LinkedList<A>();
         if (null == propertyName) return result;
-        for (Attribute attribute : attributes) {
+        for (A attribute : attributes) {
             if (propertyName.equals(attribute.getPropertyName())) {
                 result.add(attribute);
             }
@@ -149,10 +149,10 @@ public class BasePresentationModel extends AbstractObservable implements Present
         return result;
     }
 
-    public Attribute findAttributeByPropertyNameAndTag(String propertyName, Tag tag) {
+    public A findAttributeByPropertyNameAndTag(String propertyName, Tag tag) {
         if (null == propertyName) return null;
         if (null == tag) return null;
-        for (Attribute attribute : attributes) {
+        for (A attribute : attributes) {
             if (propertyName.equals(attribute.getPropertyName()) && tag.equals(attribute.getTag())) {
                 return attribute;
             }
@@ -160,9 +160,9 @@ public class BasePresentationModel extends AbstractObservable implements Present
         return null;
     }
 
-    public Attribute findAttributeByQualifier(String qualifier) {
+    public A findAttributeByQualifier(String qualifier) {
         if (null == qualifier) return null;
-        for (Attribute attribute : attributes) {
+        for (A attribute : attributes) {
             if (qualifier.equals(attribute.getQualifier())) {
                 return attribute;
             }
@@ -170,8 +170,8 @@ public class BasePresentationModel extends AbstractObservable implements Present
         return null;
     }
 
-    public Attribute findAttributeById(String id) {
-        for (Attribute attribute : attributes) {
+    public A findAttributeById(String id) {
+        for (A attribute : attributes) {
             if (attribute.getId() == id) {
                 return attribute;
             }
@@ -180,7 +180,7 @@ public class BasePresentationModel extends AbstractObservable implements Present
     }
 
     public Object propertyMissing(String propName) {
-        Attribute result = findAttributeByPropertyName(propName);
+        A result = findAttributeByPropertyName(propName);
         if (null == result) {
             String message = "The presentation model doesn't understand '" + propName + "'. \n";
             message += "Known attribute names are: " + Eval.x(attributes, "x.collect{it.propertyName}");
@@ -194,7 +194,7 @@ public class BasePresentationModel extends AbstractObservable implements Present
      * @param sourcePresentationModel may not be null since this most likely indicates an error
      */
     public void syncWith(PresentationModel sourcePresentationModel) {
-        for (Attribute targetAttribute : attributes) {
+        for (A targetAttribute : attributes) {
             Attribute sourceAttribute = sourcePresentationModel.getAt(targetAttribute.getPropertyName(), targetAttribute.getTag());
             if (sourceAttribute != null) targetAttribute.syncWith(sourceAttribute);
         }

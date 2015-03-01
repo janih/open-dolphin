@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 
 package org.opendolphin.core.client
-import org.opendolphin.core.Dolphin
+
+import org.opendolphin.core.AbstractDolphin
 import org.opendolphin.core.ModelStore
 import org.opendolphin.core.PresentationModel
 import org.opendolphin.core.Tag
@@ -23,7 +24,6 @@ import org.opendolphin.core.client.comm.ClientConnector
 import org.opendolphin.core.client.comm.OnFinishedHandler
 import org.opendolphin.core.client.comm.OnFinishedHandlerAdapter
 import org.opendolphin.core.comm.AttributeCreatedNotification
-import org.opendolphin.core.comm.CreatePresentationModelCommand
 import org.opendolphin.core.comm.EmptyNotification
 import org.opendolphin.core.comm.NamedCommand
 import org.opendolphin.core.comm.SignalCommand
@@ -35,7 +35,7 @@ import org.opendolphin.core.comm.SignalCommand
  * Threading model: confined to the UI handling thread.
  */
 // makes use of dynamic dispatch, do not use @CompileStatic
-public class ClientDolphin extends Dolphin {
+public class ClientDolphin extends AbstractDolphin<ClientAttribute, ClientPresentationModel> {
 
     // todo dk: the client model store should become a secret of the ClientDolphin
     ClientModelStore clientModelStore
@@ -115,11 +115,6 @@ public class ClientDolphin extends Dolphin {
         new ApplyToAble(dolphin: this, source: source)
     }
 
-    @Override
-    ClientPresentationModel getAt(String id) {
-        return super.getAt(id)
-    }
-
    /** Removes the modelToDelete from the client model store,
      * detaches all model store listeners,
      * and notifies the server if successful */
@@ -146,10 +141,10 @@ public class ClientDolphin extends Dolphin {
         return attribute
     }
 
-    public void addAttributeToModel(PresentationModel presentationModel, ClientAttribute attribute) {
+    public void addAttributeToModel(ClientPresentationModel presentationModel, ClientAttribute attribute) {
         presentationModel._internal_addAttribute(attribute)
         clientModelStore.registerAttribute(attribute)
-        if (!((ClientPresentationModel)presentationModel).clientSideOnly) {
+        if (!presentationModel.clientSideOnly) {
             clientConnector.send new AttributeCreatedNotification(
                     pmId: presentationModel.id,
                     attributeId: attribute.id,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 Canoo Engineering AG.
+ * Copyright 2012-2015 Canoo Engineering AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,6 @@
 
 package org.opendolphin.core;
 
-public interface ModelStoreListener {
-    void modelStoreChanged(ModelStoreEvent event);
+public interface ModelStoreListener<A extends Attribute, P extends PresentationModel<A>> {
+    void modelStoreChanged(ModelStoreEvent<A, P> event);
 }
