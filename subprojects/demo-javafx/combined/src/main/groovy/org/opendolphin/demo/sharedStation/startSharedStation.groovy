@@ -16,7 +16,7 @@ transitions.each { action, newStateFeatures ->
     dolphin.action(action) { cmd, resp ->
         def current_user = dolphin["current_user"]
         newStateFeatures.each { key, value ->
-            dolphin.changeValue(resp, current_user[key], value)
+            dolphin.changeValueCommand(resp, current_user[key], value)
         }
     }
 }

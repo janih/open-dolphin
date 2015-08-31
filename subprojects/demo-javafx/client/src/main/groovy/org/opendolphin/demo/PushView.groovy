@@ -48,7 +48,7 @@ class PushView {
         Map<String, Rectangle> pmIdsToRect = [:] // pmId to rectangle
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 700, height: 500, {
                     borderPane {

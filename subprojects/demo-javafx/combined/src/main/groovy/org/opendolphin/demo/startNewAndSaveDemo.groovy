@@ -32,7 +32,7 @@ dolphin.action "saveNewSelectedPerson", { cmd, List<Command> response ->
     def slots = selectedPerson.attributes.collect {
         new Slot(it.propertyName, it.value,"${pmId}.${it.propertyName}", it.tag)
     }
-    dolphin.presentationModel(response, pmId, null, new DTO(slots))
+    dolphin.presentationModelCommand(response, pmId, null, new DTO(slots))
 }
 
 new NewAndSaveView().show(config.clientDolphin)

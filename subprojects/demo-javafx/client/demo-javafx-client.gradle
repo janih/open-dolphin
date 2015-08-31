@@ -21,8 +21,9 @@ dependencies {
             project(':demo-javafx-shared'),
             project(':client-javafx'),
             "org.codehaus.groovy:groovy-swing:$groovyVersion",
-            'org.codehaus.groovyfx:groovyfx:0.2',
+            'org.codehaus.groovyfx:groovyfx:0.3.1',
             'org.jfxtras:jfxtras-labs:2.2-r4'
+//            'org.jfxtras:jfxtras-controls:8.0-r3' // for java 8
 
     compileOnly project.files(project.jfxrtLocation)
 }

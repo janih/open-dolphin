@@ -29,10 +29,20 @@ import org.opendolphin.core.comm.GetPresentationModelCommand;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The ClientModelStore is a {@link org.opendolphin.core.ModelStore} with customized behavior appropriate to the client
+ * (view) side of a Dolphin connection.  It connects the model store with the {@link ClientDolphin} via
+ * an {@link AttributeChangeListener}.  It automatically notifies the server side when presentation models are added
+ * or removed.
+ */
 public class ClientModelStore extends ModelStore<ClientAttribute, ClientPresentationModel> {
     private final ClientDolphin clientDolphin;
     protected final AttributeChangeListener attributeChangeListener;
 
+    /**
+     * Constructs a client model store with default capacities.
+     * @see ModelStoreConfig
+     */
     public ClientModelStore(ClientDolphin clientDolphin) {
         this(clientDolphin, new ModelStoreConfig());
     }
@@ -53,6 +63,7 @@ public class ClientModelStore extends ModelStore<ClientAttribute, ClientPresenta
         return clientConnector;
     }
 
+    // ModelStoreListener ADDED will be fired before server is notified.
     @Override
     public boolean add(ClientPresentationModel model) {
         boolean success = super.add(model);
@@ -121,12 +132,13 @@ public class ClientModelStore extends ModelStore<ClientAttribute, ClientPresenta
         }
     }
 
+    // ModelStoreListener REMOVE will be fired after the server is notified.
     public void deleteAllPresentationModelsOfType(String presentationModelType) {
+        getClientConnector().send(new DeletedAllPresentationModelsOfTypeNotification(presentationModelType));
         List<ClientPresentationModel> models = new LinkedList<ClientPresentationModel>(findAllPresentationModelsByType(presentationModelType));
         for (ClientPresentationModel model: models) {
             delete(model, false);
         }
-        getClientConnector().send(new DeletedAllPresentationModelsOfTypeNotification(presentationModelType));
     }
 
 }

@@ -19,10 +19,9 @@ package org.opendolphin.core.server
 import org.opendolphin.core.Attribute
 import org.opendolphin.core.BaseAttribute
 import org.opendolphin.core.Tag
-import groovy.transform.CompileStatic
 import org.opendolphin.core.comm.AttributeMetadataChangedCommand
 
-@CompileStatic
+//CompileStatic
 class ServerAttribute extends BaseAttribute {
 
     private boolean notifyClient = true;
@@ -43,7 +42,7 @@ class ServerAttribute extends BaseAttribute {
     @Override
     void setValue(Object value) {
         if (notifyClient) {
-            GServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, value)
+            DefaultServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, value)
         }
         super.setValue(value)
     }
@@ -68,7 +67,7 @@ class ServerAttribute extends BaseAttribute {
     void reset() {
         super.reset()
         if (notifyClient) {
-            GServerDolphin.reset(presentationModel.modelStore.currentResponse, this)
+            DefaultServerDolphin.resetCommand(presentationModel.modelStore.currentResponse, this)
         }
     }
 
@@ -76,7 +75,7 @@ class ServerAttribute extends BaseAttribute {
     void rebase() {
         super.rebase()
         if (notifyClient) {
-            GServerDolphin.rebaseCommand(presentationModel.modelStore.currentResponse, this)
+            DefaultServerDolphin.rebaseCommand(presentationModel.modelStore.currentResponse, this)
         }
         if (qualifier) { // other attributes with the same qualifier must also rebase
             for (ServerAttribute sameQualified in (List<ServerAttribute>) presentationModel.modelStore.findAllAttributesByQualifier(qualifier)) {

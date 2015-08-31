@@ -21,7 +21,7 @@ import org.opendolphin.core.server.ServerAttribute
 import org.opendolphin.core.server.comm.ActionRegistry
 import groovy.util.logging.Log
 
-//@CompileStatic
+//CompileStatic
 @Log
 class StoreValueChangeAction extends DolphinServerAction {
 

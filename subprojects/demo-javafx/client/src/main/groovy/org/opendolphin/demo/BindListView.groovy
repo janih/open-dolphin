@@ -33,13 +33,16 @@ import org.opendolphin.core.client.ClientAttributeWrapper
 import org.opendolphin.core.ModelStoreEvent
 
 /**
- * This demos shows two list views on the same list of PresentationModels where one list view shows
- * all models of a given type and the second view shows only a subset (the "magenta" ones).
- * It also shows how to bind against a (changing) list of PresentationModels of a certain type and how
+ * This demo displays two list views of the same list of PresentationModels, where one list view shows
+ * all models of a given type, and the second view shows only a subset (the "magenta" ones).
+ * It also illustrates how to bind against a (changing) list of PresentationModels of a certain type, and how
  * to use an additional custom filter.
+ * <p/>
  * How to use: initially, the right view should be empty (no magenta ones).
  * Clicking the add button adds magenta objects to the store and they should appear in both list views.
  * Clicking the clear button should empty both lists.
+ * <p/>
+ * Note: see startBindListDemo.groovy where the CMD_PULL and CMD_CLEAR commands are defined.
  */
 
 class BindListView {
@@ -49,6 +52,11 @@ class BindListView {
         ObservableList<ClientPresentationModel> observableListOfPms = FXCollections.observableArrayList()
         ObservableList<ClientPresentationModel> observableListOfMagentaPms = FXCollections.observableArrayList()
 
+        /*
+         * Listen for ADDED or REMOVED events on the model store which will be fired whenever a presentation model
+         * of type TYPE_VEHICLE is added or removed.  Call syncList to update our local list of PM's accordingly.
+         * This keeps the JavaFX controls bound to our local list in sync with the presentation models.
+         */
         dolphin.addModelStoreListener TYPE_VEHICLE, { evt ->
             syncList(observableListOfPms, evt)
         }
@@ -59,7 +67,7 @@ class BindListView {
         }
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 700, height: 500, {
                     borderPane {

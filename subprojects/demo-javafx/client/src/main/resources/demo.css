@@ -16,6 +16,7 @@
 }
 
 .form {
+    -fx-background-color: transparent;
     -fx-padding: 25 25 25 25;
     -fx-alignment: top-center;
     -fx-hgap: 5;

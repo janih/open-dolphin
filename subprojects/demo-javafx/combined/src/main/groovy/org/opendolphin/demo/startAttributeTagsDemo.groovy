@@ -34,9 +34,9 @@ dolphin.action "init", { cmd, response ->
 // example for changing tags at runtime
 dolphin.action "german", { cmd, response ->
     def model = dolphin.getAt('person')
-    dolphin.changeValue response, model.getAt(NAME,     Tag.LABEL), "Vorname: "
-    dolphin.changeValue response, model.getAt(LASTNAME, Tag.LABEL), "Nachname: "
-    dolphin.changeValue response, model.getAt(NAME,     Tag.TOOLTIP), "muss ein 'a' enthalten "
+    dolphin.changeValueCommand response, model.getAt(NAME,     Tag.LABEL), "Vorname: "
+    dolphin.changeValueCommand response, model.getAt(LASTNAME, Tag.LABEL), "Nachname: "
+    dolphin.changeValueCommand response, model.getAt(NAME,     Tag.TOOLTIP), "muss ein 'a' enthalten "
 }
 
 new AttributeTagView().show(config.clientDolphin)

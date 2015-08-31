@@ -32,16 +32,45 @@ import static org.opendolphin.demo.MyProps.ATT.*
 import static groovyx.javafx.GroovyFX.start
 
 /**
- * An example where not only the values and dirty properties are bound but also the
- * text of labels is determined by tag attributes.
- * In addition the "first name" input field gets a tooltip via dolphin tags and a validator
- * that uses the REGEX tag. When the first name contains an 'a' is considered valid and displayed in black,
+ * This example illustrates the use of attribute tags.
+ * <p/>
+ * A presentation model contains any number of attributes.  Normally, when one thinks of an attribute,
+ * the attribute's value is meant.  But metadata about an attribute can also be stored in a presentation model.
+ * Such metadata can include whether or not the value is dirty, what the value's original (base) value was,
+ * whether or not the field displaying the attribute is visible or enabled, and so forth.
+ * <p/>
+ * Such metadata is stored in the presentation model by use of attribute tags.  In this example, a person's first
+ * and last name (VALUE tags) are stored, as well as the labels that describe the first and last name fields.
+ * So the presentation model actually contains the following attributes:
+ * <table align="left"><tr><th align="left">Property name</th><th align="left">Tag</th><th align="left">contains</th></tr>
+ <tr><td>NAME (string "name")</td><td>VALUE</td><td>first name</td></tr>
+ <tr><td>NAME (string "name")</td><td>LABEL</td><td>label value ("First name:" (English) or "Vorname:" (Deutsch))</td></tr>
+ <tr><td>NAME (string "name")</td><td>TOOLTIP</td><td>tooltip text for name field</td></tr>
+ <tr><td>NAME (string "name")</td><td>REGEX</td><td>tooltip text for name field</td></tr>
+ <tr><td>LASTNAME (string "lastname")</td><td>VALUE</td><td>last name</td></tr>
+ <tr><td>LASTNAME (string "lastname")</td><td>LABEL</td><td>label value ("Lastname:" or "Nachname:")</td></tr>
+ </table>
+ * Note that Dolphin itself does not take any special action based on the tag type, except to assume a tag type of VALUE
+ * if none is otherwise specified.  The view code must supply the logic to enforce tag meanings.
+ * <p/>
+ * Hence, this example not only binds the values (VALUE tags) and dirty properties, but also binds the
+ * labels to the LABEL attributes in the presentation model.
+ * <p/>
+ * In addition, the "first name" input field gets a tooltip via dolphin tag TOOLTIP and a validator
+ * that uses the REGEX tag. When the first name contains an 'a', it is considered valid and displayed in black,
  * otherwise in red.
- * Hitting the "German" button sets the label tags to their German translation.
+ * <p/>Pressing the "German" button sets the label tags to their German translation.  This illustrates a technique
+ * for localization where the localized strings reside on the server and are able to be changed on the fly, i.e., without
+ * needing to reconstruct the scene.
+ * <p/>
  * The dirty state of the presentation model must be independent of the labels now being "dirty".
- * Hitting "Undo" must revert all changes including the label changes and dirty states.
+ * Hitting "Undo" reverts all changes including the label changes and dirty states.
+ * <p>Note: there's a bug; when the line
+ * <code>
+    putStyle(sgb.nameInput, !matches, 'invalid')</code> is executed, the style isn't applied until another event occurs.
+ * @see org.opendolphin.core.Attribute
+ * @see org.opendolphin.core.Tag
  */
-
 class AttributeTagView {
     static show(ClientDolphin dolphin) {
         start { app ->
@@ -83,7 +112,7 @@ class AttributeTagView {
                 bind FX.TEXT  of lastnameInput to LASTNAME of model
 
                 bind NAME,     LABEL   of model to FX.TEXT    of nameLabel
-                bind NAME,     TOOLTIP of model to FX.TOOLTIP of nameInput, { new Tooltip(it) }
+                bind NAME,     TOOLTIP of model to FX.TOOLTIP of nameInput, { new Tooltip(it as String) }
 
                 bind LASTNAME, LABEL   of model to FX.TEXT    of lastnameLabel
             }
@@ -95,8 +124,8 @@ class AttributeTagView {
             model[LASTNAME].addPropertyChangeListener    DIRTY_PROPERTY, {
                 putStyle sgb.lastnameLabel, it.newValue, DIRTY_PROPERTY
             }
-            bindInfo DIRTY_PROPERTY of model to FX.TITLE    of primaryStage , { it ? '** DIRTY **': '' }
-            bindInfo DIRTY_PROPERTY of model to FX.DISABLE  of reset        , { !it }
+            bindInfo DIRTY_PROPERTY of model using { it ? '** DIRTY **': '' } to FX.TITLE   of primaryStage
+            bindInfo DIRTY_PROPERTY of model using { !it }                    to FX.DISABLE of reset
 
             primaryStage.show()
         }

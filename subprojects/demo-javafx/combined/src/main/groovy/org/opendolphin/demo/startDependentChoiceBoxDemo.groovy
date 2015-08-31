@@ -16,7 +16,7 @@
 
 package org.opendolphin.demo
 
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.Slot
 import org.opendolphin.core.server.DTO
 
@@ -24,9 +24,9 @@ def config = new JavaFxInMemoryConfig()
 
 config.serverDolphin.action "fillFirst", { cmd, response ->
     DTO pm1 = new DTO(new Slot("value","even"))
-    GServerDolphin.presentationModel(response,"First 1", null, pm1)
+    DefaultServerDolphin.presentationModelCommand(response,"First 1", null, pm1)
     DTO pm2 = new DTO(new Slot("value","odd"))
-    GServerDolphin.presentationModel(response,"First 2", null, pm2)
+    DefaultServerDolphin.presentationModelCommand(response,"First 2", null, pm2)
 }
 
 config.serverDolphin.action "fillRelation", { cmd, response ->
@@ -35,14 +35,14 @@ config.serverDolphin.action "fillRelation", { cmd, response ->
             new Slot("first", "even" ),
             new Slot("second", "Second $it" )
         )
-        GServerDolphin.presentationModel(response,null, "FirstSecondRelation", pm)
+        DefaultServerDolphin.presentationModelCommand(response,null, "FirstSecondRelation", pm)
     }
     [1,3,5,7,9].each {
         DTO pm = new DTO(
             new Slot("first", "odd" ),
             new Slot("second", "Second $it" )
         )
-        GServerDolphin.presentationModel(response,null, "FirstSecondRelation", pm)
+        DefaultServerDolphin.presentationModelCommand(response,null, "FirstSecondRelation", pm)
     }
 }
 

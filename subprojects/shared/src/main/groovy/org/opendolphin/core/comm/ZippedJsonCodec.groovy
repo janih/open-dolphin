@@ -42,7 +42,7 @@ class ZippedJsonCodec extends JsonCodec {
      * It makes sense to keep this value rather low.
      */
     int maxUnzippedSize = 500
-    String encoding = "ISO-8859-1"
+    String encoding = "UTF-8"
     protected final int MIN_ENCODED_SIZE = 16 // 10 byte GZip header in base 64 encoding
 
     @Override

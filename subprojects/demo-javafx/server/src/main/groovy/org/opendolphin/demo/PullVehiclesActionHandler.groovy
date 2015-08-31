@@ -19,7 +19,7 @@ package org.opendolphin.demo
 import org.opendolphin.core.comm.Command
 import org.opendolphin.core.comm.NamedCommand
 import org.opendolphin.core.server.DTO
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.Slot
 import org.opendolphin.core.server.comm.NamedCommandHandler
 
@@ -39,7 +39,7 @@ class PullVehiclesActionHandler implements NamedCommandHandler {
                 new Slot(ATT_ROTATE,   rand(),  "vehicle-${ pmId }.rotate"),
                 new Slot(ATT_COLOR,    pmId,    "vehicle-${ pmId }.color")
             )
-            GServerDolphin.presentationModel(response, pmId, TYPE_VEHICLE, model)
+            DefaultServerDolphin.presentationModelCommand(response, pmId, TYPE_VEHICLE, model)
         }
     }
 }

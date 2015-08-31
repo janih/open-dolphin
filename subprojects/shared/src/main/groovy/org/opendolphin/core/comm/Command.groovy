@@ -17,6 +17,7 @@
 package org.opendolphin.core.comm
 
 import groovy.transform.CompileStatic
+import org.codehaus.groovy.runtime.StringGroovyMethods
 
 // todo dk: go through all subtypes and apply the new naming convention
 
@@ -31,7 +32,7 @@ import groovy.transform.CompileStatic
  * The receiving side is responsible for finding the appropriate action.
  */
 
-@CompileStatic
+//CompileStatic
 class Command {
 
     String getId() { idFor this.class }

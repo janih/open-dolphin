@@ -18,7 +18,7 @@ package org.opendolphin.server.adapter
 import groovy.util.logging.Log
 import org.opendolphin.core.comm.Codec
 import org.opendolphin.core.comm.JsonCodec;
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.ServerConnector
 import org.opendolphin.core.server.ServerModelStore;
 
@@ -50,13 +50,13 @@ abstract class DolphinServlet extends HttpServlet {
         resp.outputStream.close()
     }
 
-    private GServerDolphin checkDolphinInSession(HttpServletRequest request) {
+    private DefaultServerDolphin checkDolphinInSession(HttpServletRequest request) {
         def session = request.session
-        GServerDolphin dolphin = (GServerDolphin) session.getAttribute(DOLPHIN_ATTRIBUTE_ID)
+        DefaultServerDolphin dolphin = (DefaultServerDolphin) session.getAttribute(DOLPHIN_ATTRIBUTE_ID)
         if (!dolphin) {
             log.info "creating new dolphin for session $session.id"
             def modelStore = new ServerModelStore()
-            dolphin = new GServerDolphin(modelStore, new ServerConnector(codec: codec, serverModelStore: modelStore))
+            dolphin = new DefaultServerDolphin(modelStore, new ServerConnector(codec: codec, serverModelStore: modelStore))
             dolphin.registerDefaultActions()
             registerApplicationActions(dolphin)
             session.setAttribute(DOLPHIN_ATTRIBUTE_ID, dolphin)
@@ -69,8 +69,8 @@ abstract class DolphinServlet extends HttpServlet {
     }
 
     protected String getCharset() {
-        Charset.defaultCharset().name()
+        "UTF-8"
     }
 
-    protected abstract void registerApplicationActions(GServerDolphin serverDolphin)
+    protected abstract void registerApplicationActions(DefaultServerDolphin serverDolphin)
 }

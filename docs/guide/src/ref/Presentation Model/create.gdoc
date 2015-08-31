@@ -49,8 +49,9 @@ h2. Create a Presentation Model from the (server) controller
 
 On the server side, the construction of a presentation model looks very similar
 but works quite differently behind the scenes. The reason is that on the server
-side, presentation models are not directly constructed but the the client is
-advised to do so. After the client has created the presentation model, the
+side, presentation models are not directly constructed; instead, a command is sent to the client
+requesting it to create the model.
+After the client has created the presentation model, the
 server is notified and the actual creation happens automatically as part of
 the general synchronization process.
 

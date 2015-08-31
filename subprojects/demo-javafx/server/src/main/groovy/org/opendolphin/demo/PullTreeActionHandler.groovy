@@ -19,7 +19,7 @@ package org.opendolphin.demo
 import org.opendolphin.core.comm.Command
 import org.opendolphin.core.comm.NamedCommand
 import org.opendolphin.core.server.DTO
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.Slot
 import org.opendolphin.core.server.comm.NamedCommandHandler
 
@@ -42,9 +42,20 @@ class PullTreeActionHandler implements NamedCommandHandler {
         makePM(domainTreeRoot, response)
     }
 
+    /**
+     * Recursively encode the given node into a response list of commands.  There will be one
+     * presentationModelCommand for every node in the tree; thus one presentation model will be created
+     * for each node.  Each presentation model is named with the node's name (hence they must be unique,
+     * or a different technique would be necessary -- using a unique identifier of some sort.)  And each
+     * child PM carries an attribute named "parent" whose value is the parent's name, or null if the PM is
+     * the root of the tree.
+     *
+     * @param node
+     * @param response
+     */
     private void makePM(node, List<Command> response) {
         DTO model = new DTO(new Slot("parent", node.parent()?.name()))
-        GServerDolphin.presentationModel(response, node.name(), null, model)
+        DefaultServerDolphin.presentationModelCommand(response, node.name(), null, model)
         node.children().each {
             makePM it, response // recurse
         }

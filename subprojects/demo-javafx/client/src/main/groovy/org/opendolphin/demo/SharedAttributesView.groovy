@@ -42,7 +42,7 @@ class SharedAttributesView {
         ObservableList<ClientPresentationModel> observableListOfTasks = FXCollections.observableArrayList()
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 700, height: 500, {
                     borderPane {

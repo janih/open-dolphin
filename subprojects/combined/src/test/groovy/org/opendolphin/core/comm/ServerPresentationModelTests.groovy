@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ServerPresentationModelTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    GServerDolphin serverDolphin
+    DefaultServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override
@@ -184,7 +184,7 @@ class ServerPresentationModelTests extends GroovyTestCase {
             assert pm.dirty
             pm.rebase()
             assert ! pm.dirty
-            GServerDolphin.rebase(null, (ServerAttribute) null) // throws no exception but logs and returns
+            DefaultServerDolphin.rebase(null, (ServerAttribute) null) // throws no exception but logs and returns
         }
 
         serverDolphin.action "assertNewPristine", { cmd, response ->

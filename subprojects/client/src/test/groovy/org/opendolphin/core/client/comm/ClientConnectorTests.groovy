@@ -187,7 +187,7 @@ class ClientConnectorTests extends GroovyTestCase {
 		assertCommandsTransmitted(3 + 1)
 		assert attribute.baseValue                  == 'new_base_value'
 		assert secondAttWithSameQualifier.baseValue == 'new_base_value'
-		assert clientConnector.transmittedCommands.any { it instanceof BaseValueChangedCommand }
+		assert clientConnector.transmittedCommands.any { it instanceof ChangeAttributeMetadataCommand }
 	}
 
 	void test_that_notWellKnown_property_causes_MetaDataChange() {

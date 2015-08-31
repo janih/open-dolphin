@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/canoo/open-dolphin.png?branch=master)](https://travis-ci.org/canoo/open-dolphin)
+
 The Dolphin Project
 ===================
 

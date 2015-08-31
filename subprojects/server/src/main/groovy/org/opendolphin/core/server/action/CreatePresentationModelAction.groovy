@@ -21,13 +21,12 @@ import org.opendolphin.core.PresentationModel
 import org.opendolphin.core.Tag
 import org.opendolphin.core.comm.CreatePresentationModelCommand
 import org.opendolphin.core.server.ServerAttribute
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.ServerPresentationModel
 import org.opendolphin.core.server.comm.ActionRegistry
-import groovy.transform.CompileStatic
 
 @Log
-@CompileStatic
+//CompileStatic
 class CreatePresentationModelAction extends DolphinServerAction {
 
     void registerIn(ActionRegistry registry) {
@@ -36,7 +35,7 @@ class CreatePresentationModelAction extends DolphinServerAction {
         }
     }
 
-    private static void createPresentationModel(CreatePresentationModelCommand command, GServerDolphin serverDolphin) {
+    private static void createPresentationModel(CreatePresentationModelCommand command, DefaultServerDolphin serverDolphin) {
         if(serverDolphin.getAt(command.pmId) != null) {
             log.info("Ignoring create PM '$command.pmId' since it is already in the model store.")
             return

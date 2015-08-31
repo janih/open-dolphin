@@ -41,7 +41,7 @@ class DependentChoiceBoxView {
         def selectedFirst = dolphin.presentationModel 'selectedFirst', value:null
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 200, height: 200, {
                     gridPane styleClass:'form', {

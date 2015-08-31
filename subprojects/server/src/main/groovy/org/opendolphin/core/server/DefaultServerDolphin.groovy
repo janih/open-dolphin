@@ -21,7 +21,6 @@ import groovy.util.logging.Log
 import org.opendolphin.core.BaseAttribute
 import org.opendolphin.core.AbstractDolphin
 import org.opendolphin.core.ModelStore
-import org.opendolphin.core.PresentationModel
 import org.opendolphin.core.Tag
 import org.opendolphin.core.comm.BaseValueChangedCommand
 import org.opendolphin.core.comm.Command
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import static org.opendolphin.StringUtil.isBlank
 
 /**
- * The main Dolphin facade on the server side.
+ * The default implementation of the Dolphin facade on the server side.
  * Responsibility: single access point for dolphin capabilities.
  * Collaborates with server model store and current response.
  * Threading model: confined to a single controller thread.
@@ -47,7 +46,7 @@ import static org.opendolphin.StringUtil.isBlank
 
 @CompileStatic
 @Log
-class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentationModel> implements ServerDolphin{
+class DefaultServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentationModel> implements ServerDolphin{
 
     /** the server model store is unique per user session */
     final ServerModelStore serverModelStore
@@ -57,13 +56,13 @@ class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentation
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
 
-    GServerDolphin(ServerModelStore serverModelStore, ServerConnector serverConnector) {
+    DefaultServerDolphin(ServerModelStore serverModelStore, ServerConnector serverConnector) {
         this.serverModelStore = serverModelStore
         this.serverConnector = serverConnector
         this.serverConnector.serverModelStore = serverModelStore
     }
 
-    protected GServerDolphin() {
+    protected DefaultServerDolphin() {
         this(new ServerModelStore(), new ServerConnector())
     }
 
@@ -189,7 +188,7 @@ class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentation
     boolean remove(ServerPresentationModel pm){
         boolean deleted = serverModelStore.remove(pm)
         if (deleted) {
-            GServerDolphin.deleteCommand(serverModelStore.currentResponse, pm)
+            DefaultServerDolphin.deleteCommand(serverModelStore.currentResponse, pm)
         }
         return deleted
     }
@@ -201,7 +200,7 @@ class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentation
         for (ServerPresentationModel model in models ){
             serverModelStore.remove(model) // go through the model store to avoid single commands being sent to the client
         }
-        GServerDolphin.deleteAllPresentationModelsOfTypeCommand(serverModelStore.currentResponse, type)
+        DefaultServerDolphin.deleteAllPresentationModelsOfTypeCommand(serverModelStore.currentResponse, type)
     }
 
     /** @deprecated use {@link #deleteCommand(java.util.List, org.opendolphin.core.server.ServerPresentationModel)}. You can use the "inline method refactoring". Will be removed in version 1.0! */
@@ -215,7 +214,7 @@ class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentation
             log.severe("Cannot delete null presentation model")
             return
         }
-        delete(response, pm.id)
+        deleteCommand(response, pm.id)
     }
 
     /** @deprecated use {@link #deleteCommand(java.util.List, java.lang.String)}. You can use the "inline method refactoring". Will be removed in version 1.0! */
@@ -251,7 +250,7 @@ class GServerDolphin extends AbstractDolphin<ServerAttribute, ServerPresentation
             log.severe("Cannot reset null presentation model")
             return
         }
-        reset(response, pm.id)
+        resetCommand(response, pm.id)
     }
 
     /** @deprecated use {@link #resetCommand(java.util.List, java.lang.String)}. You can use the "inline method refactoring". Will be removed in version 1.0! */

@@ -172,7 +172,7 @@ public class BasePresentationModel<A extends Attribute> extends AbstractObservab
 
     public A findAttributeById(String id) {
         for (A attribute : attributes) {
-            if (attribute.getId() == id) {
+            if (attribute.getId().equals(id)) {
                 return attribute;
             }
         }

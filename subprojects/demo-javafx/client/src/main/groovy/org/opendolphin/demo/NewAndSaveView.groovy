@@ -67,10 +67,10 @@ class NewAndSaveView {
             bind 'mode' of form to FX.TEXT of saveButton
             bind 'mode' of form to FX.TEXT of header, { it == 'Create' ? "New Person" : "Edit Person" }
 
-            bindInfo DIRTY_PROPERTY of person[NAME]         to FX.TEXT_FILL  of nameLabel,     { it ? RED : WHITE }
-            bindInfo DIRTY_PROPERTY of person[LASTNAME]     to FX.TEXT_FILL  of lastnameLabel, { it ? RED : WHITE }
-            bindInfo DIRTY_PROPERTY of person               to FX.TITLE      of primaryStage , { it ? '** Unsaved **': '' }
-            bindInfo DIRTY_PROPERTY of person               to FX.DISABLE   of saveButton,    { !it }
+            bindInfo DIRTY_PROPERTY of person[NAME]     using { it ? RED : WHITE }          to FX.TEXT_FILL of nameLabel
+            bindInfo DIRTY_PROPERTY of person[LASTNAME] using { it ? RED : WHITE }          to FX.TEXT_FILL of lastnameLabel
+            bindInfo DIRTY_PROPERTY of person           using { it ? '** Unsaved **': '' }  to FX.TITLE     of primaryStage
+            bindInfo DIRTY_PROPERTY of person           using { !it }                       to FX.DISABLE   of saveButton
 
             saveButton.onAction = {
                 if (form.mode.value == "Update") {

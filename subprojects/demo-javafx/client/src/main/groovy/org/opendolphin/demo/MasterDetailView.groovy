@@ -73,7 +73,7 @@ class MasterDetailView {
         ObservableList<Integer> observableList = FXCollections.observableArrayList()
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
 
             stage title:"Dolphin master-detail demo", {
                 scene width: 750, height: 500, {

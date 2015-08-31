@@ -29,7 +29,7 @@ class CreatePresentationModelCommand extends Command {
     boolean clientSideOnly = false // per default all model creation is synced back to the server
     List<Map<String, Object>> attributes = []
 
-    // note: we always need a paramless ctor for the codec
+    // note: we always need a no-arg ctor for the codec
 
     /** @deprecated use ServerFacade convenience methods (it is ok to use it from the client atm)*/
     static <T extends Attribute> CreatePresentationModelCommand makeFrom(PresentationModel<T> model) {

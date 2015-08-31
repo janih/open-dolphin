@@ -29,7 +29,7 @@ import org.opendolphin.core.server.comm.CommandHandler
 import java.util.logging.Level
 
 
-@CompileStatic
+//CompileStatic
 @Log
 class ServerConnector {
     Codec codec

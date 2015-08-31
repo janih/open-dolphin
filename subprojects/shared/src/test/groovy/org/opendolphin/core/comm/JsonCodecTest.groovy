@@ -35,15 +35,16 @@ public class JsonCodecTest extends GroovyTestCase {
     void assertSoManyCommands(int count) {
         def codec = new JsonCodec()
         def commands = []
-        count.times{
-            commands << new AttributeCreatedNotification(pmId: it, attributeId: "${it*count}C", propertyName: "prop$it", newValue: "value$it", qualifier: null)
+        count.times {
+            commands << new AttributeCreatedNotification(pmId: it, attributeId: "${it * count}C", propertyName: "prop$it", newValue: "value$it", qualifier: null)
         }
         def coded = codec.encode(commands)
         def decoded = codec.decode(coded)
         assert commands.toString() == decoded.toString()
     }
+
     void testCodingCreatePresentationModelCommandWithDisallowedSelfReflectiveMapEntry() {
-        def map = [ propertyName: 'x', qualifier: null ]
+        def map = [propertyName: 'x', qualifier: null]
         map.value = map
         shouldFail {
             assertCodingCreatePresentationModel(map)
@@ -51,7 +52,7 @@ public class JsonCodecTest extends GroovyTestCase {
     }
 
     void testCodingCreatePresentationModelWithStructuredEntry() {
-        def map = [ propertyName: 'x', qualifier: null ]
+        def map = [propertyName: 'x', qualifier: null]
         map.value = "ok"
         assertCodingCreatePresentationModel(map)
     }
@@ -82,13 +83,13 @@ public class JsonCodecTest extends GroovyTestCase {
     }
 
     void testCodingCommands() {
-        assertCodingCommand(new AttributeCreatedNotification(tag:Tag.TOOLTIP))
+        assertCodingCommand(new AttributeCreatedNotification(tag: Tag.TOOLTIP))
         assertCodingCommand(new AttributeMetadataChangedCommand())
         assertCodingCommand(new CallNamedActionCommand("some-action"))
         assertCodingCommand(new CreatePresentationModelCommand())
         assertCodingCommand(new ChangeAttributeMetadataCommand())
         assertCodingCommand(new GetPresentationModelCommand())
-        assertCodingCommand(new DataCommand([a:1, b:2]))
+        assertCodingCommand(new DataCommand([a:1, b:2.5d]))
         assertCodingCommand(new DeleteAllPresentationModelsOfTypeCommand())
         assertCodingCommand(new DeletedAllPresentationModelsOfTypeNotification())
         assertCodingCommand(new DeletedPresentationModelNotification())
@@ -113,6 +114,92 @@ public class JsonCodecTest extends GroovyTestCase {
         assert commands.toString().toList().sort() == decoded.toString().toList().sort()
     }
 
+    void testProperTypeEnAndDecoding() {
+        assertCorrectEnAndDecoding('n', 't')
+        assertCorrectEnAndDecoding('\n', '\t')
+        assertCorrectEnAndDecoding("String", "newString")
+        assertCorrectEnAndDecoding(true, false)
+        assertCorrectEnAndDecoding(Integer.MAX_VALUE, Integer.MIN_VALUE)
+        assertCorrectEnAndDecoding(Long.MAX_VALUE, Long.MIN_VALUE)
+        assertCorrectEnAndDecoding(new Date(0, 0, 1900), new Date(1, 1, 2000))
+        assertCorrectEnAndDecoding(new BigDecimal(Double.MAX_VALUE), new BigDecimal(Double.MIN_VALUE))
+        // is decoded as Long !
+        assertCorrectEnAndDecoding(Double.MAX_VALUE, Double.MIN_VALUE)              // is decoded as BigDecimal !
+        assertCorrectEnAndDecoding(Float.MAX_VALUE, Float.MIN_VALUE)                // is decoded as BigDecimal !
+    }
 
+    private void assertCorrectEnAndDecoding(Object oldValue, Object newValue) {
+        def codec = new JsonCodec()
+        def in_command = new ValueChangedCommand("bla", oldValue, newValue);
+        def coded = codec.encode([in_command])
 
+        def out_command = codec.decode(coded)[0];
+        assert in_command != out_command;
+        assert in_command.attributeId == out_command.attributeId
+        assert in_command.oldValue.class == out_command.oldValue.class
+        assert in_command.oldValue == out_command.oldValue
+        assert in_command.newValue.class == out_command.newValue.class
+        assert in_command.newValue == out_command.newValue
+    }
+
+    /**
+     * this test works until 7fd89dd but not beyond
+     * crashes at [2] with "Attribute values of this type are not allowed: LazyMap"
+     */
+    void testProperTypeEnAndDeAndEnAndDecodingADate() {
+
+        def cpmc = new CreatePresentationModelCommand();
+        cpmc.attributes << [
+                propertyName: "theDate",
+                id          : "0",
+                qualifier   : "1",
+                value       : new Date(),
+                baseValue   : new Date()
+        ]
+        cpmc.pmId = "untilDate0"
+        cpmc.pmType = "aDate"
+
+        def codec = new JsonCodec()
+
+        // [0] from one end
+        def encoded0 = codec.encode([cpmc])
+        // [1] to the other
+        def decoded0 = codec.decode(encoded0)[0];
+        // [2] and back
+        def encoded1 = codec.encode([decoded0])
+        // should work too
+        def decoded1 = codec.decode(encoded1)[0];
+
+        assert decoded1 != null;
+    }
+
+    /**
+     * this test works until 7fd89dd and beyond
+     */
+    void testProperTypeEnAndDeAndEnAndDecodingAString() {
+
+        def cpmc = new CreatePresentationModelCommand();
+        cpmc.attributes << [
+                propertyName: "theMessage",
+                id          : "0",
+                qualifier   : "1",
+                value       : "momo was here",
+                baseValue   : "momo was here"
+        ]
+        cpmc.pmId = "aName"
+        cpmc.pmType = "aString"
+
+        def codec = new JsonCodec()
+
+        // from one end
+        def encoded0 = codec.encode([cpmc])
+        // to the other
+        def decoded0 = codec.decode(encoded0)[0];
+        // and back
+        def encoded1 = codec.encode([decoded0])
+        // should work too
+        def decoded1 = codec.decode(encoded1)[0];
+
+        assert decoded1 != null;
+    }
 }

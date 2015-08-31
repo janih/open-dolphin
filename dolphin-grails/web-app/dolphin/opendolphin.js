@@ -592,13 +592,13 @@ var opendolphin;
         }
         BlindCommandBatcher.prototype.batch = function (queue) {
             var result = [];
-            this.processNext(queue, result);
+            this.processNext(50, queue, result); // do not batch more than 50 commands to avoid stack overflow on recursion.
             return result;
         };
 
         // recursive impl method to side-effect both queue and batch
-        BlindCommandBatcher.prototype.processNext = function (queue, batch) {
-            if (queue.length < 1)
+        BlindCommandBatcher.prototype.processNext = function (maxBatchSize, queue, batch) {
+            if (queue.length < 1 || maxBatchSize < 1)
                 return;
             var candidate = queue.shift();
 
@@ -622,7 +622,7 @@ var opendolphin;
                 batch.push(candidate);
             }
             if (!candidate.handler && !(candidate.command['className'] == "org.opendolphin.core.comm.NamedCommand") && !(candidate.command['className'] == "org.opendolphin.core.comm.EmptyNotification")) {
-                this.processNext(queue, batch); // then we can proceed with batching
+                this.processNext(maxBatchSize - 1, queue, batch); // then we can proceed with batching
             }
         };
         return BlindCommandBatcher;
@@ -1624,78 +1624,30 @@ var opendolphin;
     })();
     opendolphin.ClientConnector = ClientConnector;
 })(opendolphin || (opendolphin = {}));
-/// <reference path="Command.ts" />
+/// <reference path="DolphinBuilder.ts"/>
+/**
+* JS-friendly facade to avoid too many dependencies in plain JS code.
+* The name of this file is also used for the initial lookup of the
+* one javascript file that contains all the dolphin code.
+* Changing the name requires the build support and all users
+* to be updated as well.
+* Dierk Koenig
+*/
 var opendolphin;
 (function (opendolphin) {
-    var GetPresentationModelCommand = (function (_super) {
-        __extends(GetPresentationModelCommand, _super);
-        function GetPresentationModelCommand(pmId) {
-            _super.call(this);
-            this.pmId = pmId;
-            this.id = 'GetPresentationModel';
-            this.className = "org.opendolphin.core.comm.GetPresentationModelCommand";
-        }
-        return GetPresentationModelCommand;
-    })(opendolphin.Command);
-    opendolphin.GetPresentationModelCommand = GetPresentationModelCommand;
-})(opendolphin || (opendolphin = {}));
-/// <reference path="Command.ts"/>
-/// <reference path="SignalCommand.ts"/>
-/// <reference path="ClientConnector.ts"/>
-/// <reference path="Codec.ts"/>
-var opendolphin;
-(function (opendolphin) {
-    var HttpTransmitter = (function () {
-        function HttpTransmitter(url, reset) {
-            if (typeof reset === "undefined") { reset = true; }
-            this.url = url;
-            this.HttpCodes = {
-                finished: 4,
-                success: 200
-            };
-            this.http = new XMLHttpRequest();
+    // factory method for the initialized dolphin
+    // Deprecated ! Use 'makeDolphin() instead
+    function dolphin(url, reset, slackMS) {
+        if (typeof slackMS === "undefined") { slackMS = 300; }
+        return makeDolphin().url(url).reset(reset).slackMS(slackMS).build();
+    }
+    opendolphin.dolphin = dolphin;
 
-            //            this.http.withCredentials = true; // not supported in all browsers
-            this.codec = new opendolphin.Codec();
-            if (reset) {
-                this.invalidate();
-            }
-        }
-        HttpTransmitter.prototype.transmit = function (commands, onDone) {
-            var _this = this;
-            this.http.onerror = function (evt) {
-                alert("could not fetch " + _this.url + ", message: " + evt.message); // todo dk: make this injectable
-                onDone([]);
-            };
-
-            this.http.onreadystatechange = function (evt) {
-                if (_this.http.readyState == _this.HttpCodes.finished) {
-                    if (_this.http.status == _this.HttpCodes.success) {
-                        var responseText = _this.http.responseText;
-                        var responseCommands = _this.codec.decode(responseText);
-                        onDone(responseCommands);
-                    }
-                    //todo ks: if status is not 200 then show error
-                }
-            };
-
-            this.http.open('POST', this.url, true);
-            this.http.send(this.codec.encode(commands));
-        };
-
-        HttpTransmitter.prototype.signal = function (command) {
-            var sig = new XMLHttpRequest();
-            sig.open('POST', this.url, true);
-            sig.send(this.codec.encode([command]));
-        };
-
-        HttpTransmitter.prototype.invalidate = function () {
-            this.http.open('POST', this.url + 'invalidate?', false);
-            this.http.send();
-        };
-        return HttpTransmitter;
-    })();
-    opendolphin.HttpTransmitter = HttpTransmitter;
+    // factory method to build an initialized dolphin
+    function makeDolphin() {
+        return new opendolphin.DolphinBuilder();
+    }
+    opendolphin.makeDolphin = makeDolphin;
 })(opendolphin || (opendolphin = {}));
 /// <reference path="Command.ts"/>
 /// <reference path="SignalCommand.ts"/>
@@ -1721,39 +1673,161 @@ var opendolphin;
     })();
     opendolphin.NoTransmitter = NoTransmitter;
 })(opendolphin || (opendolphin = {}));
-/// <reference path="ClientAttribute.ts"/>
-/// <reference path="ClientDolphin.ts"/>
-/// <reference path="ClientModelStore.ts"/>
+/// <reference path="Command.ts"/>
+/// <reference path="SignalCommand.ts"/>
 /// <reference path="ClientConnector.ts"/>
-/// <reference path="NoTransmitter.ts"/>
-/// <reference path="HttpTransmitter.ts"/>
-/**
-* JS-friendly facade to avoid too many dependencies in plain JS code.
-* The name of this file is also used for the initial lookup of the
-* one javascript file that contains all the dolphin code.
-* Changing the name requires the build support and all users
-* to be updated as well.
-* Dierk Koenig
-*/
+/// <reference path="Codec.ts"/>
 var opendolphin;
 (function (opendolphin) {
-    // factory method for the initialized dolphin
-    function dolphin(url, reset, slackMS) {
-        if (typeof slackMS === "undefined") { slackMS = 300; }
-        console.log("OpenDolphin js found");
-        var clientDolphin = new opendolphin.ClientDolphin();
-        var transmitter;
-        if (url != null && url.length > 0) {
-            transmitter = new opendolphin.HttpTransmitter(url, reset);
-        } else {
-            transmitter = new opendolphin.NoTransmitter();
+    var HttpTransmitter = (function () {
+        function HttpTransmitter(url, reset, charset, errorHandler) {
+            if (typeof reset === "undefined") { reset = true; }
+            if (typeof charset === "undefined") { charset = "UTF-8"; }
+            if (typeof errorHandler === "undefined") { errorHandler = null; }
+            this.url = url;
+            this.charset = charset;
+            this.HttpCodes = {
+                finished: 4,
+                success: 200
+            };
+            this.errorHandler = errorHandler;
+            this.http = new XMLHttpRequest();
+            this.sig = new XMLHttpRequest();
+            if ("withCredentials" in this.http) {
+                this.http.withCredentials = true; // NOTE: doing this for non CORS requests has no impact
+                this.sig.withCredentials = true;
+            }
+
+            // NOTE: Browser might support CORS partially so we simply try to use 'this.http' for CORS requests instead of forbidding it
+            // NOTE: XDomainRequest for IE 8, IE 9 not supported by dolphin because XDomainRequest does not support cookies in CORS requests (which are needed for the JSESSIONID cookie)
+            this.codec = new opendolphin.Codec();
+            if (reset) {
+                this.invalidate();
+            }
         }
-        clientDolphin.setClientConnector(new opendolphin.ClientConnector(transmitter, clientDolphin, slackMS));
-        clientDolphin.setClientModelStore(new opendolphin.ClientModelStore(clientDolphin));
-        console.log("ClientDolphin initialized");
-        return clientDolphin;
-    }
-    opendolphin.dolphin = dolphin;
+        HttpTransmitter.prototype.transmit = function (commands, onDone) {
+            var _this = this;
+            this.http.onerror = function (evt) {
+                _this.handleError('onerror', "");
+                onDone([]);
+            };
+
+            this.http.onreadystatechange = function (evt) {
+                if (_this.http.readyState == _this.HttpCodes.finished) {
+                    if (_this.http.status == _this.HttpCodes.success) {
+                        var responseText = _this.http.responseText;
+                        if (responseText.trim().length > 0) {
+                            try  {
+                                var responseCommands = _this.codec.decode(responseText);
+                                onDone(responseCommands);
+                            } catch (err) {
+                                console.log("Error occurred parsing responseText: ", err);
+                                console.log("Incorrect responseText: ", responseText);
+                                _this.handleError('application', "HttpTransmitter: Incorrect responseText: " + responseText);
+                                onDone([]);
+                            }
+                        } else {
+                            _this.handleError('application', "HttpTransmitter: empty responseText");
+                            onDone([]);
+                        }
+                    } else {
+                        _this.handleError('application', "HttpTransmitter: HTTP Status != 200");
+                        onDone([]);
+                    }
+                }
+            };
+
+            this.http.open('POST', this.url, true);
+            if ("overrideMimeType" in this.http) {
+                this.http.overrideMimeType("application/json; charset=" + this.charset); // todo make injectable
+            }
+            this.http.send(this.codec.encode(commands));
+        };
+
+        HttpTransmitter.prototype.handleError = function (kind, message) {
+            var errorEvent = { kind: kind, url: this.url, httpStatus: this.http.status, message: message };
+            if (this.errorHandler) {
+                this.errorHandler(errorEvent);
+            } else {
+                console.log("Error occurred: ", errorEvent);
+            }
+        };
+
+        HttpTransmitter.prototype.signal = function (command) {
+            this.sig.open('POST', this.url, true);
+            this.sig.send(this.codec.encode([command]));
+        };
+
+        HttpTransmitter.prototype.invalidate = function () {
+            this.http.open('POST', this.url + 'invalidate?', false);
+            this.http.send();
+        };
+        return HttpTransmitter;
+    })();
+    opendolphin.HttpTransmitter = HttpTransmitter;
+})(opendolphin || (opendolphin = {}));
+/// <reference path="ClientDolphin.ts"/>
+/// <reference path="OpenDolphin.ts"/>
+/// <reference path="ClientConnector.ts"/>
+/// <reference path="ClientModelStore.ts"/>
+/// <reference path="NoTransmitter.ts"/>
+/// <reference path="HttpTransmitter.ts"/>
+/// <reference path="ClientAttribute.ts"/>
+var opendolphin;
+(function (opendolphin) {
+    var DolphinBuilder = (function () {
+        function DolphinBuilder() {
+            this.reset_ = false;
+            this.slackMS_ = 300;
+        }
+        DolphinBuilder.prototype.url = function (url) {
+            this.url_ = url;
+            return this;
+        };
+        DolphinBuilder.prototype.reset = function (reset) {
+            this.reset_ = reset;
+            return this;
+        };
+        DolphinBuilder.prototype.slackMS = function (slackMS) {
+            this.slackMS_ = slackMS;
+            return this;
+        };
+        DolphinBuilder.prototype.errorHandler = function (errorHandler) {
+            this.errorHandler_ = errorHandler;
+            return this;
+        };
+        DolphinBuilder.prototype.build = function () {
+            console.log("OpenDolphin js found");
+            var clientDolphin = new opendolphin.ClientDolphin();
+            var transmitter;
+            if (this.url_ != null && this.url_.length > 0) {
+                transmitter = new opendolphin.HttpTransmitter(this.url_, this.reset_, "UTF-8", this.errorHandler_);
+            } else {
+                transmitter = new opendolphin.NoTransmitter();
+            }
+            clientDolphin.setClientConnector(new opendolphin.ClientConnector(transmitter, clientDolphin, this.slackMS_));
+            clientDolphin.setClientModelStore(new opendolphin.ClientModelStore(clientDolphin));
+            console.log("ClientDolphin initialized");
+            return clientDolphin;
+        };
+        return DolphinBuilder;
+    })();
+    opendolphin.DolphinBuilder = DolphinBuilder;
+})(opendolphin || (opendolphin = {}));
+/// <reference path="Command.ts" />
+var opendolphin;
+(function (opendolphin) {
+    var GetPresentationModelCommand = (function (_super) {
+        __extends(GetPresentationModelCommand, _super);
+        function GetPresentationModelCommand(pmId) {
+            _super.call(this);
+            this.pmId = pmId;
+            this.id = 'GetPresentationModel';
+            this.className = "org.opendolphin.core.comm.GetPresentationModelCommand";
+        }
+        return GetPresentationModelCommand;
+    })(opendolphin.Command);
+    opendolphin.GetPresentationModelCommand = GetPresentationModelCommand;
 })(opendolphin || (opendolphin = {}));
 /// <reference path="Command.ts" />
 var opendolphin;

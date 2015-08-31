@@ -25,17 +25,17 @@ module opendolphin {
     export class BlindCommandBatcher implements CommandBatcher {
 
         /** folding: whether we should try folding ValueChangedCommands */
-        constructor(public folding:boolean = true){}
+        constructor(public folding:boolean = true, public maxBatchSize : number = 50){}
 
         batch(queue : CommandAndHandler[]) : CommandAndHandler[] {
             var result = [];
-            this.processNext(queue, result);
+            this.processNext(this.maxBatchSize, queue, result); // do not batch more than this.maxBatchSize commands to avoid stack overflow on recursion.
             return result;
         }
 
         // recursive impl method to side-effect both queue and batch
-        private processNext(queue : CommandAndHandler[], batch : CommandAndHandler[]) : void {
-            if (queue.length < 1) return;
+        private processNext(maxBatchSize : number, queue : CommandAndHandler[], batch : CommandAndHandler[]) : void {
+            if (queue.length < 1 || maxBatchSize < 1) return;
             var candidate = queue.shift();
 
             if (this.folding && candidate.command instanceof ValueChangedCommand && (!candidate.handler)) { // see whether we can merge
@@ -61,7 +61,7 @@ module opendolphin {
                  ! (candidate.command['className'] == "org.opendolphin.core.comm.NamedCommand") &&     // and no unknown server side effect
                  ! (candidate.command['className'] == "org.opendolphin.core.comm.EmptyNotification")   // and no unknown client side effect
                ) {
-                this.processNext(queue, batch);         // then we can proceed with batching
+                this.processNext(maxBatchSize-1, queue, batch);         // then we can proceed with batching
             }
         }
     }

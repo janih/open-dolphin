@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 class ServerControlledFunctionalTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    GServerDolphin serverDolphin
+    DefaultServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override

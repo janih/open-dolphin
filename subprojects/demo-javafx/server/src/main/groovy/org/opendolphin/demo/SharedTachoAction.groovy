@@ -51,7 +51,7 @@ class SharedTachoAction extends DolphinServerAction {
             }
             if (null != lastSpeed) {
                 log.info "got speed notification: $lastSpeed"
-                serverDolphin.changeValue(response, attribute, lastSpeed)
+                serverDolphin.changeValueCommand(response, attribute, lastSpeed)
             }
 
             return response

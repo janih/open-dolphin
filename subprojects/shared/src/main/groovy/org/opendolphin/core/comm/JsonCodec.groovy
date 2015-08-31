@@ -22,33 +22,65 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Log
 
+import java.text.DateFormat
+
 @Log
 class JsonCodec implements Codec {
+
+
+    public static final String DATE_TYPE_KEY = Date.toString();
+    public static final String BIGDECIMAL_TYPE_KEY = BigDecimal.toString();
+    public static final String FLOAT_TYPE_KEY = Float.toString();
+    public static final String DOUBLE_TYPE_KEY = Double.toString();
 
     @Override
     String encode(List<Command> commands) {
         def content = commands.collect { Command cmd ->
             log.finest "encoding command $cmd"
             def entry = cmd.properties
-            ['class','metaClass'].each { entry.remove it }
+            ['class', 'metaClass'].each { entry.remove it }
             entry.className = cmd.class.name
             entry.each { key, value ->              // prepare against invalid entries
                 if (value instanceof List) {        // some commands may have collective values
                     for (Map entryMap in value) {
                         entryMap.each { entryKey, entryValue ->
-                            entryMap[entryKey] = BaseAttribute.checkValue(entryValue)
-                    }   }
+                            entryMap[entryKey] = encodeBaseValue(entryValue)
+                        }
+                    }
                 } else if (value instanceof Map) {  // DataCommand has map content
                     value.each { entryKey, entryValue ->
-                        value[entryKey] = BaseAttribute.checkValue(entryValue)
+                        value[entryKey] = encodeBaseValue(entryValue)
                     }
                 } else {
-                    entry[key] = BaseAttribute.checkValue(value)
-            }   }
+                    entry[key] = encodeBaseValue(value)
+                }
+            }
             entry
         }
-        JsonBuilder builder = new JsonBuilder(content) // todo dk: here and in Slurper: think about charset UTF-8
+        JsonBuilder builder = new JsonBuilder(content)
         builder.toString()
+    }
+
+    protected Object encodeBaseValue(entryValue) {
+        def result = BaseAttribute.checkValue(entryValue);
+        if (result instanceof Date) {
+            def map = [:];
+            map[DATE_TYPE_KEY] = DateFormat.getDateInstance().format(result);
+            result = map
+        } else if (result instanceof BigDecimal) {
+            def map = [:];
+            map[BIGDECIMAL_TYPE_KEY] = result.toString();
+            result = map
+        } else if (result instanceof Float) {
+            def map = [:];
+            map[FLOAT_TYPE_KEY] = Float.toString(result);
+            result = map
+        } else if (result instanceof Double) {
+            def map = [:];
+            map[DOUBLE_TYPE_KEY] = Double.toString(result);
+            result = map
+        }
+        return result
     }
 
     @Override
@@ -66,11 +98,39 @@ class JsonCodec implements Codec {
                     return
                 }
                 if (key == 'tag') value = Tag.tagFor[value]
+                else
+                if (value instanceof List) {        // some commands may have collective values
+                    for (Map entryMap in value) {
+                        entryMap.each { entryKey, entryValue ->
+                            entryMap[entryKey] = decodeBaseValue(entryValue)
+                        }
+                    }
+                }
+                else value = decodeBaseValue(value)
                 responseCommand[key] = value
             }
             log.finest "decoded command $responseCommand"
             result << responseCommand
         }
         return result
+    }
+
+    Object decodeBaseValue(Object encodedValue) {
+        Object result = encodedValue;
+        if (encodedValue instanceof Map && encodedValue.size() == 1) {
+            if (encodedValue.containsKey(DATE_TYPE_KEY)) {
+                result = DateFormat.getDateInstance().parse(encodedValue[DATE_TYPE_KEY]);
+            } else
+            if (encodedValue.containsKey(BIGDECIMAL_TYPE_KEY)) {
+                result = new BigDecimal(encodedValue[BIGDECIMAL_TYPE_KEY]);
+            } else
+            if (encodedValue.containsKey(FLOAT_TYPE_KEY)) {
+                result = Float.parseFloat(encodedValue[FLOAT_TYPE_KEY]);
+            } else
+            if (encodedValue.containsKey(DOUBLE_TYPE_KEY)) {
+                result = Double.parseDouble(encodedValue[DOUBLE_TYPE_KEY]);
+            }
+        }
+        return result;
     }
 }

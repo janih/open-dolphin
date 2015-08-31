@@ -72,7 +72,9 @@ subprojects {
     archivesBaseName = "dolphin-${project.name}"
 
     repositories {
+        mavenLocal()
         jcenter()
+        mavenCentral()
     }
 
     dependencies {

@@ -56,7 +56,7 @@ class LazyLoadingView {
         ObservableList<Integer> observableList = FXCollections.observableArrayList()
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
 
             def gauge = new Radial (
                 styleModel: new StyleModel(frameDesign: CHROME),

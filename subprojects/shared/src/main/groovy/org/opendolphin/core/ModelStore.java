@@ -23,20 +23,32 @@ import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
- * Central data structure to store presentation models and their attributes
+ * A central data structure to store presentation models and their attributes
  * both on the client (view) and on the server (controller) side for separate access.
+ * <p/>A model store maintains a set of presentation models and their attributes.  Presentation models may be added to
+ * or removed from the model store; the attributes of such presentation models are automatically also added or removed.
+ * <p/>
+ * It provides methods to:
+ * <ol>
+ *     <li>obtain a list of all (unique) presentation model ID's;</li>
+ *     <li>obtain a list of all presentation models;</li>
+ *     <li>locate individual models by unique ID;</li>
+ *     <li>obtain a list of all models of a given type;</li>
+ *     <li>locate individual attributes by unique ID; and</li>
+ *     <li>obtain a list of all attributes with a given qualifier.</li>
+ * </ol>
+ * In addition, the model store provides methods to listen for changes to the model store.
  */
-
 public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     // We maintain four indexes in this data structure in order to efficiently access
-    // - presentation models by id or by type
-    // - attributes by id or by qualifier
+    // - presentation models: by id; by type
+    // - attributes: by id; by qualifier
 
     private final Map<String, P>        presentationModels;
     private final Map<String, List<P>>  modelsPerType;
-    private final Map<String, A>                attributesPerId;
-    private final Map<String, List<A>>          attributesPerQualifier;
+    private final Map<String, A>        attributesPerId;
+    private final Map<String, List<A>>  attributesPerQualifier;
 
     private final Set<ModelStoreListenerWrapper<A, P>> modelStoreListeners = new LinkedHashSet<ModelStoreListenerWrapper<A, P>>();
 
@@ -52,16 +64,24 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
         }
     };
 
-
+    /**
+     * Constructs a model store with default capacities.
+     * @see ModelStoreConfig
+     */
     public ModelStore() {
         this(new ModelStoreConfig());
     }
 
+    /**
+     * Constructs a model store using the supplied configuration to specify default capacities.
+     * @param config specifies the default capacities for the model store
+     * @see ModelStoreConfig
+     */
     public ModelStore(ModelStoreConfig config) {
         presentationModels      = new HashMap<String, P>        (config.getPmCapacity());
         modelsPerType           = new HashMap<String, List<P>>  (config.getTypeCapacity());
-        attributesPerId         = new HashMap<String, A>                (config.getAttributeCapacity());
-        attributesPerQualifier  = new HashMap<String, List<A>>          (config.getQualifierCapacity());
+        attributesPerId         = new HashMap<String, A>        (config.getAttributeCapacity());
+        attributesPerQualifier  = new HashMap<String, List<A>>  (config.getQualifierCapacity());
     }
 
     /**
@@ -76,7 +96,7 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     /**
      * Returns a {@code Collection} of all presentation models found in this store.<br/>
-     * Never returns empty. The returned {@code Collection} is immutable.
+     * Never returns {@code null}. The returned {@code Collection} is immutable.
      *
      * @return a {@code Collection} of all presentation models found in this store.
      */
@@ -91,6 +111,7 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
      *
      * @param model the model to be added.
      * @return if the add operation was successful or not.
+     * @throws IllegalArgumentException if a presentation model with the model's ID is already in the model store.
      */
     public boolean add(P model) {
         if (null == model) return false;
@@ -204,10 +225,10 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     /**
      * Find a presentation model by the given id.<br/>
-     * <strong>WARNING:</strong> this method may return {@code null} if no match is found.
+     * <strong>WARNING:</strong> this method will return {@code null} if no match is found.
      *
      * @param id the id to search
-     * @return a presentation model instance of there's an id match, {@code null} otherwise.
+     * @return the presentation model with the specified ID, otherwise {@code null}.
      */
     public P findPresentationModelById(String id) {
         return presentationModels.get(id);
@@ -215,10 +236,10 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     /**
      * Finds all presentation models that share the same type.<br/>
-     * The returned {@code List} is never null and immutable.
+     * The returned {@code List} is never null (though it may be empty), and is immutable.
      *
      * @param type the type to search for
-     * @return a {@code List} of all presentation models for which there was a match in their type.
+     * @return a {@code List} of all presentation models with the specified type.
      */
     public List<P> findAllPresentationModelsByType(String type) {
         if (StringUtil.isBlank(type) || !modelsPerType.containsKey(type)) return Collections.emptyList();
@@ -226,10 +247,10 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
     }
 
     /**
-     * Finds out if a model is contained in this store, based on its id.
+     * Determines if a presentation model with the specified ID is contained in this model store.
      *
      * @param id the id to search in the store.
-     * @return true if the model is found in this store, false otherwise.
+     * @return true if the model is found in this store, otherwise false.
      */
     public boolean containsPresentationModel(String id) {
         return presentationModels.containsKey(id);
@@ -237,10 +258,10 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     /**
      * Finds an attribute by its id.<br/>
-     * <strong>WARNING:</strong> this method may return {@code null} if no match is found.
+     * <strong>WARNING:</strong> this method will return {@code null} if no match is found.
      *
      * @param id the id to search for.
-     * @return an attribute whose id matches the parameter, {@code null} otherwise.
+     * @return the attribute with the specified ID, otherwise {@code null}.
      */
     public A findAttributeById(String id) {
         return attributesPerId.get(id);
@@ -248,15 +269,22 @@ public class ModelStore<A extends Attribute, P extends PresentationModel<A>> {
 
     /**
      * Returns a {@code List} of all attributes that share the same qualifier.<br/>
-     * Never returns null. The returned {@code List} is immutable.
+     * Never returns null, but may return an empty list. The returned {@code List} is immutable.
      *
-     * @return a {@code List} of all attributes fo which their qualifier was a match.
+     * @return a {@code List} of all attributes with the specified qualifier.
      */
     public List<A> findAllAttributesByQualifier(String qualifier) {
         if (StringUtil.isBlank(qualifier) || !attributesPerQualifier.containsKey(qualifier)) return Collections.emptyList();
         return Collections.unmodifiableList(attributesPerQualifier.get(qualifier));
     }
 
+    /**
+     * Adds the specified attribute to the model store.
+     * <p/>Note: attributes belonging to a given presentation model are automatically added to the model store
+     * when the presentation model is added.
+     * @param attribute attribute to be added to the model store
+     * @see #add(PresentationModel)
+     */
     public void registerAttribute(A attribute) {
         if (null == attribute) return;
         boolean listeningAlready = false;

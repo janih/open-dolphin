@@ -61,10 +61,10 @@ class SaveView {
             bind FX.TEXT  of nameInput     to NAME     of model
             bind FX.TEXT  of lastnameInput to LASTNAME of model
 
-            bindInfo DIRTY_PROPERTY of model[NAME]     to FX.TEXT_FILL  of nameLabel,     { it ? RED : WHITE }
-            bindInfo DIRTY_PROPERTY of model[LASTNAME] to FX.TEXT_FILL  of lastnameLabel, { it ? RED : WHITE }
-            bindInfo DIRTY_PROPERTY of model           to FX.TITLE      of primaryStage , { it ? '** Unsaved **': '' }
-            bindInfo DIRTY_PROPERTY of model           to FX.DISABLE    of saveButton,    { !it }
+            bindInfo DIRTY_PROPERTY of model[NAME]     using { it ? RED : WHITE }         to FX.TEXT_FILL  of nameLabel
+            bindInfo DIRTY_PROPERTY of model[LASTNAME] using { it ? RED : WHITE }         to FX.TEXT_FILL  of lastnameLabel
+            bindInfo DIRTY_PROPERTY of model           using { it ? '** Unsaved **': '' } to FX.TITLE      of primaryStage
+            bindInfo DIRTY_PROPERTY of model           using { !it }                      to FX.DISABLE    of saveButton
 
             primaryStage.show()
         }

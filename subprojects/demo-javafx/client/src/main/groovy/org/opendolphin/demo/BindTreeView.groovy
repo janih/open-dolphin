@@ -24,10 +24,13 @@ import org.opendolphin.core.client.ClientPresentationModel
 import static groovyx.javafx.GroovyFX.start
 
 /**
- * The simplemost demo how to have a tree modeled as presentation models
- * and binding it to a treeview.
+ * The simplest demo showing how to model a tree recursively as a list of presentation models,
+ * and how to bind the tree to a TreeView.
+ * <p/>
+ * Note: see startBindTreeDemo.groovy where the PULL_TREE command is defined.
+ * Also see PullTreeActionHandler (makePM method) to see how the tree data is recursively encoded
+ * using DTO's and Slots.
  */
-
 class BindTreeView {
 
     static show(ClientDolphin dolphin) {
@@ -51,8 +54,17 @@ class BindTreeView {
         }
     }
 
+    /**
+     *
+     * @param allNodeModels  list of all node models in the tree.
+     * @param current        presentation model corresponding to the current node
+     * @return
+     */
     static TreeItem filledTreeItem(allNodeModels, current) {
+        // create one TreeItem for the current node.
         def result = new TreeItem<String>(current.id)
+        // scan all nodes in the tree looking for nodes whose parent is the current node;
+        // such nodes are children of the current node, so recursively add their children to them.
         allNodeModels.findAll { it.parent.value == current.id }.each {
             result.children << filledTreeItem(allNodeModels, it)
         }

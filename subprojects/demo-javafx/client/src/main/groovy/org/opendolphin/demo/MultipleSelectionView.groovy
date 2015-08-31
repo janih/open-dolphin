@@ -42,7 +42,7 @@ class MultipleSelectionView {
         secondPm.selected.value = false
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 400, height: 300, {
                     borderPane {

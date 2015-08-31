@@ -18,6 +18,14 @@ package org.opendolphin.core;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Contains four values which are used in initialization of a ModelStore.  These values specify the
+ * initial capacity of the four maps maintained by the ModelStore:
+ * <ol><li>pmCapacity: map of presentation models (key: unique PM ID); default is 1024</li>
+ * <li>typeCapacity: map of presentation model types(key: PM type, returns a list of all PM's with that type); default 64</li>
+ * <li>attributeCapacity: map of attributes (key: unique attribute ID); default is 4096</li>
+ * <li>qualifierCapacity: map of attributes (key: qualifier, returns a list of all attributes with that qualifier); default 1024</li></ol>
+ */
 public class ModelStoreConfig {
 
     private static final Logger log  = Logger.getLogger(ModelStoreConfig.class.getName());
@@ -70,7 +78,7 @@ public class ModelStoreConfig {
         this.qualifierCapacity = qualifierCapacity;
     }
 
-    // all the capacities will be used to initialize HashMaps so they should be power of two
+    // all the capacities will be used to initialize HashMaps so they should be powers of two
     private void ensurePowerOfTwo(String parameter, int number) {
         if (Integer.bitCount(number) > 1) {
             if (log.isLoggable(Level.WARNING)) {

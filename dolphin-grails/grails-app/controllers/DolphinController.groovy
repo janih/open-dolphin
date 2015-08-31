@@ -15,6 +15,7 @@ class DolphinController {
     }
 
     def index() {
+        request.characterEncoding = "UTF-8"
         def requestJson = request.inputStream.text
         if (! requestJson) {
             requestJson = request.parameters.keySet().toList()[0] // when sent from browser the input comes as the first param key

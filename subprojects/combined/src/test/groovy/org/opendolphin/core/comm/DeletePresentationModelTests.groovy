@@ -17,14 +17,14 @@
 package org.opendolphin.core.comm
 
 import org.opendolphin.core.client.ClientDolphin
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 
 import java.util.concurrent.TimeUnit
 
 class DeletePresentationModelTests extends GroovyTestCase {
 
     volatile TestInMemoryConfig context
-    GServerDolphin serverDolphin
+    DefaultServerDolphin serverDolphin
     ClientDolphin clientDolphin
 
     @Override
@@ -85,7 +85,7 @@ class DeletePresentationModelTests extends GroovyTestCase {
         }
 
         serverDolphin.action('triggerDelete') { cmd, List<Command> response ->
-            serverDolphin.delete(response, modelId)
+            serverDolphin.deleteCommand(response, modelId)
         }
         // when we now delete the pm
         clientDolphin.send 'triggerDelete', {

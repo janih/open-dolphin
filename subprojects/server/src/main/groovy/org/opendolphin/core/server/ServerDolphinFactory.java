@@ -8,10 +8,10 @@ public class ServerDolphinFactory {
     private ServerDolphinFactory() {}
 
     public static ServerDolphin create() {
-        return new GServerDolphin();
+        return new DefaultServerDolphin();
     }
 
     public static ServerDolphin create(ServerModelStore serverModelStore, ServerConnector serverConnector) {
-        return new GServerDolphin(serverModelStore, serverConnector);
+        return new DefaultServerDolphin(serverModelStore, serverConnector);
     }
 }

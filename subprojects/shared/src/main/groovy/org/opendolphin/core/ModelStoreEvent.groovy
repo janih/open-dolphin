@@ -19,7 +19,7 @@ package org.opendolphin.core
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode;
 
-@CompileStatic
+//CompileStatic
 @EqualsAndHashCode
 public class ModelStoreEvent<A extends Attribute, P extends PresentationModel<A>> {
     public enum Type {

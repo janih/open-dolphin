@@ -16,8 +16,10 @@
 
 apply from: rootProject.file('gradle/javafx.gradle')
 
+println "using javafx from path $project.jfxrtLocation"
+
 dependencies {
     compile project(':client')
-    compileOnly project.files(project.jfxrtLocation)
+    compile project.files(project.jfxrtLocation)
     testCompile project.files(project.jfxrtLocation)
 }

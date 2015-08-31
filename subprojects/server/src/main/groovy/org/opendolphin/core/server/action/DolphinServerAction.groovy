@@ -20,30 +20,29 @@ import org.opendolphin.core.Tag
 import org.opendolphin.core.comm.Command
 import org.opendolphin.core.server.DTO
 import org.opendolphin.core.server.ServerAttribute
-import org.opendolphin.core.server.GServerDolphin
-import groovy.transform.CompileStatic
+import org.opendolphin.core.server.DefaultServerDolphin
 
 /**
  * Common superclass for all actions that need access to
  * the ServerDolphin, e.g. to work with the server model store.
  */
 
-@CompileStatic
+//CompileStatic
 abstract class DolphinServerAction implements ServerAction {
-    GServerDolphin serverDolphin
+    DefaultServerDolphin serverDolphin
     List<Command> dolphinResponse
 
 
     void presentationModel(String id, String presentationModelType, DTO dto) {
-        GServerDolphin.presentationModel(dolphinResponse, id, presentationModelType, dto)
+        DefaultServerDolphin.presentationModelCommand(dolphinResponse, id, presentationModelType, dto)
     }
 
     void changeValue(ServerAttribute attribute, value) {
-        GServerDolphin.changeValue(dolphinResponse, attribute, value)
+        DefaultServerDolphin.changeValueCommand(dolphinResponse, attribute, value)
     }
 
     /** Convenience method for the InitializeAttributeCommand */
     void initAt(String pmId, String propertyName, String qualifier, Object newValue = null, Tag tag = Tag.VALUE) {
-        GServerDolphin.initAt(dolphinResponse, pmId, propertyName, qualifier, newValue, tag)
+        DefaultServerDolphin.initAt(dolphinResponse, pmId, propertyName, qualifier, newValue, tag)
     }
 }

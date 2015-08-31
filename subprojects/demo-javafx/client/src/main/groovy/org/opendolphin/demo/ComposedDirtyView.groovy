@@ -111,8 +111,8 @@ class ComposedDirtyView {
             bind 'text' of dateInput to 'date' of portfolio
 
             // display of dirty core attributes
-            bindInfo DIRTY_PROPERTY of portfolio.name to 'textFill' of nameLabel, { it ? RED : WHITE }
-            bindInfo DIRTY_PROPERTY of portfolio.date to 'textFill' of dateLabel, { it ? RED : WHITE }
+            bindInfo DIRTY_PROPERTY of portfolio.name using { it ? RED : WHITE } to 'textFill' of nameLabel
+            bindInfo DIRTY_PROPERTY of portfolio.date using { it ? RED : WHITE } to 'textFill' of dateLabel
 
             // display of composed dirtyness
             bind 'saveable' of portfolio to 'title'    of primaryStage , { it ? '** DIRTY **': '' }

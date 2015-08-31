@@ -20,7 +20,7 @@ import org.opendolphin.core.ModelStoreEvent
 import org.opendolphin.core.ModelStoreListener
 
 public class ServerDolphinTest extends GroovyTestCase {
-    GServerDolphin dolphin
+    DefaultServerDolphin dolphin
 
     @Override
     protected void setUp() throws Exception {

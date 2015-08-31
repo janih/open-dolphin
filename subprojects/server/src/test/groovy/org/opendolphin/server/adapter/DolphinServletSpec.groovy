@@ -2,10 +2,9 @@ package org.opendolphin.server.adapter
 
 import org.opendolphin.core.comm.Codec
 import org.opendolphin.core.server.ServerConnector
-import org.opendolphin.core.server.GServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import spock.lang.Specification
 
-import javax.servlet.ServletInputStream
 import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -42,7 +41,7 @@ class DolphinServletSpec extends Specification {
     void "calling doPost in existing session must not reach registration of custom actions"() {
         given:
         DolphinServlet.log.level = Level.ALL // for full branch coverage
-        def (servlet, req, resp) = mockServlet(new GServerDolphin(null, mockServerConnector()))
+        def (servlet, req, resp) = mockServlet(new DefaultServerDolphin(null, mockServerConnector()))
 
         when:
         servlet.doPost(req, resp)
@@ -60,8 +59,8 @@ class DolphinServletSpec extends Specification {
         ] as ServerConnector
     }
 
-    def mockServlet(GServerDolphin serverDolphin) {
-        GServerDolphin.metaClass.getServerConnector = {-> mockServerConnector() }
+    def mockServlet(DefaultServerDolphin serverDolphin) {
+        DefaultServerDolphin.metaClass.getServerConnector = {-> mockServerConnector() }
 
         def servlet = new TestDolphinServlet()
         def session = [
@@ -85,7 +84,7 @@ class TestDolphinServlet extends DolphinServlet {
     boolean registerReached
 
     @Override
-    protected void registerApplicationActions(GServerDolphin serverDolphin) {
+    protected void registerApplicationActions(DefaultServerDolphin serverDolphin) {
         registerReached = true
     }
 

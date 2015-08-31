@@ -2,7 +2,7 @@ import org.opendolphin.core.server.ServerModelStore
 import org.opendolphin.core.comm.JsonCodec
 import org.opendolphin.core.comm.ZippedJsonCodec
 import org.opendolphin.core.server.EventBus
-import org.opendolphin.core.server.ServerDolphin
+import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.ServerConnector
 
 beans = {
@@ -37,7 +37,7 @@ beans = {
         serverModelStore = ref('modelStore')
     }
 
-    serverDolphin(ServerDolphin, ref('modelStore'), ref('serverConnector')) { bean ->
+    serverDolphin(DefaultServerDolphin, ref('modelStore'), ref('serverConnector')) { bean ->
         bean.scope = 'session'
     }
 

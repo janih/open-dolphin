@@ -16,12 +16,18 @@
 
 package org.opendolphin.demo
 
+import com.sun.javafx.binding.StringFormatter
+import groovyx.javafx.beans.FXBindable
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import org.opendolphin.binding.Binder
 import org.opendolphin.core.client.ClientAttribute
 import org.opendolphin.core.client.ClientPresentationModel
 import org.opendolphin.core.client.ClientDolphin
 
 import static org.opendolphin.binding.JFXBinder.bind
+import static org.opendolphin.binding.JFXBinder.bindInfo
+import static org.opendolphin.core.Attribute.DIRTY_PROPERTY
 import static org.opendolphin.demo.DemoStyle.style
 import static org.opendolphin.demo.MyProps.ATT.*
 import static groovyx.javafx.GroovyFX.start
@@ -34,11 +40,12 @@ class MultipleAttributesView {
         start { app ->
             // construct the PM
             def titleAttr = new ClientAttribute(TITLE)
-            titleAttr.value = "A PM with multiple attributes"
+            titleAttr.value = "Update label on keystroke"
             def purposeAttr = new ClientAttribute(PURPOSE)
-            purposeAttr.value = "Show the need for PMs"
+            purposeAttr.value = "Update label on action"
             def pm = new ClientPresentationModel('demo',[titleAttr, purposeAttr])
             clientDolphin.clientModelStore.add pm
+            pm.rebase()
 
             def updateTitle   = { pm.title.value = titleInput.text }
             def updatePurpose = { pm.purpose.value = purposeInput.text }
@@ -60,7 +67,10 @@ class MultipleAttributesView {
                         textField   id: 'purposeInput', row: 4, column: 1,
                               onAction: updatePurpose
 
-                        button "Update labels", row: 5, column: 1,
+                        label       id: 'bothAreDirtyLabel',  row: 5, column: 1
+                        label       id: 'eitherIsDirtyLabel', row: 6, column: 1
+
+                        button "Update labels", row: 7, column: 1,
                               halignment: RIGHT,
                               onAction: {
                                   updateTitle()
@@ -76,7 +86,32 @@ class MultipleAttributesView {
             bind PURPOSE of pm to FX.TEXT of purposeLabel
             Binder.bind PURPOSE of pm to FX.TEXT of purposeInput
 
+            // binding some observable boolean information to the JavaFX property of a combinator
+            def combo = new PropertyCombo()
+            bindInfo DIRTY_PROPERTY of pm.title   to "a" of combo
+            bindInfo DIRTY_PROPERTY of pm.purpose to "b" of combo
+
+            // using the and/or combination as the single source of whatever binding
+            bothAreDirtyLabel.textProperty().bind(StringFormatter.concat("Are both dirty: ",   combo.both().asString()))
+            eitherIsDirtyLabel.textProperty().bind(StringFormatter.concat("Is either dirty: ", combo.either().asString()))
+
             primaryStage.show()
         }
+    }
+
+    static class PropertyCombo {
+        @FXBindable boolean a
+        @FXBindable boolean b
+        BooleanProperty both() {
+            def result = new SimpleBooleanProperty()
+            result.bind(a().and(b()))
+            return result
+        }
+        BooleanProperty either() {
+            def result = new SimpleBooleanProperty()
+            result.bind(a().or(b()))
+            return result
+        }
+
     }
 }

@@ -46,7 +46,7 @@ module opendolphin {
         private transmitter :       Transmitter;
         private codec :              Codec;
         private clientDolphin :      ClientDolphin;
-        private commandBatcher:      CommandBatcher = new  BlindCommandBatcher(true);
+        private commandBatcher:      CommandBatcher;
 
         /////// push support state  ///////
         private pushListener:        NamedCommand;
@@ -55,11 +55,12 @@ module opendolphin {
         private waiting:            boolean = false;
 
 
-        constructor(transmitter:Transmitter, clientDolphin: ClientDolphin, slackMS: number = 0) {
+        constructor(transmitter:Transmitter, clientDolphin: ClientDolphin, slackMS: number = 0, maxBatchSize : number = 50) {
             this.transmitter = transmitter;
             this.clientDolphin = clientDolphin;
             this.slackMS = slackMS;
             this.codec = new  Codec();
+            this.commandBatcher = new BlindCommandBatcher(true, maxBatchSize);
         }
 
         setCommandBatcher(newBatcher:  CommandBatcher) {

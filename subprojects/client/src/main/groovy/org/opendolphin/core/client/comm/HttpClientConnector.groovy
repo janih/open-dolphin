@@ -37,6 +37,7 @@ import org.opendolphin.core.comm.SignalCommand
 class HttpClientConnector extends ClientConnector {
 
     String servletUrl = "http://localhost:8080/dolphin-grails/dolphin/"
+    String charset = "UTF-8"
 
     private DefaultHttpClient httpClient = new DefaultHttpClient()
 
@@ -69,7 +70,7 @@ class HttpClientConnector extends ClientConnector {
             def content = codec.encode(commands)
 
             HttpPost httpPost = new HttpPost(url)
-            StringEntity entity = new StringEntity(content)
+            StringEntity entity = new StringEntity(content, charset)
             httpPost.setEntity(entity)
 
             String response

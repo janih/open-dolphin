@@ -41,7 +41,7 @@ class PerformanceView {
         def input = dolphin.presentationModel "input", count:0, attCount:0, time:0
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage title: 'Measure Dolphin Response Times', {
                 scene width: 400, height: 250, {
                     gridPane {

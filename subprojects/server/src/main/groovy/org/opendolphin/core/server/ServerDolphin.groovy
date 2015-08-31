@@ -4,9 +4,7 @@ import org.opendolphin.core.Dolphin
 import org.opendolphin.core.server.action.DolphinServerAction
 import org.opendolphin.core.server.comm.NamedCommandHandler
 
-/**
- * Created by hendrikebbers on 20.01.15.
- */
+
 public interface ServerDolphin extends Dolphin<ServerAttribute, ServerPresentationModel> {
 
     void registerDefaultActions()

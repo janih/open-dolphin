@@ -40,7 +40,7 @@ class DemoSearchView {
         ObservableList<ClientPresentationModel> observableListOfKoMaps = FXCollections.observableArrayList()
 
         start { app ->
-            SceneGraphBuilder sgb = delegate
+            SceneGraphBuilder sgb = delegate as SceneGraphBuilder
             stage {
                 scene width: 500, height: 500, {
                     borderPane {

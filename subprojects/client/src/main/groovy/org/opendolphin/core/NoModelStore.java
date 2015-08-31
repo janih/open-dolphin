@@ -6,8 +6,8 @@ import org.opendolphin.core.client.ClientPresentationModel;
 
 /**
  * A model store that does not store, i.e. neither adds nor removes presentation models.
- * It uses almost no memory.
- * Useful for a second channel like for long-polling that shell not store any presentation models.
+ * It uses almost no memory.<br>
+ * Useful for a second channel (e.g., for long-polling) that does not store any presentation models.
  * */
 
 public class NoModelStore extends ClientModelStore {
