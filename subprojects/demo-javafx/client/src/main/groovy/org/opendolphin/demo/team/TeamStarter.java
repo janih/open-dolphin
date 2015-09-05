@@ -1,12 +1,16 @@
 package org.opendolphin.demo.team;
 
 import javafx.application.Application;
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.opendolphin.core.client.ClientDolphin;
 import org.opendolphin.core.client.ClientModelStore;
 import org.opendolphin.core.client.comm.BlindCommandBatcher;
 import org.opendolphin.core.client.comm.HttpClientConnector;
 import org.opendolphin.core.client.comm.JavaFXUiThreadHandler;
 import org.opendolphin.core.comm.JsonCodec;
+
+import java.io.File;
+import java.net.URI;
 
 // todo: make url base configurable from command line
 
@@ -29,6 +33,10 @@ public class TeamStarter {
         clientDolphin.setClientConnector(connector);
 
         TeamApplication.clientDolphin = clientDolphin;
+
+        String result = connector.uploadFile(new File("/data.txt"), DefaultGroovyMethods.toURI("http://localhost:8080/dolphin-grails/fileUpload/save"));
+        System.out.println("uploaded and returned: "+result);
+
         Application.launch(TeamApplication.class);
     }
 }

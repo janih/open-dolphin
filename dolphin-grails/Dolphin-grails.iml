@@ -74,13 +74,13 @@
           <root url="jar://$MAVEN_REPOSITORY$/org/apache/tomcat/embed/tomcat-embed-el/7.0.55/tomcat-embed-el-7.0.55.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/apache/tomcat/embed/tomcat-embed-jasper/7.0.55/tomcat-embed-jasper-7.0.55.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/apache/tomcat/tomcat-catalina-ant/7.0.55/tomcat-catalina-ant-7.0.55.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/0.12-SNAPSHOT/dolphin-demo-javafx-shared-0.12-SNAPSHOT.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/0.12-SNAPSHOT/dolphin-demo-javafx-server-0.12-SNAPSHOT.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/0.12-SNAPSHOT/dolphin-server-0.12-SNAPSHOT.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/0.12-SNAPSHOT/dolphin-shared-0.12-SNAPSHOT.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/codehaus/groovy/groovy/2.3.6/groovy-2.3.6.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/codehaus/groovy/groovy-json/2.3.6/groovy-json-2.3.6.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/multiverse/multiverse-core/0.7.0/multiverse-core-0.7.0.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-shared-1.0-RC2-SNAPSHOT.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-server-1.0-RC2-SNAPSHOT.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/1.0-RC2-SNAPSHOT/dolphin-server-1.0-RC2-SNAPSHOT.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/1.0-RC2-SNAPSHOT/dolphin-shared-1.0-RC2-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/1.0-SNAPSHOT/dolphin-demo-javafx-shared-1.0-SNAPSHOT-javadoc.jar!/" />
@@ -99,6 +99,10 @@
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/0.12-SNAPSHOT/dolphin-demo-javafx-server-0.12-SNAPSHOT-javadoc.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/0.12-SNAPSHOT/dolphin-server-0.12-SNAPSHOT-javadoc.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/0.12-SNAPSHOT/dolphin-shared-0.12-SNAPSHOT-javadoc.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-shared-1.0-RC2-SNAPSHOT-javadoc.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-server-1.0-RC2-SNAPSHOT-javadoc.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/1.0-RC2-SNAPSHOT/dolphin-server-1.0-RC2-SNAPSHOT-javadoc.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/1.0-RC2-SNAPSHOT/dolphin-shared-1.0-RC2-SNAPSHOT-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/1.0-SNAPSHOT/dolphin-demo-javafx-shared-1.0-SNAPSHOT-sources.jar!/" />
@@ -117,6 +121,10 @@
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/0.12-SNAPSHOT/dolphin-demo-javafx-server-0.12-SNAPSHOT-sources.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/0.12-SNAPSHOT/dolphin-server-0.12-SNAPSHOT-sources.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/0.12-SNAPSHOT/dolphin-shared-0.12-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-shared/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-shared-1.0-RC2-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-demo-javafx-server/1.0-RC2-SNAPSHOT/dolphin-demo-javafx-server-1.0-RC2-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-server/1.0-RC2-SNAPSHOT/dolphin-server-1.0-RC2-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/open-dolphin/dolphin-shared/1.0-RC2-SNAPSHOT/dolphin-shared-1.0-RC2-SNAPSHOT-sources.jar!/" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
