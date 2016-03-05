@@ -113,17 +113,15 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
 
     void testPerformanceWithBlindCommandBatcher() {
         def batcher = new BlindCommandBatcher(mergeValueChanges:true, deferMillis: 100)
-        def connector = new InMemoryClientConnector(context.clientDolphin, batcher)
+        def connector = new InMemoryClientConnector(context.clientDolphin, serverDolphin.serverConnector, batcher)
         connector.uiThreadHandler = new RunLaterUiThreadHandler()
-        connector.serverConnector = serverDolphin.serverConnector
         context.clientDolphin.clientConnector = connector
         doTestPerformance()
     }
 
     void testPerformanceWithSynchronousConnector() {
-        def connector = new SynchronousInMemoryClientConnector(context.clientDolphin)
+        def connector = new SynchronousInMemoryClientConnector(context.clientDolphin, serverDolphin.serverConnector)
         connector.uiThreadHandler = { fail "should not reach here! " } as UiThreadHandler
-        connector.serverConnector = serverDolphin.serverConnector
         context.clientDolphin.clientConnector = connector
         doTestPerformance()
     }
@@ -320,7 +318,6 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
 
     // silly and only for the coverage, we test behavior when id is wrong ...
     void testIdNotFoundInVariousCommands() {
-        clientDolphin.clientConnector.send new BaseValueChangedCommand(attributeId: 0)
         clientDolphin.clientConnector.send new ValueChangedCommand(attributeId: 0)
         DefaultServerDolphin.changeValueCommand(null, null, null)
         DefaultServerDolphin.changeValueCommand(null, new ServerAttribute('a',42), 42)
@@ -463,11 +460,13 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
         }
     }
 
-    void testDeletePresentationModel() {
+    void testRemovePresentationModel() {
         clientDolphin.presentationModel('pm', attr: 1)
 
         serverDolphin.action('delete') { cmd, response ->
-            serverDolphin.delete(response, serverDolphin['pm'])
+//            serverDolphin.delete(response, serverDolphin['pm']) // deprecated
+            serverDolphin.remove(serverDolphin['pm'])
+            assert serverDolphin['pm'] == null
         }
         assert clientDolphin['pm']
 
@@ -564,8 +563,8 @@ class FunctionalPresentationModelTests extends GroovyTestCase {
         clientDolphin.presentationModel('pm', attr: 1)
 
         serverDolphin.action('arbitrary') { cmd, response ->
-            serverDolphin.rebase(null, serverDolphin['pm'].attr)
-            serverDolphin.rebase([], null)
+            shouldFail { serverDolphin.rebase(null, serverDolphin['pm'].attr) }
+            shouldFail { serverDolphin.rebase([], null) }
             serverDolphin.resetCommand(null, serverDolphin['pm'])
             serverDolphin.resetCommand([], '')
             serverDolphin.resetCommand([], (ServerAttribute) null)

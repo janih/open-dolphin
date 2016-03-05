@@ -1,0 +1,30 @@
+Any reasonably sized UI will have not only single presentation models but many of the same type.
+
+Let's assume that the application displays a list of vehicles where each vehicle is a
+presentation model instance of type "vehicle".
+
+The list view must add a new row whenever a new vehicle becomes available and must
+remove the row when the vehicle becomes unavailable.
+
+To this end, the list view can register itself as a *ModelStoreListener* and will
+be notified whenever a presentation model is added to or removed from the store.
+
+The model store defines the managed object space for presentation models.
+
+There are two such stores: one on the client and one on the server.
+Both are automatically synchronized by OpenDolphin.
+
+Conceptually, one can see the model store as
+
+* a distributed, in-memory, no-sql database with only two tables (presentation model and attribute)
+* a specialized event bus (event provider is only the store itself and only ModelStoreEvents are issued)
+
+The application programmer should not access the model store directly
+but only through the facade layer, see link:./../ref/dolphin/usage.html[Dolphin Usage].
+
+The model store is used internally as a value change listener to all known attributes in order to
+
+* consistently update all attributes of the same _qualifier_
+* notify the server about changes
+
+Now, let's have a look how the client-server split is designed in OpenDolphin.

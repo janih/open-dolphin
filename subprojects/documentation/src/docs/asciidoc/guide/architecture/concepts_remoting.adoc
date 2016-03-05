@@ -1,0 +1,37 @@
+A dolphin application has a client and a server module.
+As we will see in <<Remote setup,remote config>> and <<Standalone in-memory usage,standalone config>>
+this does not necessarily mean that client and server live in different VMs, but they can.
+
+With OpenDolphin, the client is responsible to visualize presentation models,
+the server is responsible to manage the presentation model data.
+
+In order to keep client and server <<Collections of presentation models and the model store>> consistent,
+one must be chosen as the master and the dolphin team has chosen the client to be that master.
+
+All changes *first* happen *on the client*. Then the server is notified, and he updates automatically.
+
+Any server-side changes happen by the server sending a <<Communicating via Commands>> to the client
+instructing him which change to apply.
+
+All communication between client and server happens *asynchronously* no matter whether an in-memory or
+remote configuration is used.
+
+Despite the asynchronous communication, OpenDolphin guarantees notification delivery in the same
+sequence as they originated.
+
+OpenDolphin assumes the client to have an event model and the server to live in a request-response model.
+OpenDolphin bridges these two worlds.
+
+Despite the asynchronous communication between client (view) and server (controller), all
+processing that takes place as a result of this communication is automatically executed inside the client's
+UI thread.
+Especially all changes to the client model store, client presentation models, and attributes are subject to
+this thread-confined approach. Thus, all binding events will be fired in the UI thread and the
+views are automatically updated correctly.
+
+Likewise, on the server (controller) side all actions are executed in a thread-confined manner, i.e.
+there is at most one action at a time being executed and per roundtrip all actions are executed in the
+same thread.
+
+With the clear structure and division of responsibilities that OpenDolphin imposes onto the application
+a lot of otherwise common headaches around proper thread handling disappear.

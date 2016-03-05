@@ -1,0 +1,5 @@
+= Building the Developer Guide
+
+* execute `../../gradlew asciidoc`
+* point your browser to `build/asciidoc/html5/index.html`
+

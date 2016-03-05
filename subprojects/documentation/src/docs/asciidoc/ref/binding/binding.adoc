@@ -1,0 +1,30 @@
+One important feature of open dolphin is the binding. Binding is just an event listener listening to an event source.
+OpenDolphin supports binding between attributes and arbitrary other objects and listens automatically
+for value changes in order to notify the server.
+
+Bind against a ClientAttribute can be done in two ways
+
+* as a PropertyChangeListener
+* through the valueProperty() method for JavaFx
+
+Binding can be bidirectional and open dolphin keeps binding stable.
+
+JavaFx example of binding text property of TextField to the "text" attribute of the input presentation model
+[source,java]
+----
+JFXBinder.bind("text").of(field).to("text").of(input);
+----
+
+Groovy example of binding text property of TextField to the "text" attribute of the input presentation model
+[source,groovy]
+----
+bind "text" of field to "text" of input
+----
+
+Html example of binding input of textfield to the "text" attribute of the input presentation model
+[source,html]
+----
+htmlInput.oninput = function (event) {
+   attributePM.setValue(htmlInput.value);
+ };
+----

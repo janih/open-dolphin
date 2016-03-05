@@ -11,7 +11,7 @@ import groovy.transform.CompileStatic
  * A slot consists of a propertyName (String), a value, a baseValue, a qualifier, and a tag.
  * @see Slot
  */
-class DTO {
+final class DTO {
     List<Slot> slots
 
     DTO(List<Slot> newSlots) {

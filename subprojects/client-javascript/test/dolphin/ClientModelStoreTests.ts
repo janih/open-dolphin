@@ -16,6 +16,7 @@ module opendolphin {
         }
 
         signal(command:SignalCommand) : void { /* do nothing */; }
+        reset(successHandler:OnSuccessHandler) : void { /** do nothing */ }
 
         transmit(commands:Command[], onDone:(result:Command[]) => void):void {
             this.clientCommands = commands;

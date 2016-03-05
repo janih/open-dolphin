@@ -1,7 +1,7 @@
 Step 5 distributes the code into multiple modules (IntelliJ IDEA parlance) or projects/subprojects
 (Gradle, Maven, Eclipse parlance). We use the more generic word "module".
 
-The *combined* module depends on both client and server and is used for starting the application
+The *combined* module depends on both client and server, and is used for starting the application
 with the *in-memory* configuration.
 The sole class that lives in this module is the starter class
 [step5.TutorialStarter|https://github.com/canoo/DolphinJumpStart/blob/master/combined/src/main/java/step_5/TutorialStarter.java]
@@ -13,9 +13,9 @@ The *client* module (or "view" module if you wish) contains the
 [step5.TutorialApplication|https://github.com/canoo/DolphinJumpStart/blob/master/client/src/main/java/step_5/TutorialApplication.java]
 view.
 
-You can see that the view code is pretty much the same as our old application code but contains the view specific
+You can see that the view code is pretty much the same as our old application code, but contains the view specific
 parts only. There is one additional change, though. When the button has been pressed and the command has been
-executed on the server we would like to interpret the current content of the text field as the new base value just as
+executed on the server, we would like to interpret the current content of the text field as the new base value just as
 if the error-free execution of the command would imply a correct "save".
 The "disabled" state of the button will reflect the new non-dirty state.
 
@@ -32,18 +32,18 @@ public void handle(ActionEvent actionEvent) {
 {code}
 
 Please note that the onFinished handler will be called _asynchronously inside_ the UI thread. It may trigger
-changes in the model store, which may lead to changes in the display and any such changes _must_ occur in the
+changes in the model store, which may lead to changes in the display; and any such changes _must_ occur in the
 UI thread.
 
 The *server* module (or "controller" module if you wish) contains the
 [step5.TutorialAction|https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_5/TutorialAction.java]
 controller.
 
-Both, client and server depend on the *shared* module, which makes the
+Both client and server depend on the *shared* module, which makes the
 [step5.TutorialConstants|https://github.com/canoo/DolphinJumpStart/blob/master/shared/src/main/java/step_5/TutorialConstants.java]
 known to both parties. The shared module itself does not depend on anything.
 
-The code that contains the shared constants now also cares for the uniqueness of
+The code that contains the shared constants also ensures the uniqueness of
 certain Strings, particularly of IDs used to retrieve presentation models and named commands.
 
 {code}
@@ -56,20 +56,20 @@ private static String unique(String key) {
 }
 {code}
 
-Splitting four classes into four different modules may look a bit over-engineered at this point
-but it is an indispensible step before we can go into true remoting and before we can instantly
+Splitting four classes into four different modules may look a bit over-engineered at this point,
+but it is an indispensible step before we can go on to true remoting and before we can instantly
 switch between in-memory- and client-server-mode.
 
-If you fear that this is too much work for setting up the directory structure or the
-build-time dependencies: simply unzip one of the
+If you fear that it's too much work to set up the directory structure or the
+build-time dependencies, simply unzip one of the
 [project templates|https://github.com/canoo/DolphinJumpStart/tree/master/dist]
 and you are good to go.
 
 We get the following benefits:
-* ability to start the code _unmodified_ with different configurations (in-memory or client-server)
-* clear and minimal dependencies when building
-* a minimum of shared code (only the constants) to express semantic dependencies as syntatic dependencies
+* ability to start the code _unmodified_ with different configurations (in-memory or client-server);
+* clear and minimal dependencies when building;
+* a minimum of shared code (only the constants) to express semantic dependencies as syntactic dependencies;
 * actions cannot "accidentally" reach out to view code. The widget set is not even on the classpath!
-* actions cannot possibly block the UI thread
-* view changes are _always_ displayed correctly since they happen in the UI thread
-* the separation of responsibilities is enforced by the dependency structure
+* actions cannot possibly block the UI thread;
+* view changes are _always_ displayed correctly since they happen in the UI thread;
+* the separation of responsibilities is enforced by the dependency structure.

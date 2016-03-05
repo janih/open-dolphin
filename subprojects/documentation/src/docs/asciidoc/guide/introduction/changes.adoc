@@ -1,0 +1,229 @@
+*Release 1.0*
+
+NOTE: #TODO# Section Pending
+
+*Release 0.11*
+
+0.11 is a maintenance release. There is no additional functionality.
+
+The dependent version has been bumped up to 2.3.4.
+The grails version for the included demos is now at 2.4.3.
+
+Resolved Bugs
+
+* link:http://www.canoo.com/jira/browse/DOL-121[DOL-121] - OpenDolphin should provide a default way to invalidate the session on the server side
+* link:http://www.canoo.com/jira/browse/DOL-123[DOL-123] - when deleting and re-creating a PM very quickly on the client side, the PM must not get lost
+* link:http://www.canoo.com/jira/browse/DOL-124[DOL-124] - when adding a PM to the server model store through the ServerDolphin, the client should be notified just like when using the presentationModel() factory method
+* link:http://www.canoo.com/jira/browse/DOL-130[DOL-130] - allow client side value changes even though the provided oldValue does not match the current value of the attribute. (JS client)
+
+Resolved Tasks
+
+* http://www.canoo.com/jira/browse/DOL-127[DOL-127] - Make all default actions use silent mode properly
+
+*Release 0.10*
+
+Release 0.10 now fully supports a programming model on the server side that is equivalent to working on the client
+side.
+As an example: no longer do you need to call
+
+[source,java]
+----
+changeValue(attribute, value); // <1>
+
+changeValueCommand(attribute, value); //<2>
+----
+<1> Sending command
+<2> To be replaced with
+
+
+on the server side but you can directly use
+
+[source,java]
+----
+attribute.setValue(value); // <1>
+----
+<1> Immediate state change
+
+which will immediately change the attribute value on the server side _and_ send the appropriate command
+to the client.
+
+This approach allows that
+
+* any trailing code on the server side can now rely on the updated state
+* any property change listeners are immediately called
+* any model store listeners are immediately called
+
+NOTE:You get a full reactive *event-driven programming model* in the normally request-response oriented
+Java enterprise world.
+
+Along with this change comes full support of immediate effects on the server side for
+
+* attribute value changes
+* creating presentation models
+* presentation model and attribute reset
+* presentation model and attribute rebase
+* presentation model and attribute switch (apply)
+* instant update of all attributes that share the same qualifier
+* adding attributes to presentation models
+* removing single presentation models or all presentation models of a certain type
+All these action now have immediate effect on the server side _and_ the appropriate commands are sent to the server.
+
+The old approach remains fully supported even though the API will change a little (see note below).
+
+[IMPORTANT]
+====
+The old "strong" approach of never changing the server state but only sending commands to the client
+had the (undocumented) effect that server actions were transactional: in case of server side exceptions
+no change was sent to the client. Either all or no changes were executed.
+
+You can still have the same behavior by restricting yourself to the old API but if you use the new API, changes will no
+longer be transactional and server-side exceptions need application-specific handling.
+====
+
+The old "strong" approach can easily enforce that the client is always the master. As soon as you do any
+immediate server-side change there may be conflicts when client-state changes while the same state is
+modified on the server.
+
+OpenDolphin detects these conflicts and ensures that the client side always wins.
+
+[WARNING]
+====
+While the "old" API is fully retained in release 0.10, many methods in the @ServerDolphin@ have been deprecated.
+In order to prevent confusion between old methods that merely send a command and new ones that change the server
+state immediately, we will use a convention for the old methods to use a <methodname>Command suffix.
+They are already available in this release and the old methods delegate to the new ones.
+
+Please resolve the deprecation warnings as soon as possible since we will remove those methods before version 1.0.
+If you have a decent IDE, you can just apply an "inline method" refactoring.
+====
+
+*Release 0.9*
+
+The biggest change in release 0.9 is the inclusion of *OpenDolphin.js*, the JavaScript client (DOL-98) that allows to share
+the same OpenDolphin application on desktop and web (including mobile web).
+See also <<OpenDolphin on the web>>
+
+#TODO review DOL-30 doesn't work [changes.adoc]#
+The <<The push capability,push>> capability (link:http://www.canoo.com/jira/browse/DOL-30C[DOL-30]) has been moved from the demos into the OpenDolphin core and is now an official feature
+with a simple API, standard behaviour, and - as always - the option the replace the default implementation with
+your preferred technology.
+
+Both OpenDolphin.js and the push capability in combination with the existing OpenDolphin features allow for
+new interesting use cases that are show-cased in this release
+
+* <<One application on multiple devices,multi-device>> applications where the same application runs on many devices
+* <<Follow-me applications with re-connect,re-connect>> to an application exactly where you left off even after a longer *offline* period
+* <<Follow-me applications with re-connect,follow-me>> applications where you start your work on one device - let's says on the road with a smartphone or a tablet - and complete your work in the office with a desktop application for longer text entries
+* <<Team applications for collaborative work,team-applications>> where a whole team works collaboratively and everybody immediately sees all contributions from all other team members, avoiding double-work and conflicts, and mutually completing, correcting, and helping with each other's work
+* <<Floating workstations in a point-of-sale solution,point-of-sale>> solutions where personnel shares a limited set of workstations, freely moving between them and always having their latest context available
+* application <<Integration of many technologies into one app,integration>> where you combine the strength of different view technologies, say JavaFX for the layout and web technology for charting, into an integrated OpenDolphin application.
+
+Tags are no longer enums but instances of the Tag class (DOL-95) to allow *custom tags*.
+All existing tags are available as constants of that class except the MESSAGE tag, which is replaced by custom tags.
+
+Attributes now maintain a direct reference to their PresentationModel. This allows an *efficient lookup*
+of tags for a given Attribute (DOL-97). Sharing an Attribute instance between PresentationModels is no longer supported.
+In order to share the same information across PresentationModels, use Attributes with the same qualifier.
+
+Furthermore, a number of *performance enhancements* and *consistency checks* have been included.
+
+#TODO review link doesn't exist[changes.adoc]#
+Please find the full list of changes link:http://www.canoo.com/jira/secure/ReleaseNote.jspa?version=11400&amp;styleName=Text&amp;projectId=10480&amp;Create=Create[here].
+
+*Release 0.8*
+
+25 issues have been addressed in this release where the most important ones come from our
+users that already have OpenDolphin-based applications in production.
+This ranges from performance-oriented topics like the support for client-side models,
+command batching and compressing down to operational support to i.e. detect
+unwanted breaches of the session affinity.
+
+#TODO review link doesn't exist[changes.adoc]#
+The full list of closed issues is at link:http://www.canoo.com/jira/secure/ReleaseNote.jspa?version=11263&amp;styleName=Html&amp;projectId=10480&amp;Create=Create[the project JIRA]
+
+*Release 0.7*
+
+There are no changes in this release. It has only been built to set the
+maven group id to @org.open-dolphin@ to comply with the conventions on maven central.
+
+The project artefacts are now available for download from
+link:http://search.maven.org/#search%7Cga%7C1%7Corg.open-dolphin[MavenCentral]
+
+Please refer to link:http://github.com/canoo/DolphinJumpStart[DolphinJumpStart] for an example on how to use OpenDolphin
+with either Maven or Gradle.
+
+*Release 0.6 : Notable Changes since 0.5*
+
+The 0.6 release has only one change, which is a rather big and breaking one
+
+WARNING: The package com.canoo.dolphin has been renamed to org.opendolphin.
+
+#TODO review link doesn't exist[changes.adoc]#
+See also link:http://www.canoo.com/jira/browse/DOL-34[DOL-34]
+
+*Release 0.5 : Notable Changes since 0.4*
+
+The project artefacts are now available for download from
+link:http://search.maven.org/#search%7Cga%7C1%7Ccom.canoo.dolphin[MavenCentral]
+
+Release 0.5 introduced support for asynchronous server-side events, which are distributed
+through an event bus. Typical use cases for this event bus are
+
+* instant visualization of server side events (think JMS or hibernate events)
+* consistent visualization of transient data across many clients
+* cross-client notifications
+
+Along with this capability comes a series of demos, which live directly in the OpenDolphin
+code base. Some of these demos also have a video presentation on link:http://youtube.com/users/dierkkoenig[YouTube]
+
+* link:http://www.youtube.com/watch?v=bMKcpM4znJI[ManyEventsDemo] where 10'000 alarm events happen on the server and 6 clients update instantly and consistently
+* link:http://www.youtube.com/watch?v=T4lrmafN39k[TrainControlDemo] where a dash board changes the train speed and other clients are notified
+* link:http://www.youtube.com/watch?v=MDWAjOBCgRU[LazyLoadingDemo] with 100'000 rows in a table
+* link:http://www.youtube.com/watch?v=W-LCvTa5MQQ[PortfolioDemo] where the management of a portfolio serves as a typical example of a business application
+
+Version 0.5 upgraded dependencies to Groovy 2.1.1. and GPars 1.0. We make use of the new
+@CompileStatic where appropriate and enhanced execution speed by 60%.
+
+#TODO review link doesn't work [changes.adoc]#
+link:http://www.canoo.com/jira/secure/ReleaseNote.jspa?version=11281&amp;styleName=Text&amp;projectId=10480&amp;Create=Create[Release Notes - Dolphin - Version 0.5]
+
+*Release 0.4 : Notable Changes since 0.3*
+
+* DOL-25 - provide a demo that measures dolphin response times
+* DOL-33 - allow more meta-infos per Attribute
+* DOL-19 - Provide a code example that shows how to use dolphin for lazy loading
+* DOL-21 - Build does not automatically discover javafx in JDK when JAVAFX_HOME is set
+* DOL-37 - align server and client side API for CRUD operations on presentation models and attributes
+* DOL-38 - nicer API for server side value change
+* DOL-39 - API enhancement: server actions should work transparently on the response
+* DOL-40 - API enhancement: allow finding presentation models and attributes without the need for casting in both Java and Groovy friendly manner
+* DOL-41 - start a user guide
+* DOL-42 - provide combined apidoc: javadoc / groovydoc
+* DOL-43 - Provide a DataCommand
+* DOL-44 - Provide a more complex demo (dependencies, crud operations, remoting)
+* DOL-17 - provide a 'gradlew run' to start any demo
+* DOL-18 - link the website to the latest version of the documentation
+* DOL-32 - remove the "linking" feature
+
+#TODO review link doesn't work [changes.adoc]#
+link:http://www.canoo.com/jira/secure/ReleaseNote.jspa?version=11265&amp;styleName=Text&amp;projectId=10480&amp;Create=Create[Release Notes - Dolphin - Version 0.4]
+
+_Breaking Changes_
+The "linking" feature is no longer available. See i.e. the Crud demo for alternatives.
+
+_Deprecations_
+In the future, we will disallow direct access to the connector or model store.
+
+Please prepare by using the dolphin (_ClientDolphin_ and _ServerDolphin_) facade whenever possible.
+This also true for all the cases where application code on the server side directly invokes constructors of
+commands, presentation models or attributes. Please use factory methods instead.
+
+Resolved Bugs
+
+* DOL-15 - Basic build fails
+* DOL-22 - exception in reference table demo and search demo
+* DOL-26 - Binding the text property of a Swing component to a ClientPresentationModel throws Exception
+* DOL-31 - ServerDolphin.createPresentationModel has an "optional" parameter, which is required
+* DOL-35 - com.canoo.dolphin.demo.startCreatePresentationModelDemo.groovy still tries to invoke serverDolphin.createPresentationModel
+
+

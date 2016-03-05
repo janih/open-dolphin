@@ -1,0 +1,30 @@
+== Use Cases and Demos
+include::demos.adoc[]
+
+=== The general approach of OpenDolphin with a Login dialog
+include::demos/demo_login.adoc[]
+
+=== Immediate and deferred binding
+include::demos/demo_singleAttMultBindings.adoc[]
+
+=== The container yard monitoring application
+include::demos/demo_yard.adoc[]
+
+=== The push capability
+include::demos/demo_push.adoc[]
+
+=== One application on multiple devices
+include::demos/demo_multi_device.adoc[]
+
+=== Follow-me applications with re-connect
+include::demos/demo_follow_me.adoc[]
+
+=== Team applications for collaborative work
+include::demos/demo_team_app.adoc[]
+
+=== Floating workstations in a point-of-sale solution
+include::demos/demo_point_of_sale.adoc[]
+
+=== Integration of many technologies into one app
+include::demos/demo_integration.adoc[]
+

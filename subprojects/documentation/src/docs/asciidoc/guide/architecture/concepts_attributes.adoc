@@ -1,0 +1,35 @@
+Each presentation model can refer to many attributes.
+
+Attributes maintain a back-reference to their one and only presentation model.
+
+Attributes are _generic._ You never need implement your own attribute type.
+
+Each attribute has a unique *id* and a *propertyName* that is unique per presentation model.
+
+Attributes encapsulate a primitive value and allow listeners to be notified about value changes.
+Technically, this is done via the standard Java *PropertyChangeListener* type.
+In other words, attributes are *Observable*.
+
+In addition to the value, attributes provide more information about the value, i.e
+whether the value is _dirty_ (i.e. it differs from the _base value_).
+The dirty state is observable such that you can bind against it.
+As soon as at least one attribute of a presentation model is dirty, that presentation
+model is also considered dirty.
+
+Attributes have an optional _qualifier_ property to capture the fact that this attribute
+represents a qualified feature in the domain world.
+A qualifier like "person.4711.firstName" may be used to explain that this attribute
+represents the value of the *firstName* property of *Person* domain class with id 4711.
+
+Whenever the value of an Attribute changes, all other attributes with the same qualifier
+are automatically updated.
+
+Qualifiers are a prerequisite for <<Stable bindings>>
+
+Since version 0.4 Dolphin attributes can be tagged in order to describe the meaning of
+the value. The *Tag* enumeration provides all possible tags with *VALUE* being the default.
+Tags can be used to i.e. describe whether the person firstname is a *MANDATORY* attribute,
+whether it is *ENABLED*, *VISIBLE*, and so on.
+Attributes with a tag are observable in the usual way.
+
+See also link:./../ref/attribute/usage.html[Usage of Attribute] and link:http://open-dolphin.org/download/api/org/opendolphin/core/Attribute.html[API doc].

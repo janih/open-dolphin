@@ -40,18 +40,33 @@ class ServerAttribute extends BaseAttribute {
     }
 
     @Override
-    void setValue(Object value) {
+    void setValue(Object newValue) {
         if (notifyClient) {
-            DefaultServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, value)
+            DefaultServerDolphin.changeValueCommand(presentationModel.modelStore.currentResponse, this, newValue)
         }
-        super.setValue(value)
+        super.setValue(newValue)
+        // on the server side, we have no listener on the model store to care for the distribution of
+        // baseValue changes to all attributes of the same qualifier so we must care for that ourselves
+        forAllQualified { if (newValue != it.value) it.setValue(newValue) }
     }
 
     @Override
     void setBaseValue(Object value) {
-        super.setBaseValue(value)
         if (notifyClient) {
             presentationModel.modelStore.currentResponse << new AttributeMetadataChangedCommand(attributeId: id, metadataName: Attribute.BASE_VALUE, value:value)
+        }
+        super.setBaseValue(value)
+        // on the server side, we have no listener on the model store to care for the distribution of
+        // baseValue changes to all attributes of the same qualifier so we must care for that ourselves
+        forAllQualified { if (value != it.baseValue) it.setBaseValue(value) }
+    }
+
+    protected void forAllQualified(Closure yield) {
+        if (! qualifier) return
+        if (! presentationModel) return // we may not know the pm, yet
+        for (ServerAttribute sameQualified in (List<ServerAttribute>) presentationModel.modelStore.findAllAttributesByQualifier(qualifier)) {
+            if (sameQualified.is(this)) continue
+            yield sameQualified
         }
     }
 
@@ -71,30 +86,51 @@ class ServerAttribute extends BaseAttribute {
         }
     }
 
+    /**
+     * Rebasing on the server side must set the base value to the current value as seen on the server side.
+     * This will send a command to the client that instructs him to also set his base value to the exact
+     * same (server-side) value.
+     * NB: This is subtly different from just calling "rebase" on the client side since the attribute value
+     * on the client side may have changed due to user input or value change listeners to a state that the
+     * server has not yet seen.
+     */
     @Override
-    void rebase() {
+    void rebase() { // todo dk: delete before 1.0 final
         super.rebase()
-        if (notifyClient) {
-            DefaultServerDolphin.rebaseCommand(presentationModel.modelStore.currentResponse, this)
-        }
-        if (qualifier) { // other attributes with the same qualifier must also rebase
-            for (ServerAttribute sameQualified in (List<ServerAttribute>) presentationModel.modelStore.findAllAttributesByQualifier(qualifier)) {
-                if (sameQualified.dirty) {
-                    sameQualified.rebase()
-                }
-            }
-        }
+        // we are no longer sending RebaseCommand
     }
 
     public String getOrigin(){
         return "S";
     }
 
-    /** Do the applyChange without create commands that are sent to the client */
+    /** Do the applyChange without creating commands that are sent to the client */
     public void silently(Runnable applyChange) {
         def temp = notifyClient
         notifyClient = false
         applyChange.run()
         notifyClient = temp
+    }
+
+    /** Do the applyChange with enforced creation of commands that are sent to the client */
+    protected void verbosely(Runnable applyChange) {
+        def temp = notifyClient
+        notifyClient = true
+        applyChange.run()
+        notifyClient = temp
+    }
+
+    /**
+     * Overriding the standard behavior of PCLs such that firing is enforced to be done
+     * verbosely. This is safe since on the server side PCLs are never used for the control
+     * of the client notification as part of the OpenDolphin infrastructure
+     * (as opposed to the java client).
+     * That is: all remaining PCLs are application specific and _must_ be called verbosely.
+     */
+    @Override
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        verbosely {
+            super.firePropertyChange(propertyName, oldValue, newValue)
+        }
     }
 }

@@ -1,0 +1,130 @@
+We can now finally distribute the application as a true client-server application without any of the application
+code being touched at all.
+Only the server adapter needs to be in place and the client needs to connect to the correct URL.
+
+As we are reusing the same servlet as for JavaFx example
+the link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_7/servlet/TutorialServlet.java[server adapter]
+is a plain-old Servlet such that the code can run in any servlet container and registers actions with the server dolphin.
+
+[source,java]
+----
+public class TutorialServlet extends DolphinServlet{
+    @Override
+    protected void registerApplicationActions(ServerDolphin serverDolphin) {
+        serverDolphin.register(new TutorialDirector());
+    }
+}
+----
+
+The link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_7/TutorialDirector.java[Tutorial director]
+dolphin server action registers the available actions
+
+[source,java]
+----
+public void registerIn(ActionRegistry registry) {
+    getServerDolphin().register(new TutorialAction(logService)); // <1>
+}
+----
+<1> register all your actions here.
+
+The link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_7/TutorialAction.java[Tutorial action]
+defines the command handler for the action id "CMD_LOG"
+
+[source,java]
+----
+public void registerIn(ActionRegistry actionRegistry) {
+       actionRegistry.register(CMD_LOG, new CommandHandler<Command>() {
+          public void handleCommand(Command command, List<Command> response) {
+            service.log(getServerDolphin().getAt(PM_PERSON).getAt(ATT_FIRSTNAME).getValue());
+          }
+       });
+}
+----
+
+As with any servlet, you need to register it in the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/WEB-INF/web.xml[web.xml] :
+
+[source,xml]
+----
+<servlet>
+    <display-name>TutorialServlet</display-name>
+    <servlet-name>tutorial</servlet-name>
+    <servlet-class>step_7.servlet.TutorialServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>tutorial</servlet-name>
+    <url-pattern>/tutorial/</url-pattern>
+</servlet-mapping>
+----
+
+It should appear on your screen like:
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-Web-step4.png[width=500,height=500]
+
+Code is in link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/step4.html[step4.JumpStart]
+
+Here is how the code to connect to server has to be:
+
+[source,html]
+----
+var PM_PERSON = "step_7.TutorialConstants.modelId";
+var ATT_FIRSTNAME = "attrId";
+
+var SERVER_URL = "http://localhost:8080/myFirstDolphin/tutorial/"; // <1>
+----
+<1> Set server connection
+
+Here is the code to send save command to server
+
+[source,html]
+----
+instantUpdateAttributePM.onDirty(function (event) { // <1>
+    saveButton.disabled = !event.newValue;
+});
+
+saveButton.onclick = function () { // <2>
+    dolphin.send(CMD_LOG, {
+       onFinished: function (models) {
+        instantUpdateAttributePM.rebase();
+      }
+    });
+};
+----
+<1> Bind dirty of dolphin attribute to enable save button
+<2> Send request value changed to server
+
+*That is it!*
+
+We can now start the provided jetty server
+
+[source]
+----
+./gradlew :server-app:jettyRun
+----
+
+Now when you access step4 and you click save button you should see the attribute value print.
+
+*Final considerations*
+
+This has been a very small application to start with but we have touched all relevant bases from
+starting with a standalone view and up to a remote client-server setup.
+
+You can bind individual HTML elements to attributes and vice versa like in the example above.
+But just like for desktop clients, you can also use the model store listener to update
+collections, use the dolphin instance to send individual commands, and even use the push listening.
+
+In case that you are using any additional web technology like Angular.js or GWT
+you can happily use the view generation and binding facilities of these technologies.
+Simply use OpenDolphin attributes as the binding sources or targets.
+
+*Remember: OpenDolphin is a library, not a framework.*
+
+*We don't lock you in, we are open.*
+
+Of course, a full application has more use cases than managing a single text field.
+
+You will find more information about how to use the OpenDolphin.js features in the
+<<Use Cases and Demos>> and in the live demos that are available on the
+link:https://klondike.canoo.com/dolphin-grails/[live OpenDolphin.js demos] server.
+They show the combination of various features and technologies with cross-linking to all sources.

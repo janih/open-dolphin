@@ -1,0 +1,33 @@
+One characteristic of next-generation business applications is that they can follow
+you wherever you go such that you have the information available wherever you need
+it and you can provide your input wherever it is most convenient.
+
+Consider the following scenario:
+
+* you meet a customer, close a deal, and start capturing the contract on your tablet
+* while travelling to the office you review the deal and add some more data like assigning categories and tags on your smartphone
+* in the office with keyboard and big screen you complete the contract information.
+
+There are many variants of the above that all boil down to simple notion that there are different
+locations, devices, and circumstances where you can best do your work.
+
+The OpenDolphin architecture makes it particularly easy to accommodate the follow-me scenario since
+
+. it supports <<One application on multiple devices,many devices>>
+. it keeps the _presentation state_ on the server side.
+
+It is the combination of both aspects that makes the next-generation apps possible.
+
+[WARNING]
+====
+With presentation state on the server, you can re-connect anywhere, anytime, from any device,
+without even having saved your work!
+
+Even if you go *offline* accidentally for technical reasons, no problem. Just re-connect.
+====
+
+Again, link:https://klondike.canoo.com/dolphin-grails/demo/js/teammember/TeamMemberDetails.html[the team-members live demo]
+is a perfect example how to achieve this. It uses a simple "history" of the presentation state to allow the
+re-connect any time later.
+
+See also: link:https://www.youtube.com/watch?v=mBv6q3tVfn8[demo video].

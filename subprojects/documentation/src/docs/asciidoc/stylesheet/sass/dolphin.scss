@@ -1,0 +1,14 @@
+@import "fonts/asciidoctor";
+@import "settings/asciidoctor";
+@import "components/asciidoc";
+@import "components/awesome-icons";
+
+#__a_href_ref_refguidelefttoc_html_quick_reference_a {
+  display: none;
+}
+
+#header {
+  background-image: url("dolphin.png");
+  background-position: right top;
+  background-repeat: no-repeat;
+}

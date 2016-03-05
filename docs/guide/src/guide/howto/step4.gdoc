@@ -31,6 +31,6 @@ You probably guessed that this code looks nicer in Groovy. Yes, it does:
 bindInfo "dirty" of textAttributeModel using { state -> !state } to "disabled" of button
 {code}
 
-Once the code is nicely broken into independent parts we can put the various parts into separate modules
+Once the code is nicely broken into independent parts, we can put the various parts into separate modules
 for better dependency management.
 

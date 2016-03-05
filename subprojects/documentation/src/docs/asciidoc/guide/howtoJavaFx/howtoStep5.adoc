@@ -1,0 +1,74 @@
+Step 5 distributes the code into multiple modules (IntelliJ IDEA parlance) or projects/subprojects
+(Gradle, Maven, Eclipse parlance). We use the more generic word "module".
+
+The *combined* module depends on both client and server and is used for starting the application
+with the *in-memory* configuration.
+The sole class that lives in this module is the starter class
+link:https://github.com/canoo/DolphinJumpStart/blob/master/combined/src/main/java/step_5/TutorialStarter.java[step5.TutorialStarter].
+It sets up the configuration, registers the application-specific actions on the (server) controller, and starts the view.
+This is the class to start from inside the IDE.
+
+The *client* module (or "view" module if you wish) contains the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/client/src/main/java/step_5/TutorialApplication.java[step5.TutorialApplication]
+view.
+
+You can see that the view code is pretty much the same as our old application code but contains the view specific
+parts only. There is one additional change, though. When the button has been pressed and the command has been
+executed on the server we would like to interpret the current content of the text field as the new base value just as
+if the error-free execution of the command would imply a correct "save".
+The "disabled" state of the button will reflect the new non-dirty state.
+
+To this end, we make use of an @onFinished@ handler:
+
+[source,java]
+public void handle(ActionEvent actionEvent) {
+    clientDolphin.send(CMD_LOG, new OnFinishedHandlerAdapter() {
+        @Override
+        public void onFinished(List<ClientPresentationModel> presentationModels) {
+            textAttributeModel.getAt(ATT_FIRSTNAME).rebase();
+        }
+    });
+}
+
+
+Please note that the onFinished handler will be called _asynchronously inside_ the UI thread. It may trigger
+changes in the model store, which may lead to changes in the display and any such changes _must_ occur in the
+UI thread.
+
+The *server* module (or "controller" module if you wish) contains the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_5/TutorialAction.java[step5.TutorialAction]
+controller.
+
+Both, client and server depend on the *shared* module, which makes the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/shared/src/main/java/step_5/TutorialConstants.java[step5.TutorialConstants]
+known to both parties. The shared module itself does not depend on anything.
+
+The code that contains the shared constants now also cares for the uniqueness of
+certain Strings, particularly of IDs used to retrieve presentation models and named commands.
+
+[source,java]
+public static final String PM_PERSON = unique("modelId");
+public static final String ATT_FIRSTNAME = "attrId";
+public static final String CMD_LOG = unique("LogOnServer");
+private static String unique(String key) {
+    return TutorialConstants.class.getName() + "." + key;
+}
+
+Splitting four classes into four different modules may look a bit over-engineered at this point
+but it is an indispensable step before we can go into true remoting and before we can instantly
+switch between in-memory- and client-server-mode.
+
+If you fear that this is too much work for setting up the directory structure or the
+build-time dependencies: simply unzip one of the
+link:https://github.com/canoo/DolphinJumpStart/tree/master/dist[project templates]
+and you are good to go.
+
+We get the following benefits:
+
+* ability to start the code _unmodified_ with different configurations (in-memory or client-server)
+* clear and minimal dependencies when building
+* a minimum of shared code (only the constants) to express semantic dependencies as syntatic dependencies
+* actions cannot "accidentally" reach out to view code. The widget set is not even on the classpath!
+* actions cannot possibly block the UI thread
+* view changes are _always_ displayed correctly since they happen in the UI thread
+* the separation of responsibilities is enforced by the dependency structure

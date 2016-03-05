@@ -1,0 +1,25 @@
+In link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/step3.html[step3.JumpStart]
+When we click the "rebase" button, the attribute base value is set and dirty value is updated.
+
+We also want the button to be enabled only when there is something reasonable to
+do, i.e. when there is some value change in the form.
+
+It should appear on your screen like:
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-Web-step3.png[width=500,height=500]
+
+Here is how the code to rebase looks like:
+
+[source,html]
+----
+var rebaseButton = document.getElementById("rebase-button");
+
+instantUpdateAttributePM.onDirty(function (event) { // <1>
+    rebaseButton.disabled = !event.newValue;
+});
+
+rebaseButton.onclick = function () {
+    instantUpdateAttributePM.rebase();
+};
+----
+<1> Bind dirty of dolphin attribute to enable rebase button

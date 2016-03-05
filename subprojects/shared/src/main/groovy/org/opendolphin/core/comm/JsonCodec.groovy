@@ -16,13 +16,13 @@
 
 package org.opendolphin.core.comm
 
-import org.opendolphin.core.BaseAttribute
-import org.opendolphin.core.Tag
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Log
+import org.opendolphin.core.BaseAttribute
+import org.opendolphin.core.Tag
 
-import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 @Log
 class JsonCodec implements Codec {
@@ -32,6 +32,7 @@ class JsonCodec implements Codec {
     public static final String BIGDECIMAL_TYPE_KEY = BigDecimal.toString();
     public static final String FLOAT_TYPE_KEY = Float.toString();
     public static final String DOUBLE_TYPE_KEY = Double.toString();
+    public static final String ISO8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
     @Override
     String encode(List<Command> commands) {
@@ -65,7 +66,7 @@ class JsonCodec implements Codec {
         def result = BaseAttribute.checkValue(entryValue);
         if (result instanceof Date) {
             def map = [:];
-            map[DATE_TYPE_KEY] = DateFormat.getDateInstance().format(result);
+            map[DATE_TYPE_KEY] = new SimpleDateFormat(ISO8601_FORMAT).format(result)
             result = map
         } else if (result instanceof BigDecimal) {
             def map = [:];
@@ -87,7 +88,12 @@ class JsonCodec implements Codec {
     List<Command> decode(String transmitted) {
         def result = new LinkedList()
         def got = new JsonSlurper().parseText(transmitted)
-        got.each { cmd ->
+
+        def validPackagePrefix = Command.class.getPackage().getName()
+
+        got.findAll { cmd ->
+            cmd['className'] != null && String.class.cast(cmd['className']).startsWith(validPackagePrefix)
+        }.each { cmd ->
             Command responseCommand = Class.forName(cmd['className']).newInstance()
             cmd.each { key, value ->
                 if (key == 'className') return
@@ -119,7 +125,7 @@ class JsonCodec implements Codec {
         Object result = encodedValue;
         if (encodedValue instanceof Map && encodedValue.size() == 1) {
             if (encodedValue.containsKey(DATE_TYPE_KEY)) {
-                result = DateFormat.getDateInstance().parse(encodedValue[DATE_TYPE_KEY]);
+                result = new SimpleDateFormat(ISO8601_FORMAT).parse(encodedValue[DATE_TYPE_KEY]);
             } else
             if (encodedValue.containsKey(BIGDECIMAL_TYPE_KEY)) {
                 result = new BigDecimal(encodedValue[BIGDECIMAL_TYPE_KEY]);

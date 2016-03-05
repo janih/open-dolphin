@@ -1,0 +1,59 @@
+*Setup and start of a basic web view*
+
+Let's start with the setup.
+
+Please make sure you have visited the link:https://github.com/canoo/DolphinJumpStart[DolphinJumpStart] project
+and have looked at the readme.
+
+You can either choose to clone the repo for following each step (recommended)
+or use the provided zip files for a Maven or Gradle build of your own application.
+
+The root directory contains a maven pom.xml that you may want to import into your IDE for creating a project.
+All major IDEs support projects based on maven pom files.
+
+In case you are not using an IDE, follow the readme for how to build and run the various steps.
+
+We start our development in html page step0.html view
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/step0.html[step0.JumpStart]
+
+It should appear on your screen like:
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-Web-step0.png[width=500,height=500]
+
+
+The code creates the basic app skeleton with dolphin client set up, creates client presentation model with one attribute and bind the value.
+
+Note that we do _not_ define a "JumpStartPresentationModel" since presentation models in OpenDolphin
+are totally generic.
+
+
+Here is how the code looks like:
+
+[source,html]
+----
+var PM_PERSON = "modelId"
+var ATT_FIRSTNAME = "attrId"
+
+var dolphin = opendolphin.dolphin(null, false); // <1>
+
+var instantUpdateAttributePM = dolphin.attribute(ATT_FIRSTNAME, null, "Initial Value"); // <2>
+dolphin.presentationModel(PM_PERSON, undefined, instantUpdateAttributePM); <3>
+
+var instantUpdateHtmlInput = document.getElementById("instant-update-input"); // <4>
+
+instantUpdateHtmlInput.oninput = function (event) { // <5>
+    instantUpdateAttributePM.setValue(instantUpdateHtmlInput.value);
+};
+
+instantUpdateAttributePM.onValueChange(function (event) { // <6>
+    instantUpdateHtmlInput.value = event.newValue;
+});
+----
+<1> set up the dolphin
+<2> make dolphin attribute to do the double binding with
+<3> make client PM and add the attribute
+<4> get html element to bind against the opendolphin attribute
+<5> bind input of textfield to attribute (client change)
+<6> bind other direction as well (e.g. for rebase(reset on client side) or server-side change)
+
+

@@ -48,7 +48,7 @@ class HttpClientConnector extends ClientConnector {
         this(clientDolphin, null, servletUrl)
     }
 
-    HttpClientConnector(ClientDolphin clientDolphin, CommandBatcher commandBatcher, String servletUrl) {
+    HttpClientConnector(ClientDolphin clientDolphin, ICommandBatcher commandBatcher, String servletUrl) {
         super(clientDolphin, commandBatcher)
         this.servletUrl = servletUrl
         this.responseHandler = new SessionAffinityCheckingResponseHandler()
@@ -76,6 +76,12 @@ class HttpClientConnector extends ClientConnector {
                 signalHttpClient.execute(httpPost, signalResponseHandler)
             } else {
                 response = httpClient.execute(httpPost, responseHandler)
+
+                def cookieStore = httpClient.cookieStore
+                if( cookieStore ) {
+                    signalHttpClient.cookieStore = cookieStore;
+                }
+
                 log.finest response
                 result = codec.decode(response)
             }

@@ -10,7 +10,13 @@ var postMessageText = <HTMLButtonElement>   document.getElementById('post-messag
 
 // dolphin setup
 var SERVER_URL      = window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/";
-var dolphin         = <opendolphin.ClientDolphin> opendolphin.dolphin(SERVER_URL, true, 0); // slack
+var dolphin         = <opendolphin.ClientDolphin> opendolphin.makeDolphin()
+    .url(SERVER_URL)
+    .slackMS(0)
+    .build();
+
+dolphin.reset({
+    onSuccess: function() {
 
 // main entry pm
 var nameAtt         = dolphin.attribute("name",     null, '',  'VALUE');
@@ -74,3 +80,5 @@ dolphin.send("chatter.init", {
     onFinishedData : null
 });
 
+    } // onSuccess
+});

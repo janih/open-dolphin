@@ -21,6 +21,7 @@ import org.opendolphin.core.ModelStore
 import org.opendolphin.core.PresentationModel
 import org.opendolphin.core.Tag
 import org.opendolphin.core.client.comm.ClientConnector
+import org.opendolphin.core.client.comm.OnFinishedDataAdapter
 import org.opendolphin.core.client.comm.OnFinishedHandler
 import org.opendolphin.core.client.comm.OnFinishedHandlerAdapter
 import org.opendolphin.core.comm.AttributeCreatedNotification
@@ -103,11 +104,7 @@ public class ClientDolphin extends AbstractDolphin<ClientAttribute, ClientPresen
 
     /** groovy-friendly convenience method for sending a named command that expects only data responses*/
     void data(String commandName, Closure onFinished) {
-        clientConnector.send(new NamedCommand(commandName), new OnFinishedHandlerAdapter(){
-            void onFinishedData(List<Map> data) {
-                onFinished(data)
-            }
-        })
+        clientConnector.send(new NamedCommand(commandName), OnFinishedDataAdapter.withAction(onFinished))
     }
 
     /** start of a fluent api: apply source to target. Use for selection changes in master-detail views. */

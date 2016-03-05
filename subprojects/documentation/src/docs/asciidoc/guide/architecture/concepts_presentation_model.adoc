@@ -1,0 +1,60 @@
+Presentation models are probably best known because of the presentation model
+link:http://martinfowler.com/eaaDev/PresentationModel.html[design pattern] by Martin Fowler.
+
+They also come under different names like _Application Model_ or _View Model_.
+
+There is a lot of information about presentation models on the web, i.e
+
+* from link:http://msdn.microsoft.com/en-us/magazine/dd419663.aspx[Microsoft Developer Network]
+* from link:http://www.canoo.com/blog/2008/01/28/mvc-and-the-brave-new-world-of-ria/[Canoo]
+* from http://www.jgoodies.com/freeware/libraries/binding/[JGoodies]
+
+Dolphin doesn't claim to have "the best" implementation of this pattern in any sense of the word.
+
+[WARNING]
+====
+In fact, we do not even claim to implement the "presentation model *design pattern*" at all!
+
+_We would like to avoid any discussion about whether we meet all requirements of_
+_any pattern or structure as proposed by any authority._
+_We are happy to give them all due credit, though, since we are building on their work._
+====
+
+It just happens that the Dolphin approach has a lot of similarities with the patterns
+above, which led us to calling our abstraction a presentation model.
+
+*What is common*
+
+* Dolphin presentation models capture *what* should be visualized (as opposed to *how*).
+* They are different from domain models.
+* They allow multiple consistent views on the same information.
+* They know neither views nor controllers (only their listeners).
+* They are independent of any GUI toolkit or widget set.
+* They make replacing the GUI toolkit easier.
+* They decouple business logic from view logic.
+* They make UI code easily testable.
+* They consist of *Attribute*s (like many but not all other implementations).
+* They support declarative binding between attributes and GUI elements.
+
+*What is special*
+
+* Dolphin presentation models are _generic_. You never implement a new class for a new type of presentation model.
+* They do not contain any custom behavior (only what's provided by Dolphin for binding and remoting).
+* They allow <<Stable bindings>>
+* They are _flat._ Their attributes contain no object references, only primitive values. There is no object graph.
+* In particular, they do not maintain an object reference to a domain model (but maybe a key).
+* They are _shared_ between a client and a server. Dolphin cares for consistent synchronization.
+* They live in a managed object space. All instances are known and can be retrieved by their characteristics.
+* They have a unique _id_, which either the application programmer provides or is automatically assigned otherwise.
+* They optionally have a _type_ parameter for logical grouping.
+
+See also: link:./../ref/presentationModel/usage.html[Usage of presentation model]
+and link:http://open-dolphin.org/download/api/org/opendolphin/core/PresentationModel.html[API doc]
+
+*Where the logic goes*
+
+When there is the least bit of business logic, it goes into an action.
+Actions live in controller classes of the server module.
+
+There is a small fraction of logic that resides on the client, which is
+_view_ logic like i.e for calculating component bounds when layouting.

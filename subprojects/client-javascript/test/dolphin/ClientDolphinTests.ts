@@ -4,19 +4,18 @@
 /// <reference path="../../js/dolphin/ClientDolphin.ts"/>
 /// <reference path="../../js/dolphin/ClientModelStore.ts"/>
 /// <reference path="../../js/dolphin/ClientConnector.ts"/>
+/// <reference path="../../js/dolphin/NoTransmitter.ts"/>
 /// <reference path="../../js/dolphin/Command.ts"/>
 /// <reference path="../../js/dolphin/Tag.ts"/>
 
 
 module opendolphin {
     export class ClientDolphinTests extends tsUnit.TestClass {
-
         getPmFromFactoryMethod() {
             var clientDolphin:ClientDolphin = new ClientDolphin();
             var clientModelStore:ClientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientModelStore(clientModelStore);
-            clientDolphin.setClientConnector(new ClientConnector({signal:undefined, transmit: (result:Command[]) => {
-            } },clientDolphin));
+            clientDolphin.setClientConnector(new ClientConnector(new NoTransmitter(), clientDolphin));
 
             var pm1:ClientPresentationModel = clientDolphin.presentationModel("myId1", "myType");
             this.areIdentical(pm1.id, "myId1");
@@ -34,8 +33,7 @@ module opendolphin {
             var clientDolphin:ClientDolphin = new ClientDolphin();
             var clientModelStore:ClientModelStore = new ClientModelStore(clientDolphin);
             clientDolphin.setClientModelStore(clientModelStore);
-            clientDolphin.setClientConnector(new ClientConnector({signal:undefined, transmit: (result:Command[]) => {
-            } },clientDolphin));
+            clientDolphin.setClientConnector(new ClientConnector(new NoTransmitter(), clientDolphin));
 
             var pm:ClientPresentationModel = clientDolphin.presentationModel("myId", "myType");
             this.areIdentical(pm.getAttributes().length, 0);

@@ -1,11 +1,11 @@
 _Binding_ is just another word for an event listener listening to an event source.
 
-OpenDolphin supports binding between attributes and arbitrary other objects where
+OpenDolphin supports binding between attributes and other arbitrary objects where
 most of the time, these other objects are views - with the notable exception of
 the dolphin infrastructure itself, which automatically listens for value changes
 in order to notify the server.
 
-While OpenDolphin is independent on any specific UI toolkit and works out-of-the-box
+While OpenDolphin is independent of any specific UI toolkit and works out-of-the-box
 with every technology that understands PropertyChangeListeners (e.g. SWT and
 Eclipse RCP), it provides special binding facilities for
 - JavaFx and
@@ -22,11 +22,11 @@ for use cases where a selection changes the to-be-displayed information, commonl
 known as master-detail views.
 
 Master-detail views come in many flavors:
-- a list or table row selection with an associated detail view (often forms) for the row info
-- a map or chart item selection with details per selected item
-- a tabbed pane with the individual details (often forms) per tab
+- a list or table row selection with an associated detail view for the row info (common in forms);
+- a map or chart item selection with details per selected item;
+- a tabbed pane with the individual details (often forms) per tab.
 
-OpenDolphin allows to bind the detail view against a stable _placeholder_
+OpenDolphin allows binding the detail view to a stable _placeholder_
 presentation model that is automatically synchronized (both read and write)
 with the selection.
 

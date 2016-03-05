@@ -7,10 +7,10 @@ We implement a very simple application that contains only one text field and two
 Both buttons are only enabled if there is really something to save/reset, i.e. the field value is dirty.
 The dirty state is also visualized via a CSS class (background color changes). Resetting triggers a 'shake' animation.
 
-Steps 0 to 4 solely live in the "combined" module for a simple jumpstart
+Steps 0 to 4 live solely in the "combined" module for a simple jumpstart
 before we properly split client and server in step 5 and only keep a starter class in "combined".
 
-Step 7 produces a WAR file that you can deploy in an application server (e.g. Tomcat) and the code that starts the client moves to the "client" module.
+Step 7 produces a WAR file that you can deploy in an application server (e.g. Tomcat), and the code that starts the client moves to the "client" module.
 
 h4. Setup and start of a basic JavaFX view
 
@@ -32,7 +32,7 @@ We start our development in the "combined" module with the simplest possible Jav
 The class has a main method such that you can start it from inside the IDE.
 Otherwise use the command line launcher as described in the readme.
 
-When your setup is correct, it should appear on your screen like:
+When your setup is correct, it should appear on your screen like this:
 
 !../img/dolphin_pics/step0.png!
 

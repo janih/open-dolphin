@@ -1,0 +1,24 @@
+#TODO review audio doesn't work#
+Please have a look at this short video in a separate window: link:http://people.canoo.com/mittie/JavaFX_Navis_Dolphin.mp4[container yard demo]
+
+You see a monitoring application that has been implemented in a joint effort by
+
+* Navis
+* Oracle
+* Canoo
+and was demonstrated at the JavaOne 2012 strategy keynote.
+
+This application uses JavaFX on the client side and builds upon an existing server-side programming model.
+
+OpenDolphin combines these two worlds.
+
+The application was first developed in a purely 2-D fashion and later extended to 3-D.
+
+Despite the rather dramatic effect that this extension had to the user interface, the presentation models
+did not change by a single bit!
+
+This example demonstrates:
+
+* the value of having the full "fidelity" of a Java desktop client
+* how to leverage the power of Java server-side applications
+* how OpenDolphin helps to stay independent of changes in visualization and protects the investment in application logic

@@ -146,6 +146,94 @@ class ServerPresentationModelTests extends GroovyTestCase {
         }
     }
 
+    void testServerSideValueChangesUseQualifiers() {
+        def model = clientDolphin.presentationModel("PM1", att1:'base', att2:'base')
+        model.att1.qualifier = 'qualifier'
+        model.att2.qualifier = 'qualifier'
+
+        serverDolphin.action "changeValue", { cmd, response ->
+            def at1 = serverDolphin.getAt("PM1").getAt("att1")
+            assert at1.value == 'base'
+            at1.value = 'changed'
+            assert serverDolphin.getAt("PM1").getAt("att2").value == 'changed'
+        }
+
+        serverDolphin.action "changeBaseValue", { cmd, response ->
+            def at1 = serverDolphin.getAt("PM1").getAt("att1")
+            assert at1.baseValue == 'base'
+            at1.baseValue = 'changedBase'
+            assert serverDolphin.getAt("PM1").getAt("att2").baseValue == 'changedBase'
+        }
+
+        clientDolphin.send "changeValue"
+        clientDolphin.send "changeBaseValue"
+
+        clientDolphin.sync {
+            context.assertionsDone()
+        }
+    }
+
+    void testServerSideEventListenerCanChangeSelfValue() {
+        def model = clientDolphin.presentationModel("PM1", att1:'base')
+
+        serverDolphin.action "attachListener", { cmd, response ->
+            ServerAttribute at1 = serverDolphin.getAt("PM1").getAt("att1")
+            at1.addPropertyChangeListener("value") { event ->
+                at1.setValue("changed from PCL")
+            }
+        }
+
+        serverDolphin.action "changeBaseValue", { cmd, response ->
+            def at1 = serverDolphin.getAt("PM1").getAt("att1")
+            assert at1.baseValue == 'base'
+            at1.baseValue = 'changedBase'
+            assert serverDolphin.getAt("PM1").getAt("att2").baseValue == 'changedBase'
+        }
+
+        clientDolphin.send "attachListener"
+
+        clientDolphin.sync {
+            model.getAt("att1").setValue("changed")
+            clientDolphin.sync {
+                assert model.getAt("att1").getValue() == "changed from PCL"
+                context.assertionsDone()
+            }
+        }
+    }
+
+
+    void testServerSideEventListenerCanRebaseSelf() {
+        def model = clientDolphin.presentationModel("PM1", att1:'base')
+
+        serverDolphin.action "attachListener", { cmd, response ->
+            ServerAttribute at1 = serverDolphin.getAt("PM1").getAt("att1")
+            at1.addPropertyChangeListener("value") { event ->
+                at1.setValue("anotherChange")
+                at1.rebase()
+            }
+        }
+
+        serverDolphin.action "assertRebased", { cmd, response ->
+            def at1 = serverDolphin.getAt("PM1").getAt("att1")
+            assert at1.baseValue == 'anotherChange'
+            assert at1.value == 'anotherChange'
+            assert at1.dirty == false
+        }
+
+        clientDolphin.send "attachListener"
+
+        clientDolphin.sync {
+            model.getAt("att1").setValue("changed")
+            assert model.getAt("att1").dirty
+            clientDolphin.send "assertRebased", {
+                def at1 =  model.getAt("att1")
+                assert at1.baseValue == 'anotherChange'
+                assert at1.value == 'anotherChange'
+                assert at1.dirty == false
+                context.assertionsDone()
+            }
+        }
+    }
 
     void testSecondServerActionCanRelyOnPmReset() {
         def model = clientDolphin.presentationModel("PM1", att1:'base' )

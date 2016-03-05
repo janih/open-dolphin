@@ -42,9 +42,9 @@ h4. What is special
 - They allow [stable bindings|guide:concepts_binding].
 - They are _flat._ Their attributes contain no object references, only primitive values. There is no object graph.
 - In particular, they do not maintain an object reference to a domain model (but maybe a key).
-- They are _shared_ between a client and a server. Dolphin cares for consistent synchronization.
+- They are _shared_ between a client and a server. Dolphin ensures consistent synchronization.
 - They live in a managed object space. All instances are known and can be retrieved by their characteristics.
-- They have a unique _id_, which either the application programmer provides or is automatically assigned otherwise.
+- They have a unique _id_, which either the application programmer provides or is automatically assigned.
 - They optionally have a _type_ parameter for logical grouping.
 
 See also: [Usage|PresentationModel] and [API doc|api:org.opendolphin.core.PresentationModel].
@@ -55,4 +55,4 @@ When there is the least bit of business logic, it goes into an action.
 Actions live in controller classes of the server module.
 
 There is a small fraction of logic that resides on the client, which is
-_view_ logic like e.g. for calculating component bounds when layouting.
+_view_ logic like e.g. for calculating component bounds when laying out the view.

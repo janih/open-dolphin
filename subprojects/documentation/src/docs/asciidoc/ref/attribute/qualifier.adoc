@@ -1,0 +1,8 @@
+In addition of name and tag, dolphin attributes are defined also by a _qualifier_.
+This property captures the fact that this attribute represents a qualified feature in the domain world.
+
+Whenever the value of an attribute changes, instant update of all attributes that share the same qualifier will happen automatically.
+
+Qualifiers are a prerequisite for Stable bindings
+
+Open dolphin provides methods in client and server side to find attributes by name, and tag and by qualifier.

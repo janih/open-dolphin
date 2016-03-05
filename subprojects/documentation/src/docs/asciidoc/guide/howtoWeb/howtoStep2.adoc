@@ -1,0 +1,28 @@
+In link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/step2.html[step2.JumpStart]
+When we click the "reset" button, the dirty value is replaced by the last known base value and
+we make even further use of the bindable dirty state.
+
+We also want the button to be enabled only when there is something reasonable to
+do, i.e. when there is some value change in the form. This is a very common requirement
+in business applications.
+
+It should appear on your screen like:
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-Web-step2.png[width=500,height=500]
+
+Here is how the code to reset looks like:
+
+[source,html,indent=0]
+----
+ var resetButton = document.getElementById("reset-button");
+
+  instantUpdateAttributePM.onDirty(function (event) { // <1>
+      resetButton.disabled = !event.newValue;
+  });
+
+  resetButton.onclick = function () { // <2>
+      instantUpdateAttributePM.reset();
+  };
+----
+<1> Bind dirty of dolphin attribute to enable reset button
+<2> Reset dolphin attribute

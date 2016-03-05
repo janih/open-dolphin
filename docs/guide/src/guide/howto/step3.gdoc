@@ -1,8 +1,8 @@
 In
 [step3.JumpStart|https://github.com/canoo/DolphinJumpStart/blob/master/combined/src/main/java/step_3/JumpStart.java]
-we first cleanup the code such that it becomes more obvious, which part belongs to the (client) view and the
+we first clean up the code to clarify which part belongs to the (client) view and the
 (server) controller. In the first place, OpenDolphin leads to a _logical_ view-controller distinction and
-client-server split. The only thing that is optionally shared are constants.
+client-server split. The only things that are optionally shared are constants.
 
 It is always a good idea to refactor literal values into constants, especially if they
 are used in more than one place for a unique purpose.
@@ -25,8 +25,8 @@ public JumpStart() {
 }
 {code}
 
-This leaves the "start" method with "view" responsibilities only:
-the initial contruction and separate method calls for binding and registering actions.
+This leaves the "start" method with "view" responsibilities only, namely,
+the initial construction and separate method calls for binding and registering actions.
 
 {code}
 @Override
@@ -52,7 +52,8 @@ public void start(Stage stage) throws Exception {
 }
 {code}
 
-We add an additional labeled checkbox to visualize the status: whether the text field - or more precisely the dolphin attribute that backs it - is considered "dirty".
+We add an additional labeled checkbox to visualize the "dirty" status of the text field (or, more precisely,
+the dolphin attribute that backs it.)
 
 !../img/dolphin_pics/step3.png!
 

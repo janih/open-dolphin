@@ -23,5 +23,9 @@ module opendolphin {
             // do nothing
         }
 
+        reset(successHandler:OnSuccessHandler) : void {
+            // do nothing
+        }
+
     }
 }

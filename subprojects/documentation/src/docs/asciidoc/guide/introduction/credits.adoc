@@ -1,0 +1,9 @@
+A big _thank you_ goes to all our early-adopting users that have provided
+us with much appreciated feedback, inspiration, and other support, particularly
+
+* Oracle
+* Navis
+* Knappschaft Bahn-See
+* Siemens
+* Inventage
+* and other companies that prefer to remain unnamed.

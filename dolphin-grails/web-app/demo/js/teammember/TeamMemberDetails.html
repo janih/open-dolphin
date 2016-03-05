@@ -135,26 +135,6 @@ var SERVER_URL          = window.location.protocol + "//" + window.location.host
 var PM_ID_MODEL         = "teamMemberMold";
 var PM_TYPE_N0          = null;
 
-var dolphin             = opendolphin.dolphin(SERVER_URL, true, 0);
-
-// Create detail PM for stable binding of the detail view, representing the current selection
-var firstNameAttr       = dolphin.attribute("firstName",    null, "");
-var lastNameAttr        = dolphin.attribute("lastName",     null, "");
-var functionNameAttr    = dolphin.attribute("function",     null, "");
-var isAvailableAttr     = dolphin.attribute("available",    null, false);
-var isContractorAttr    = dolphin.attribute("contractor",   null, false);
-var workloadAttr        = dolphin.attribute("workLoad",     null, 0);
-
-var detailPM            = dolphin.presentationModel( PM_ID_MODEL, PM_TYPE_N0,
-     firstNameAttr, lastNameAttr, functionNameAttr, isAvailableAttr, isContractorAttr, workloadAttr
-);
-var blankPM             = detailPM.copy(); // stored for later use on "unselect"
-
-var selectedPmId        = dolphin.attribute("selectedPmId", 'teammember.selected.id', null); /* null for no selection*/
-                            dolphin.presentationModel("selectedTeamMember", null, selectedPmId); // only to give the attribute a place to live
-
-var disabledAttr        = dolphin.attribute("disabled", null, true); // a free-standing attribute for the detail form
-
 ///////////////////// bindings for the detail view (form) /////////////////////////
 
 // this helper function for a standard binding of values could later go into Dolphin JsBinder
@@ -167,182 +147,209 @@ function bindBothValues(type, element, attribute) { // bind element value to att
     });
 }
 
-bindBothValues("input",  firstName,    firstNameAttr);
-bindBothValues("input",  lastName,     lastNameAttr);
-bindBothValues("change", functionName, functionNameAttr);
+var dolphin = opendolphin.makeDolphin()
+        .url(SERVER_URL)
+        .slackMS(0)
+        .build();
+
+dolphin.reset({
+    onSuccess: function() {
+
+        // Create detail PM for stable binding of the detail view, representing the current selection
+        var firstNameAttr       = dolphin.attribute("firstName",    null, "");
+        var lastNameAttr        = dolphin.attribute("lastName",     null, "");
+        var functionNameAttr    = dolphin.attribute("function",     null, "");
+        var isAvailableAttr     = dolphin.attribute("available",    null, false);
+        var isContractorAttr    = dolphin.attribute("contractor",   null, false);
+        var workloadAttr        = dolphin.attribute("workLoad",     null, 0);
+
+        var detailPM            = dolphin.presentationModel( PM_ID_MODEL, PM_TYPE_N0, firstNameAttr, lastNameAttr, functionNameAttr, isAvailableAttr, isContractorAttr, workloadAttr);
+        var blankPM             = detailPM.copy(); // stored for later use on "unselect"
+
+        var selectedPmId        = dolphin.attribute("selectedPmId", 'teammember.selected.id', null); /* null for no selection*/
+        dolphin.presentationModel("selectedTeamMember", null, selectedPmId); // only to give the attribute a place to live
+
+        var disabledAttr        = dolphin.attribute("disabled", null, true); // a free-standing attribute for the detail form
+
+        bindBothValues("input",  firstName,    firstNameAttr);
+        bindBothValues("input",  lastName,     lastNameAttr);
+        bindBothValues("change", functionName, functionNameAttr);
+
+        // for the workload slider, we should not change the value while we drag it
+        var sliderPressed = false;
+        workload.onmousedown = function() { sliderPressed = true ; };
+        workload.onmouseup   = function() { sliderPressed = false; };
+
+        workload.addEventListener("input", function () {
+            workloadAttr.setValue(workload.value);
+        });
+        workloadAttr.onValueChange(function (event) {
+            if(sliderPressed) return;
+            workload.value = event.newValue;
+        });
+
+        // change the image when the function name changes
+        functionNameAttr.onValueChange(function (event) {
+            var pic = event.newValue;
+            if (pic == "") pic = "Unselected";
+            functionImage.src = "/dolphin-grails/rolePics/" + pic + ".jpg";
+        });
+
+        // availableYes/No binding with isAvailableAttr bidirectionally
+        availableYes.onclick = function () { isAvailableAttr.setValue(availableYes.checked); };
+        availableNo.onclick  = function () { isAvailableAttr.setValue(availableYes.checked); }; // :-)
+        isAvailableAttr.onValueChange(function (event) {
+            availableYes.checked =  event.newValue;
+            availableNo.checked  = !event.newValue;
+        });
+        // isContractor binding with isContractorAttr bidirectionally
+        isContractor.onclick = function () { isContractorAttr.setValue(isContractor.checked); };
+        isContractorAttr.onValueChange(function (event) {
+            isContractor.checked = event.newValue;
+        });
+
+        // bind the disabled attribute to all input fields; disabling of fieldsets does not work in IE.
+        var detailFields = [firstName, lastName, functionName, availableYes, availableNo, isContractor, workload, deleteTeamMemberBtn];
+        detailFields.forEach(function(field) {
+            disabledAttr.onValueChange(function(event){
+                field.disabled = event.newValue;
+            });
+        });
+
+        // only when the detail PM _changes_ the enabled state, the style of the detail view needs update
+        disabledAttr.onValueChange(function(evt) {
+            teamMemberForm.className = "detail-form " + (evt.newValue ? "unselected" : "selected clean") ;
+        });
+
+        // bind the pm's dirty state to the button's disabled state and the detail view style class
+        detailPM.onDirty(function (event) {
+            saveTeamMemberBtn.disabled = !event.newValue;
+            resetButton.disabled       = !event.newValue;
+            teamMemberForm.className   = "detail-form selected " + (event.newValue ? "dirty" : "clean");
+        });
+
+        //////////////// binding to selection changes ////////////////
+
+        // whenever the selected presentation model changes, make sure we update the detail view
+        selectedPmId.onValueChange(function(event) {
+            var selectedPm = dolphin.getAt(event.newValue);
+            if (selectedPm) {
+                disabledAttr.setValue(false);
+                detailPM.syncWith(selectedPm);
+            } else {
+                detailPM.syncWith(blankPM);
+                disabledAttr.setValue(true);
+            }
+        });
 
 
-// for the workload slider, we should not change the value while we drag it
-var sliderPressed = false;
-workload.onmousedown = function() { sliderPressed = true ; }
-workload.onmouseup   = function() { sliderPressed = false; }
+        //////////////// registering button actions ///////////////////
 
-workload.addEventListener("input", function () {
-    workloadAttr.setValue(workload.value);
+        // send add command to create an empty pm
+        addTeamMemberBtn.onclick = function () {
+            dolphin.send("teamMember.add");              // server adds new PM and immediately selects it
+        };
+        // save the pm
+        saveTeamMemberBtn.onclick = function () {
+            saveTeamMemberBtn.disabled = true;            // double-click protection
+            disabledAttr.setValue(true);                  // no new inputs allowed while save is under way
+            dolphin.send("teamMember.save", { onFinished: function() {
+                disabledAttr.setValue(false);             // save is done, new input is allowed
+            }});
+        };
+        // reset
+        resetButton.onclick = function () {
+            detailPM.reset();
+        };
+        // delete
+        deleteTeamMemberBtn.onclick = function () {
+            dolphin.send("teamMember.remove");
+        };
+
+        //////////////// bindings for the master view (table) ///////////////////
+
+        // Table rows are a dynamic parts of the view. They need to be created or removed and bound.
+        // Even though we create new bindings for the newly created views (TRs and TDs),
+        // these bindings again remain stable throughout the whole program.
+
+        var createTableRow = function (model) {
+            var row = document.createElement("tr");
+            row.dataset.id = model.id;
+            // whenever the selection model changes, make sure we update the row accordingly
+            selectedPmId.onValueChange(function(event) {
+                row.id = ( model.id == event.newValue ? "selected-row" : "");
+            });
+            model.onDirty( function(event) {
+                row.className = (event.newValue ? "dirty" : "clean");
+            });
+            row.addEventListener("click", function () {
+                selectRow(row.rowIndex - 1); // row indexes start at 1
+            });
+
+            row.appendChild(createSelfUpdatingTDs(model,"firstName" ,"left"));
+            row.appendChild(createSelfUpdatingTDs(model,"lastName"  ,"left"));
+            row.appendChild(createSelfUpdatingTDs(model,"function"  ,"left"));
+            row.appendChild(createSelfUpdatingTDs(model,"available" ,"center"));
+            row.appendChild(createSelfUpdatingTDs(model,"contractor","center"));
+            row.appendChild(createSelfUpdatingTDs(model,"workLoad"  ,"right"));
+            table.appendChild(row);
+        };
+
+        // find the tr of the to-be-removed model, remove it, and set the selection to the trailer if possible or one up otherwise
+        var removeTableRow = function (model) {
+            var found = -1;
+            for (i=0; found < 0 && i < table.children.length; i++) {
+                if (table.children[i].dataset.id == model.id) { found = i}
+            }
+            if (found < 0) { return; } // should never happen, but better be safe than sorry
+            table.deleteRow(found);
+            // When removing a pm, that we have not currently selected, then this should not change our current selection.
+            // Since we select before deletion, this can only happen when some other client removes a pm and we are notified.
+            if (model.id != selectedPmId.getValue()) return;
+            selectRow((table.children.length > found) ? found : found - 1 );
+        };
+
+        var selectRow = function(rowNumber) { // starting at 0
+            var row  = table.children[rowNumber];
+            var pmId = (row ? row.dataset.id : null);
+            selectedPmId.setValue(pmId);
+        };
+
+        function createSelfUpdatingTDs(model, propertyName, alignment) {
+            var attribute = model.findAttributeByPropertyName(propertyName);
+            var td = document.createElement("td");
+            td.align = alignment;
+            td.dataset.role = attribute.propertyName;
+            attribute.onValueChange(function (event) {
+                td.innerHTML = event.newValue;
+            });
+            attribute.onDirty( function(event) {
+                td.className = (event.newValue ? "dirty-field" : "clean");
+            });
+            return td
+        }
+
+
+        // Register ModelStore change event to reflect newly available team members in the master view (table)
+        dolphin.getClientModelStore().onModelStoreChange(function (modelStoreEvent) {
+            if (modelStoreEvent.eventType == 'ADDED') {
+                createTableRow(modelStoreEvent.clientPresentationModel);
+            }
+            if (modelStoreEvent.eventType == 'REMOVED') {
+                removeTableRow(modelStoreEvent.clientPresentationModel);
+            }
+        });
+
+        // get the initial data and start listening
+        dolphin.send("teamMember.init", { onFinished: function () {
+            loading.innerHTML = "";
+            dolphin.startPushListening("teamMember.on.push", "teamMember.release");
+        } } );
+
+
+    } // onSuccess
 });
-workloadAttr.onValueChange(function (event) {
-    if(sliderPressed) return;
-    workload.value = event.newValue;
-});
 
-// change the image when the function name changes
-functionNameAttr.onValueChange(function (event) {
-    var pic = event.newValue
-    if (pic == "") pic = "Unselected";
-    functionImage.src = "/dolphin-grails/rolePics/" + pic + ".jpg";
-});
-
-// availableYes/No binding with isAvailableAttr bidirectionally
-availableYes.onclick = function () { isAvailableAttr.setValue(availableYes.checked); };
-availableNo.onclick  = function () { isAvailableAttr.setValue(availableYes.checked); }; // :-)
-isAvailableAttr.onValueChange(function (event) {
-    availableYes.checked =  event.newValue;
-    availableNo.checked  = !event.newValue;
-});
-// isContractor binding with isContractorAttr bidirectionally
-isContractor.onclick = function () { isContractorAttr.setValue(isContractor.checked); };
-isContractorAttr.onValueChange(function (event) {
-    isContractor.checked = event.newValue;
-});
-
-// bind the disabled attribute to all input fields; disabling of fieldsets does not work in IE.
-var detailFields = [firstName, lastName, functionName, availableYes, availableNo, isContractor, workload, deleteTeamMemberBtn];
-detailFields.forEach(function(field) {
-    disabledAttr.onValueChange(function(event){
-        field.disabled = event.newValue;
-    });
-});
-
-// only when the detail PM _changes_ the enabled state, the style of the detail view needs update
-disabledAttr.onValueChange(function(evt) {
-    teamMemberForm.className = "detail-form " + (evt.newValue ? "unselected" : "selected clean") ;
-});
-
-// bind the pm's dirty state to the button's disabled state and the detail view style class
-detailPM.onDirty(function (event) {
-    saveTeamMemberBtn.disabled = !event.newValue;
-    resetButton.disabled       = !event.newValue;
-    teamMemberForm.className   = "detail-form selected " + (event.newValue ? "dirty" : "clean");
-});
-
-
-//////////////// binding to selection changes ////////////////
-
-// whenever the selected presentation model changes, make sure we update the detail view
-selectedPmId.onValueChange(function(event) {
-    var selectedPm = dolphin.getAt(event.newValue);
-    if (selectedPm) {
-        disabledAttr.setValue(false);
-        detailPM.syncWith(selectedPm);
-    } else {
-        detailPM.syncWith(blankPM);
-        disabledAttr.setValue(true);
-    }
-});
-
-
-//////////////// registering button actions ///////////////////
-
-// send add command to create an empty pm
-addTeamMemberBtn.onclick = function () {
-    dolphin.send("teamMember.add");              // server adds new PM and immediately selects it
-}
-// save the pm
-saveTeamMemberBtn.onclick = function () {
-    saveTeamMemberBtn.disabled = true;            // double-click protection
-    disabledAttr.setValue(true);                  // no new inputs allowed while save is under way
-    dolphin.send("teamMember.save", { onFinished: function() {
-        disabledAttr.setValue(false);             // save is done, new input is allowed
-    }});
-}
-// reset
-resetButton.onclick = function () {
-    detailPM.reset();
-};
-// delete
-deleteTeamMemberBtn.onclick = function () {
-    dolphin.send("teamMember.remove");
-};
-
-
-//////////////// bindings for the master view (table) ///////////////////
-
-// Register ModelStore change event to reflect newly available team members in the master view (table)
-dolphin.getClientModelStore().onModelStoreChange(function (modelStoreEvent) {
-    if (modelStoreEvent.eventType == 'ADDED') {
-        createTableRow(modelStoreEvent.clientPresentationModel);
-    }
-    if (modelStoreEvent.eventType == 'REMOVED') {
-        removeTableRow(modelStoreEvent.clientPresentationModel);
-    }
-});
-
-// Table rows are a dynamic parts of the view. They need to be created or removed and bound.
-// Even though we create new bindings for the newly created views (TRs and TDs),
-// these bindings again remain stable throughout the whole program.
-
-var createTableRow = function (model) {
-    var row = document.createElement("tr");
-    row.dataset.id = model.id;
-    // whenever the selection model changes, make sure we update the row accordingly
-    selectedPmId.onValueChange(function(event) {
-       row.id = ( model.id == event.newValue ? "selected-row" : "");
-    });
-    model.onDirty( function(event) {
-        row.className = (event.newValue ? "dirty" : "clean");
-    });
-    row.addEventListener("click", function () {
-        selectRow(row.rowIndex - 1); // row indexes start at 1
-    });
-
-    row.appendChild(createSelfUpdatingTDs(model,"firstName" ,"left"));
-    row.appendChild(createSelfUpdatingTDs(model,"lastName"  ,"left"));
-    row.appendChild(createSelfUpdatingTDs(model,"function"  ,"left"));
-    row.appendChild(createSelfUpdatingTDs(model,"available" ,"center"));
-    row.appendChild(createSelfUpdatingTDs(model,"contractor","center"));
-    row.appendChild(createSelfUpdatingTDs(model,"workLoad"  ,"right"));
-    table.appendChild(row);
-};
-
-// find the tr of the to-be-removed model, remove it, and set the selection to the trailer if possible or one up otherwise
-var removeTableRow = function (model) {
-    var found = -1;
-    for (i=0; found < 0 && i < table.children.length; i++) {
-        if (table.children[i].dataset.id == model.id) { found = i};
-    }
-    if (found < 0) { return; } // should never happen, but better be safe than sorry
-    table.deleteRow(found);
-    // When removing a pm, that we have not currently selected, then this should not change our current selection.
-    // Since we select before deletion, this can only happen when some other client removes a pm and we are notified.
-    if (model.id != selectedPmId.getValue()) return;
-    selectRow((table.children.length > found) ? found : found - 1 );
-}
-
-var selectRow = function(rowNumber) { // starting at 0
-    var row  = table.children[rowNumber];
-    var pmId = (row ? row.dataset.id : null);
-    selectedPmId.setValue(pmId);
-}
-
-function createSelfUpdatingTDs(model, propertyName, alignment) {
-    var attribute = model.findAttributeByPropertyName(propertyName)
-    var td = document.createElement("td");
-    td.align = alignment;
-    td.dataset.role = attribute.propertyName;
-    attribute.onValueChange(function (event) {
-        td.innerHTML = event.newValue;
-    });
-    attribute.onDirty( function(event) {
-        td.className = (event.newValue ? "dirty-field" : "clean");
-    });
-    return td
-}
-
-// get the initial data and start listening
-dolphin.send("teamMember.init", { onFinished: function () {
-    loading.innerHTML = "";
-    dolphin.startPushListening("teamMember.on.push", "teamMember.release");
-} } );
 
 
 </script>

@@ -81,10 +81,12 @@
 </div>
 
 <script>
-  require([ 'opendolphin' ], function (dol) {
+  var dolphin = opendolphin.makeDolphin()
+      .url("${dolphinUrl}")
+      .build();
 
-    // setting up the dolphin
-    var dolphin = dol.dolphin("${dolphinUrl}", true); 
+    dolphin.reset({
+      onSuccess: function() {
 
     // create named PM with attribute on the client side
     var textAttribute  = dolphin.attribute("${TutorialAction.ATTR_ID}", null, '');
@@ -132,7 +134,7 @@
     addButton.addEventListener("click", function () {
       dolphin.send("${TutorialAction.CMD_ADD}", {onFinished: function (models) {
         models.forEach(function (model) {
-          console.log(model)
+          console.log(model);
           var element = document.createElement("div");
           element.innerHTML = model.presentationModelType + ": " + model.attributes[0].value;
           list.appendChild(element);
@@ -140,7 +142,9 @@
       }});
     });
 
-  });
+      } // onSuccess
+    });
+
 </script>
 
 </body>

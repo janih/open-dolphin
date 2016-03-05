@@ -1,0 +1,91 @@
+OpenDolphin works on a _reactive_ operation mode.
+After view generation and binding it just sits there and waits for the user to do some
+data entry or navigation. It will react to any changes as declared in the binding.
+
+But the user of the current client is not the only possible source of change.
+There may be other sources like data feeds
+from let's say stock tickers, weather stations, database events, and last not
+least other users of the system that happen to work on shared data.
+
+You may want to have a look at link:https://klondike.canoo.com/dolphin-grails/demo/js/teammember/TeamMemberDetails.html[the team-members live demo]
+that uses the push capability (with links to the source code).
+
+External sources can publish data on the OpenDolphin [Event Bus|EventBus] in order to notify
+registered parties. At this point, the data sits happily on the server waiting for
+its client to pick it up. But since OpenDolphin is _reactive_ this pick-up only
+occurs if the client comes to visit.
+In other words: we somehow have to organize appropriate server roundtrips.
+
+OpenDolphin comes with a feature that does exactly that. It is available through the
+the methods *startPushListening* and *stopPushListening* on the
+link:http://open-dolphin.org/download/api/org/opendolphin/core/client/ClientDolphin.html[ClientDolphin].
+
+When starting to listen, you have to tell OpenDolphin about your "push action" and your "release action".
+
+The push action is the one that OpenDolphin will ask for any news on the event bus.
+This push action may read from the event queue with a given maximum waiting time such that
+it returns if there hasn't been any recent news. It waits *at most* the waiting time but
+returns *immediately* if there was a new value on the bus.
+
+[source]
+----
+queue.getVal(1, TimeUnit.MINUTES); // <1>
+----
+<1> returns null if there was no value
+
+While the push action waits for new values on the bus, the communication channel is
+blocked. Remember: OpenDolphin sends commands in strict sequence and therefore, the client
+cannot send any commands while the push action hasn't finished.
+
+This is absolutely fine if the client was read-only, showing only information that originates
+from the server. But for any _interactive_ application, OpenDolphin needs a way to tell the server
+that it should release its communication lock such that the client can sent his commands.
+
+This is the job of the release action. It publishes a release token on the event bus
+such that the push action gets a value (the release token) and can return.
+This can look like so:
+
+[source]
+eventBus.publish(null, "release");
+
+
+WARNING: The push action may be any link:http://open-dolphin.org/download/api/org/opendolphin/core/server/action/DolphinServerAction.html[DolphinServerAction] but the
+release action should not have access the ServerDolphin and should therefore be a
+plain link:http://open-dolphin.org/download/api/org/opendolphin/core/server/action/ServerAction.html[ServerAction].
+
+
+With the push and release action in place, all the actual handling becomes totally transparent
+to the application programmer.
+
+What happens behind the scenes is this:
+
+. OpenDolphin sends a command for the push action
+. the push action returns and its results are processed
+. repeat
+
+Behind the scenes there are quite some optimizations going on for
+
+* detecting the need for issuing release commands
+* avoid sending of excessive commands
+
+The whole push feature works independently of the actual _transport_. In combination with
+an HTTP transport it is very close to what is commonly known as "long poll" (which is
+quite badly named since it is neither long nor actually polling if done right).
+
+You can plug in your own transport protocol (e.g. websockets) and there is no change at all
+for the application programmer.
+
+[WARNING]
+====
+*How can a release command be sent when the communication channel is blocked?*
+
+When sending the release command, the communication layer uses a second channel that is
+solely used for signalling purposes by using the SignalCommand. This is the one and only
+exception from the rule of <<Relying on the command sequence,strict command sequencing>>
+and <<Understanding the client-server split and threading model,server-side thread confinement>>
+
+The takeaway from this consideration is that
+*the release action should do the release but nothing else*.
+Particularly it should not access the model store. See also
+link:http://open-dolphin.org/download/api/org/opendolphin/core/comm/SignalCommand.html[SignalCommand API]
+====

@@ -72,8 +72,8 @@ stub or mock implementation for the service interface.
 
 h2. Final considerations
 
-This has been a very small application to start with but we have touched all relevant bases from
-starting with a standalone view, through proper modularization, up to a remote client-server setup.
+This has been a very small application to start with, but we have touched all relevant bases, from
+starting with a standalone view, through proper modularization, and finishing with a remote client-server setup.
 
 We have used a "bare-bones" setup with 100% pure Java and a no dependencies beyond Java 7+
 and OpenDolphin.
@@ -93,5 +93,5 @@ Of course, a full application has more use cases than managing a single text fie
 
 The [use cases and demos|guide:demos] chapter leads you through the typical use cases of
 master-detail views, form-based pages, collections of data, lazy loading, shared attributes,
-CRUD operations, and much more by describing the use case, explaining the
+CRUD operations, and many more by describing the use case, explaining the
 OpenDolphin approach of solving it, and pointing to the respective demos.

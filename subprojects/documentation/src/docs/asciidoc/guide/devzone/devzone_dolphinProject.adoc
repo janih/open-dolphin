@@ -1,0 +1,54 @@
+
+==== Prerequisites
+
+If you use Java 7u6 or a later update, you are all set.
+Building with Java 8 is currently not supported.
+Otherwise, JAVAFX_HOME must be set to a 2.1.0 version. (Version 2.2 also works fine.)
+
+==== How to build
+----
+./gradlew clean build
+----
+
+==== Project layout
+The multi-project build consists of these subprojects
+
+* shared (code that is needed on both client and server)
+* client (visualization)
+* client-javafx
+* client-javascript
+* server (domain model and control logic)
+* combined (for testing the client-server combination)
+* demo-javafx   (again divided in client - server - shared - combined)
+
+==== IDE integration
+You can create an IDEA project for the full dolphin code by running
+----
+./gradlew idea
+----
+
+or for eclipse via
+----
+./gradlew eclipse
+----
+
+==== Running demos
+To see a choice of demos use:
+----
+./gradlew listDemos
+----
+
+To run for example specific demo like PushDemo
+----
+./gradlew PushDemo
+----
+
+Running PushDemo with the grails server integration
+----
+./gradlew build
+cd dolphin-grails
+grails run-app &
+cd ..
+./gradlew GrailsClientPushDemo
+----
+

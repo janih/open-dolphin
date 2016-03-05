@@ -1,0 +1,32 @@
+In link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/step1.html[step1.JumpStart]
+we make use of the bindable dirty state.
+
+As soon as we change the content of the text field, a checkbox will become selected (checked).
+If we remove our edits, it should become unselected (unchecked) again!
+
+It should appear on your screen like:
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-Web-step1.png[width=500,height=500]
+
+
+Here is how the code to bind looks like:
+
+[source,html]
+----
+var dirtyStatusHtmlElement = document.getElementById("dirty-status"); // <1>
+
+instantUpdateAttributePM.onDirty(function (event) { // <2>
+    dirtyStatusHtmlElement.checked = event.newValue;
+});
+----
+<1> get html element to bind dirty of dolphin attribute
+<2> bind dirty of dolphin attribute to html element value (when server change)
+
+At this point we see the next benefit of presentation model and attribute abstractions:
+they can provide more information about themselves and can carry additional state that is
+automatically updated and available for binding.
+
+Each attribute has a "base" value. When the current value differs from that base value, it is
+considered "dirty". A presentation model is dirty, if and only if any of its attributes are dirty.
+
+With this knowledge, we can even do a little more.

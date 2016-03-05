@@ -30,7 +30,7 @@ module opendolphin {
         }
 
         simpleBlindBatching() {
-            var whateverCommandAndHandler : CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
+            var whateverCommandAndHandler : CommandAndHandler = { command: { id:"x" }, handler: null };
             var queue = [ whateverCommandAndHandler, whateverCommandAndHandler, whateverCommandAndHandler ];
 
             var batcher = new BlindCommandBatcher();
@@ -42,9 +42,9 @@ module opendolphin {
         }
 
         blindBatchingWithNonBlind() {
-            var blind   : CommandAndHandler = { command: { id:"x", className:"command"}, handler: null };
+            var blind   : CommandAndHandler = { command: { id:"x"}, handler: null };
             var finisher: OnFinishedHandler = { onFinished : null, onFinishedData: null };
-            var handled : CommandAndHandler = { command: { id:"x", className:"command"}, handler: finisher };
+            var handled : CommandAndHandler = { command: { id:"x"}, handler: finisher };
 
             var queue = [ handled, blind, blind, handled, blind, handled ]; // batch sizes 1, 3, 2
 

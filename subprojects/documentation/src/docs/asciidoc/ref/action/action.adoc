@@ -1,0 +1,37 @@
+When there is the least bit of business logic, it goes into an action. Actions live in controller classes of the server module.
+In server side the action will be registered and it will register the command and its command handler to apply the business logic.
+In client side commands will be sent to that action.
+
+Server dolphin interface provides a groovy-friendly convenience method to register a named action, for example
+
+[source, groovy]
+----
+serverDolphin.action("saveActionName", (command, response) -> {
+   //  logic
+}
+----
+
+and also a java-friendly convenience method to register a named action, for example
+
+[source, java]
+----
+serverDolphin.action("saveActionName", new NamedCommandHandler() {
+    public void handleCommand(NamedCommand namedCommand, List<Command> commands) {
+        // logic
+    }
+});
+----
+
+Other way of creating a named action is by the common superclass for all actions link:http://open-dolphin.org/download/api/index.html?org/opendolphin/core/server/action/DolphinServerAction.html[DolphinServerAction].
+[source,java]
+----
+public class SaveAction extends DolphinServerAction {
+    public void registerIn(ActionRegistry actionRegistry) {
+        actionRegistry.register("saveActionName", new CommandHandler<Command>() {
+            public void handleCommand(Command command, List<Command> response) {
+                // convert model and invoke service save
+            }
+        });
+    }
+}
+----

@@ -11,7 +11,7 @@ import groovy.transform.CompileStatic
  * A DTO (data transfer object) consists of a list of slots; the DTO is the equivalent of a presentation model.
  * @see DTO
  */
-class Slot {
+final class Slot {
     String propertyName
     Object value
     Object baseValue

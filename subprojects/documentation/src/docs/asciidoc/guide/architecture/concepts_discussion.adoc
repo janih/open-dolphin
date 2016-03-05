@@ -1,0 +1,114 @@
+No architecture documentation is complete without explaining the rationale
+behind the decisions - which alternatives were considered and why other
+approaches were not chosen.
+
+To that end, we would like to go through a number of questions that we had
+to answer when designing OpenDolphin and we will do so in the style of a discussion.
+
+*Why choosing presentation model as the main pattern?*
+
+There would have been other candidates: Model View Presenter, Passive View,
+Supervising Controller, Event Bus, and many more.
+
+All such patterns have their benefits and particularly a distributed event system
+would have played well with the intended remoting capabilities.
+
+It were mainly the good experiences we made with the presentation model pattern
+in a number of large event-based systems that it became our first choice. The distinction
+between _what_ and _how_ turned out to be easier to explain than other
+approaches. It always gave the team good guidance when developing the system.
+Also we had the honor to have the grandmaster of this pattern Dr. Dieter Holz
+in the team.
+
+Following the _pattern_ was always easy enough even though it required
+writing the respective classes all over again with each new project.
+As soon as we found out how to generalize the pattern and combine it with
+stable bindings and reliable remoting, we never looked back.
+
+*Why so much attention on stable bindings?*
+
+Our first attempt of a canonical implementation of the presentation model pattern
+(which is still around under the name link:https://github.com/canoo/grasp[GRASP])
+turned out to become really complex and not reliable enough
+to build solid remoting upon because of the intricacies of "rebinding" when
+switching references to attributes.
+
+Let's say a text field should bind against the first name of person A.
+Then you switch to person B. Now try to think through all the implications
+that this has in terms of consistently rebinding all views and other
+listeners and informing the server. We lost many a night's sleep over this
+seemingly simple issue.
+And it gets worse when you don't have a generic implementation.
+
+As soon as Andres Almiray discovered how to do stable bindings,
+everything seemed to just fall in place.
+
+*Why generic implementations*
+
+Presentation models, attributes, and commands are all generic.
+
+The alternative would have been to provide superclasses that
+are to be extended with custom state and behavior.
+
+With generic implementations, we not only have the benefit
+of fewer classes in the system but more importantly
+less _structural duplication._
+
+We also avoid all the versioning problems that inevitably arise
+with shared application classes between client and server.
+
+But most of all, with generic implementations it is much easier
+to control the system. With subclasses, you never quite know what
+they are doing in extend and whether i.e. it is now safe to
+delete them. Generic implementations are much easier to keep cohesive.
+
+By the same train of thought, generic implementations are easier
+to build upon. Since you exactly know what they are and what they do,
+it is much easier to build convenience methods in the facade, i.e.
+to provide new bindings to yet unknown UI toolkits.
+
+Generic commands provide the option to later extend the system to
+non-Java clients (web and mobile).
+
+*Why not simply using REST?*
+
+OpenDolphin is actually free to use a REST _transport_ if so
+configured (while the current HttpTransport is actually using
+only the POST method and therefore doesn't really qualify as pure REST).
+
+Even though these are not necessarily constituent features of REST, people often understand REST as
+
+* a stateless server
+* message-passing communication (all required info is transferred with every request)
+
+This has obvious benefits and may be the right choice in many scenarios
+but it doesn't allow to have application logic on the server
+(only data-access logic, possibly wrapped in services).
+You end up with a "fat" client that contains the major part of the application logic.
+
+With OpenDolphin the server always knows the exact state of the client
+and can act accordingly, sending the least amount of data.
+
+As compared to REST, OpenDolphin users typically have to wait less, because
+
+* data sending is done most often without the user noticing (asynchronously)
+* when the user really has to wait for the server, the package size is as small as possible
+* since client and server know the same state, they only have to send diffs
+* small packages (most often only one tcp/ip package) have the lowest latency
+
+With the application running on the server, OpenDolphin is in full control
+what the client displays - just like with traditional HTML applications
+(but with richer visualisation capabilities). When a new server version is deployed,
+all clients are instantly controlled by the new behavior.
+
+Running the application on the server can also have a very positive impact
+on security, privacy, consistency, and legal issues.
+
+All the benefits of OpenDolphin over pure REST come at the expense of
+maintaining state on the server side, having a bigger memory footprint and
+affecting horizontal scaling with the need for sticky sessions.
+
+_Those who would like to enjoy the binding, presentation model_
+_structuring, testing capabilities, toolkit independence, and all the other_
+_benefits of OpenDolphin, but prefer REST (or other) remoting for data_
+_access, can use OpenDolphin with the in-memory configuration._

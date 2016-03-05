@@ -4,7 +4,7 @@ are executed asynchronously, and that commands may have an @onFinishedHandler@
 attached to it.
 
 It goes without saying that any onFinished handler is only executed after the
-controller action is finished. Therefore the name.
+controller action is finished. Hence the name, "onFinished."
 
 But despite the sequence guarantees that OpenDolphin gives you, there are
 a few things to consider about the asynchronous programming model where it is
@@ -16,7 +16,7 @@ h4. The sequence of independent commands
 
 The figure below depicts the chain of events that happens when three independent commands A, B, and C
 are sent in immediate sequence. Time goes from top to bottom and the three columns represent three concurrent
-processing units: the command queue, the controller actions (can even be remote), and the onFinished activity after the
+processing units: the command queue, the controller actions (which can even be remote), and the onFinished activity after the
 action returned.\\
 !../img/dolphin_pics/OpenDolphin-Command-Sequence-default.png!
 
@@ -39,18 +39,18 @@ At this point the B actions are processed without the effects of A being visible
 
 *4, 5, 6, 7)* Emptying out the command queue.
 
-Let's summarize the behavior so far
-- commands are always processed in the strict sequence in which they appear in the command queue
-- the onFinished handler is always executed after the respective action is finished
-- a command is only processed after the preceding one has finished its actions (but not necessarily its onFinished handlers)
-- an onFinished handler is only executed after the preceding onFinished handler is finished
+Let's summarize the behavior so far:
+- commands are always processed in the strict sequence in which they appear in the command queue;
+- the onFinished handler is always executed after the respective action is finished;
+- a command is only processed after the preceding one has finished its actions (but not necessarily its onFinished handlers);
+- an onFinished handler is only executed after the preceding onFinished handler is finished.
 
-Wouldn't it all be simpler if we waited for A to completely finish including all actions that it may possibly spawn
-before processing B like in procedural programming?
+Wouldn't it all be simpler if, as in procedural programming, we waited for A to completely finish including all actions
+that it may possibly spawn before processing B?
 *No*. This would mean that we have to block the queue during that time, which in turn would block the UI -
-and blocking the UI is the worst you can do.
+and blocking the UI is the worst thing you can do.
 
-"_But what if B depends on the effects of A_?" This is when we need the onFinishedHandler
+"_But what if B depends on the effects of A_?" This is when we need the onFinishedHandler,
 as explained in the next section.
 
 h4. When commands depend on previous ones
@@ -66,7 +66,7 @@ clientDolphin.send "A"
 clientDolphin.send "B"
 clientDolphin.send "C"
 {code}
-we do
+we write
 {code}
 clientDolphin.send "A", {
     println "Hey, we are inside the onFinished handler!"
@@ -84,21 +84,21 @@ So all relevant state is properly updated when B's actions (*6*) and onFinished 
 
 h4. Practical considerations
 
-Asynchronous programming models all have in common that when some logic is dependent on some asynchronous task
-there is a callback like the onFinished handler involved.
+Asynchronous programming models all have this in common: that when some logic is dependent on an asynchronous task,
+a callback (such as the onFinished handler) is involved.
 
 This leads to the question of what to do with a chain of dependencies. Does that automatically lead to
 deeply nested callback structures that are difficult to write and understand? Not necessarily.
 
-Various solution are on the market (e.g. "promises") but OpenDolphin has a simple way where we do not need to
-understand another concept. We simply send an extra command.
+Various solutions are on the market (e.g. "promises"), but OpenDolphin provides a simple way which doesn't require
+learning another concept. We simply send an extra command.
 
-This command doesn't need to do anything, only provide us with an onFinished handler such that we can add us
-to the command queue at the appropriate time when all is ready.
-You guessed it: such a command already exits. It is the EmptyCommand
+This command doesn't need to do anything; it merely provides us with an onFinished handler such that we can add
+a task to the command queue at the appropriate time when all is ready.
+You guessed it: such a command already exits. It is the @EmptyCommand@,
 and you can send it via the ClientDolphin's @sync@ method.
 
-So even if you have a dependency chain like A <- B <- C there is no need to write
+So even if you have a dependency chain like A <- B <- C, there is no need to write
 {code}
 clientDolphin.send "A", {
     clientDolphin.send "B", {
@@ -106,14 +106,14 @@ clientDolphin.send "A", {
     }
 }
 {code}
-but you can issue the command in this context-free fashion:
+Instead, you can issue the command in this context-free fashion:
 {code}
 clientDolphin.send "A"
 clientDolphin.sync { clientDolphin.send "B" }
 clientDolphin.sync { clientDolphin.send "C" }
 {code}
 
-Likewise, when B and C depend on A but not on each other (A <- B, A <- C) you can code this as
+Likewise, when B and C depend on A but not on each other (A <- B, A <- C), you can code this as:
 {code}
 clientDolphin.send "A"
 clientDolphin.sync {
@@ -123,7 +123,7 @@ clientDolphin.sync {
 {code}
 
 The above has the additional effect that when B has finished, C will immediately follow
-without any other command possibly sneeking in between the two,
+without any other command possibly sneaking in between the two,
 no matter whether it originates from user input or preceding commands.
 In that sense you can see the @sync@ as enclosing an atomic operation.
 

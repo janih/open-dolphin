@@ -1,0 +1,55 @@
+Attribute contains unique Id and unique property name per presentation model.
+Attributes can be created on the client via the dolphin facade.
+
+== Create client-side Attributes
+
+To create a new clientAttribute in java the preferred constructor
+
+[NOTE]
+====
+ ClientAttribute(String propertyName, Object initialValue, String qualifier = null, Tag tag = Tag.VALUE)
+====
+
+A java example
+[source,java]
+----
+ ClientAttribute firstNameAttr = new ClientAttribute(ATT_FIRSTNAME, "", null, null);
+----
+
+To create a new clientAttribute in web use the constructor
+[NOTE]
+====
+ ClientAttribute(propertyName, qualifier, value, tag)
+====
+
+A javascript example
+[source,html]
+----
+var firstNameAttr = clientDolphin.attribute(ATT_FIRSTNAME, null, "Initial Value");
+----
+
+Groovy example
+
+You can do the same as in Java but you can also use one of the shortcuts.
+
+Generate attributes with null values from a list of attribute names.
+[source,groovy]
+def pm = clientDolphin.presentationModel("myPmId", ["firstName", "lastName"])
+
+Generate attributes from named arguments or a map.
+[source,groovy]
+----
+def pm = clientDolphin.presentationModel("myPmId", firstName:"Dierk", lastName:"Koenig")
+----
+
+[source,groovy]
+----
+final FIRST = "firstName"  // <1>
+final LAST  = "lastName"
+def pm = clientDolphin.presentationModel("myPmId", (FIRST):"Dierk", (LAST):"Koenig") // <2>
+----
+<1> Using constants (recommended)
+<2> Mind the parentheses
+
+See also the link:./../guide/UserGuide.html#_the_purpose_of_attributes[Attribute] and
+the link:./../guide/UserGuide.html#_the_concept_of_presentation_models[Presentation models] guide.

@@ -1,0 +1,12 @@
+This guide is intended for developers of OpenDolphin.
+It aims to provide all information needed for the development of OpenDolphin.
+This includes information like how to:
+
+* build and run the various modules
+* writing and running test
+* development of the Javascript client
+* release artifacts (jars, opendolphin.js, webjar, bower-module)
+* etc
+
+At the moment the guide only got started.
+Feel free to add your knowledge even if it is not in a perfect state.

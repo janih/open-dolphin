@@ -124,30 +124,30 @@ class MasterDetailView {
             def inverter = { boolean enableStatus -> !enableStatus }
             // all the bindings ...
             bind ATT_NAME           of dataMold to FX.TEXT of nameField
-            bind ATT_NAME, ENABLED  of dataMold to FX.DISABLE of nameField, inverter
+            bind ATT_NAME, ENABLED  of dataMold using inverter to FX.DISABLE of nameField
             bind ATT_NAME, LABEL    of dataMold to FX.TEXT of nameLabel
             bind ATT_NAME, LABEL    of dataMold to FX.TEXT of nameCol
             bind FX.TEXT            of nameField to ATT_NAME of dataMold
 
             bind ATT_RANK           of dataMold to FX.TEXT of rankField
-            bind ATT_RANK, ENABLED  of dataMold to FX.DISABLE of rankField, inverter
+            bind ATT_RANK, ENABLED  of dataMold using inverter to FX.DISABLE of rankField
             bind ATT_RANK, LABEL    of dataMold to FX.TEXT of rankLabel
             bind ATT_RANK, LABEL    of dataMold to FX.TEXT of rankCol
 
             bind ATT_COUNTRY            of dataMold to FX.TEXT of countryField
-            bind ATT_COUNTRY, ENABLED   of dataMold to FX.DISABLE of countryField, inverter
+            bind ATT_COUNTRY, ENABLED   of dataMold using inverter to FX.DISABLE of countryField
             bind ATT_COUNTRY, LABEL     of dataMold to FX.TEXT of countryLabel
 
             bind ATT_YEAROFBIRTH            of dataMold to FX.TEXT of yearOfBirthField
-            bind ATT_YEAROFBIRTH, ENABLED   of dataMold to FX.DISABLE of yearOfBirthField, inverter
+            bind ATT_YEAROFBIRTH, ENABLED   of dataMold using inverter to FX.DISABLE of yearOfBirthField
             bind ATT_YEAROFBIRTH, LABEL     of dataMold to FX.TEXT of yearOfBirthLabel
 
             bind ATT_MATCHESFIFA            of dataMold to FX.TEXT of matchesFIFAField
-            bind ATT_MATCHESFIFA, ENABLED   of dataMold to FX.DISABLE of matchesFIFAField, inverter
+            bind ATT_MATCHESFIFA, ENABLED   of dataMold using inverter to FX.DISABLE of matchesFIFAField
             bind ATT_MATCHESFIFA, LABEL     of dataMold to FX.TEXT of matchesFIFALabel
 
             bind ATT_MATCHESRSSSF           of dataMold to FX.TEXT of matchesRSSSFField
-            bind ATT_MATCHESRSSSF, ENABLED  of dataMold to FX.DISABLE of matchesRSSSFField, inverter
+            bind ATT_MATCHESRSSSF, ENABLED  of dataMold to using inverter FX.DISABLE of matchesRSSSFField
             bind ATT_MATCHESRSSSF, LABEL    of dataMold to FX.TEXT of matchesRSSSFLabel
 
             table.items = observableList

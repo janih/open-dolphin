@@ -10,9 +10,4 @@ public class OnFinishedHandlerAdapter implements OnFinishedHandler {
     public void onFinished(List<ClientPresentationModel> presentationModels) {
         // do nothing
     }
-
-    @Override
-    public void onFinishedData(List<Map> data) {
-        // do nothing
-    }
 }

@@ -23,6 +23,12 @@ import org.opendolphin.core.client.comm.InMemoryClientConnector
 import org.opendolphin.core.server.DefaultServerDolphin
 import org.opendolphin.core.server.ServerDolphinFactory
 
+/**
+ * Base class for running a client and server dolphin inside the same VM.
+ * <p/>
+ * Subclasses JavaFxInMemoryConfig and SwingInMemoryConfig additionally set the threading model
+ * as appropriate for the UI (JavaFX or Swing, respectively.)
+ */
 class DefaultInMemoryConfig {
 
     ClientDolphin clientDolphin = new ClientDolphin()
@@ -32,10 +38,9 @@ class DefaultInMemoryConfig {
         LogConfig.logCommunication()
 
         clientDolphin.clientModelStore = new ClientModelStore(clientDolphin)
-        clientDolphin.clientConnector = new InMemoryClientConnector(clientDolphin)
+        clientDolphin.clientConnector = new InMemoryClientConnector(clientDolphin, serverDolphin.serverConnector)
 
         clientDolphin.clientConnector.sleepMillis = 100
-        clientDolphin.clientConnector.serverConnector = serverDolphin.serverConnector
 
     }
 

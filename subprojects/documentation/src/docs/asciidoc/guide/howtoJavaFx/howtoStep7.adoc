@@ -1,0 +1,97 @@
+With the application being properly structured into its modules, we can now finally distribute it as a
+true client-server application without any of the application code being touched at all.
+Only the server adapter needs to be in place and the client starter needs to
+connect to the correct URL.
+
+The link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_7/servlet/TutorialServlet.java[server adapter]
+is a plain-old Servlet such that the code can run in any servlet container. It is as small as can be:
+
+[source,java]
+public class TutorialServlet extends DolphinServlet{
+    @Override
+    protected void registerApplicationActions(ServerDolphin serverDolphin) {
+        serverDolphin.register(new TutorialDirector());
+    }
+}
+
+As with any servlet, you need to register it in the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server-app/src/main/webapp/WEB-INF/web.xml[web.xml] :
+
+[source,xml]
+<servlet>
+    <display-name>TutorialServlet</display-name>
+    <servlet-name>tutorial</servlet-name>
+    <servlet-class>step_7.servlet.TutorialServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>tutorial</servlet-name>
+    <url-pattern>/tutorial/</url-pattern>
+</servlet-mapping>
+
+The
+link:https://github.com/canoo/DolphinJumpStart/blob/master/client/src/main/java/step_7/TutorialStarter.java[step7.TutorialStarter]
+can now move to the "client" module since it is no longer dependent on the combination of client and server.
+It can be cleaned from setting up the in-memory server and must of course point to the server URL:
+
+[source,java,indent=0]
+    public static void main(String[] args) throws Exception {
+        ClientDolphin clientDolphin = new ClientDolphin();
+        clientDolphin.setClientModelStore(new ClientModelStore(clientDolphin));
+        HttpClientConnector connector = new HttpClientConnector(clientDolphin, "http://localhost:8080/myFirstDolphin/tutorial/");
+        connector.setCodec(new JsonCodec());
+        connector.setUiThreadHandler(new JavaFXUiThreadHandler());
+        clientDolphin.setClientConnector(connector);
+        TutorialApplication.clientDolphin = clientDolphin;
+        Application.launch(TutorialApplication.class);
+    }
+
+
+*That is it!*
+
+We can now start the provided jetty server
+
+[source]
+----
+./gradlew :server-app:jettyRun
+----
+and then as many TutorialStarter clients as we want.
+
+Alternatively, we can now create a WAR file via Maven or Gradle and deploy it on any server you fancy.
+
+*Some extra flexibility*
+
+You may have observed that we refactored the actual server-side printing into a service class with
+a service interface. This allows some extra flexibility when the server-side action depends on any
+technology that is only available on the server - say JEE, JPA, Spring, GORM, etc.
+
+Refactoring the access into an interface allows us to still use the same code
+with the in-memory mode for testing, debugging, profiling, and so on with a
+stub or mock implementation for the service interface.
+
+*Final considerations*
+
+This has been a very small application to start with but we have touched all relevant bases from
+starting with a standalone view, through proper modularization, up to a remote client-server setup.
+
+We have used a "bare-bones" setup with 100% pure Java and a no dependencies beyond Java 7+
+and OpenDolphin.
+
+This is to show that OpenDolphin is as "un-opinionated" as can be.
+
+In real life and in most of the demos that ship with OpenDolphin, we make additional use of
+Groovy, GroovyFX, and Grails. Note that you can use any client- and server-side framework
+and technology
+with OpenDolphin: Griffon, Eclipse RCP, Netbeans - JEE, Spring, Grails, Glassfish, JBoss, Hibernate,
+WebLogic, WebSphere, you name it.
+
+*Remember: OpenDolphin is a library, not a framework.*
+
+*We don't lock you in, we are open.*
+
+Of course, a full application has more use cases than managing a single text field.
+
+The <<Use Cases and Demos>> chapter leads you through the typical use cases of
+master-detail views, form-based pages, collections of data, lazy loading, shared attributes,
+CRUD operations, and much more by describing the use case, explaining the
+OpenDolphin approach of solving it, and pointing to the respective demos.

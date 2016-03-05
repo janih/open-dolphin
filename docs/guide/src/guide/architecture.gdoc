@@ -7,7 +7,7 @@ understand things on a general level.
 Others prefer to start with concrete demos and use cases, which is just as legitimate.
 In this case, you are welcome to skip the architecture section and directly jump to the [demos|guide:demos].
 
-The Dolphin architecture is made from two parts:
+The Dolphin architecture consists of two parts:
 
 # the structure
 # concepts and rules

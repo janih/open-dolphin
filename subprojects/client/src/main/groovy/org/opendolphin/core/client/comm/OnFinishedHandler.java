@@ -19,9 +19,10 @@ package org.opendolphin.core.client.comm;
 import org.opendolphin.core.client.ClientPresentationModel;
 
 import java.util.List;
-import java.util.Map;
 
+/**
+ * interface for setting handler executed after command completion
+ */
 public interface OnFinishedHandler {
     public void onFinished(List<ClientPresentationModel> presentationModels);
-    public void onFinishedData(List<Map> data);
 }

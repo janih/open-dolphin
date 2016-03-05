@@ -26,7 +26,7 @@ changeValue(attribute, value);
 // to be replaced with
 changeValueCommand(attribute, value);
 {code}
-on the server side but you can directly use
+on the server side, but you can directly use
 {code}
 // immediate state change
 attribute.setValue(value);

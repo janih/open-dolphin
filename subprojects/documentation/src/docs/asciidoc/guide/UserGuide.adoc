@@ -1,0 +1,62 @@
+= Dolphin User Guide Documentation
+////
+TODO we shouldn't include the images directory in each image reference, but it didn't work for PDF generation
+:imagesdir: ./img
+////
+:toc: left
+:sectnums:
+:stylesheet: ./../stylesheet/dolphin.css
+
+ifeval::["{backend}"=="html5"]
+Welcome to the OpenDolphin documentation
+
+.The documentation comes in two parts
+The Quick Reference::
+    lets you quickly look up code snippets that you need when using OpenDolphin in your
+    own projects. It is all about the implementation details.
+
+This User Guide part::
+    explains the architecture, the concepts, and possible usages.
+    It is like a book that you may want to read to understand what OpenDolphin
+    is all about, what drives its design, and how it works in general.
+
+The user guide and the references are cross-linked such that you can always jump back and forth
+between the overall picture and how it materializes in the details.
+No matter where you start, you can always refer from detailed explanations to its place in the
+architecture and vice versa.
+
+
+[quote, Johann Wolfgang v. Goethe, Farbenlehre]
+____
+Understanding means recognizing the details in the whole and the whole from its details.
+____
+
+link:./../ref/RefGuide.html[Quick Reference]
+============================================
+
+User Guide
+==========
+endif::[]
+
+include::userGuideSection.adoc[]
+
+ifeval::["{backend}"=="html5"]
+Get Started
+===========
+endif::[]
+
+include::userGuideStartedSection.adoc[]
+
+ifeval::["{backend}"=="html5"]
+OpenDolphin Demos
+=================
+endif::[]
+
+include::userGuideDemoSection.adoc[]
+
+ifeval::["{backend}"=="html5"]
+OpenDolphin Configurations and Dev. zone
+========================================
+endif::[]
+
+include::userGuideConfDevSection.adoc[]

@@ -1,0 +1,15 @@
+OpenDolphin has been created from use cases.
+
+This has always been very important to us.
+
+Each functionality in OpenDolphin is motivated by a use case that justifies it's existence in the code base.
+Likewise, each use case comes with a demo in the OpenDolphin distribution - from simple, basic
+attribute bindings to complex feature combinations.
+
+This chapter leads through the various use cases from simple to increasingly complex ones.
+
+We explain
+
+* the use case
+* OpenDolphin's approach of solving it
+* how it is visible in the respective demos

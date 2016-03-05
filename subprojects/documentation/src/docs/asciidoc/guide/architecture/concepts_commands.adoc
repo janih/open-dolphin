@@ -1,0 +1,30 @@
+All communication in OpenDolphin happens with the help of the Command Pattern.
+
+* Notifications from the client to the server are sent as commands.
+* Instructions from the server to the client are sent as commands.
+* The client can request additional data (beyond presentation models) with the help of a *DataCommand*.
+
+Commands are simple POJOs and there is a limited set of commands available for synchronization between
+client and server.
+
+On the application level only the following commands are used:
+
+* NamedCommand is a generic command to trigger a server side action that was registered for this name
+* DataCommand requests arbitrary data that is unrelated to presentation models
+There is no need to implement any application specific command classes.
+
+In remote scenarios, commands are encoded and decoded via a _codec_ (i.e. JSONCoDec).
+
+A _transport_ (i.e. HttpTransport or InMemoryTransport) can be configured to use such a _codec_.
+
+Commands are used as a unit of transport since they are simple to encode/decode but
+also since they can be optimized in a number ways (buffering when the server is
+temporarily unavailable, batching, elimination of duplicates) and they open the
+opportunity for later inclusion of undo/redo capabilities.
+
+Since commands are sent asynchronously, one cannot wait for a command to complete.
+When sending a command, though, one can provide an *OnFinishedHandler* that is called back
+as soon as the command has returned. The list of all presentation models that were affected by that
+command is passed as argument into the callback methods.
+
+See also link:./../ref/command/usage.html[Usage Command].

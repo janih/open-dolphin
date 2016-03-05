@@ -1,19 +1,18 @@
-[Canoo|http://www.canoo.com] initiated the Dolphin project since we had recognized that many of our customers share a common quest:\\
-Keeping the *application logic* on the *server* but *presenting* it with all the capabilities of the *client* device.
+[Canoo|http://www.canoo.com] initiated the Dolphin project because we recognized that many of our customers share a common quest:\\
+keeping the *application logic* on the *server*, but *presenting* it with all the capabilities of the *client* device.
 
 Dolphin is a remoting solution that bridges the world of Enterprise Java and Desktop Java.
-Unlike most REST approaches, it doesn't confine the server to be a data source only.
+Unlike most REST approaches, it doesn't restrict the server to be a data source only.
 
-Instead, with Dolphin your server-side business logic controls a shared presentation model.
+Instead, with Dolphin, your server-side business logic controls a shared presentation model.
 The client displays the Dolphin state in all its beauty.
 
-The figure below shows how client and server connect via Dolphin's shared presentation model
-followed by some introductory slides on the topic.
+The figure below shows how client and server connect via Dolphin's shared presentation model.
 
 !../img/dolphin_pics/dolphin.002.png!
 
-In terms of Model-View-Controller (MVC) one can see in the figure above that Dolphin puts the
-*View* responsibility on the client but leaves the *controlling* logic on the server.
+In terms of Model-View-Controller (MVC), one can see in the figure above that Dolphin puts the
+*View* responsibility on the client, but leaves the *controlling* logic on the server.
 The *model* (here in the sense of a _presentation_ model, not a domain model) is shared.
 
 This is shown in even more detail below.
@@ -24,5 +23,4 @@ This is shown in even more detail below.
 
 !../img/dolphin_pics/dolphin.005.png!
 
-Throughout this documentation, we will refer to this introduction and especially the
-section on [architecture|guide:architecture] expands on the value of clean structures.
+In particular, the section on [architecture|guide:architecture] expands on the value of clean structures.

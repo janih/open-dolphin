@@ -14,7 +14,6 @@
 /// <reference path="../../js/dolphin/DeletePresentationModelCommand.ts"/>
 /// <reference path="../../js/dolphin/EmptyNotification.ts"/>
 /// <reference path="../../js/dolphin/InitializeAttributeCommand.ts"/>
-/// <reference path="../../js/dolphin/BaseValueChangedCommand.ts"/>
 /// <reference path="../../js/dolphin/NamedCommand.ts"/>
 /// <reference path="../../js/dolphin/SignalCommand.ts"/>
 /// <reference path="../../js/dolphin/PresentationModelResetedCommand.ts"/>
@@ -69,7 +68,6 @@ module opendolphin {
             this.isTrue(CodecTestHelper.testCodingCommand(new DeletePresentationModelCommand("pmId")))
             this.isTrue(CodecTestHelper.testCodingCommand(new EmptyNotification()))
             this.isTrue(CodecTestHelper.testCodingCommand(new InitializeAttributeCommand("pmId", "prop", "qualifier", "value", "pmType")))
-            this.isTrue(CodecTestHelper.testCodingCommand(new BaseValueChangedCommand("5")))
             this.isTrue(CodecTestHelper.testCodingCommand(new NamedCommand("name")))
             this.isTrue(CodecTestHelper.testCodingCommand(new PresentationModelResetedCommand("pmId")))
             this.isTrue(CodecTestHelper.testCodingCommand(new ResetPresentationModelCommand("pmId")))

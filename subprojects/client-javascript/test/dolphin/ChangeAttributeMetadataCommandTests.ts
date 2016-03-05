@@ -1,4 +1,3 @@
-
 /// <reference path="../../testsuite/tsUnit.ts"/>
 /// <reference path="../../js/dolphin/ChangeAttributeMetadataCommand.ts"/>
 

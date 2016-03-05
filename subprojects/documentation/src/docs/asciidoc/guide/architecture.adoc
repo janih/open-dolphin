@@ -1,0 +1,13 @@
+This user guide first explains the general approach of OpenDolphin and
+its architecture before going into details and examples.
+
+Reading through the user guide in this sequence is for those who like to first
+understand things on a general level.
+
+Others prefer to start with concrete demos and use cases, which is just as legitimate.
+In this case, you are welcome to skip the architecture section and directly jump to the <<Use Cases and Demos,demos>>
+
+The Dolphin architecture is made from two parts:
+
+. the structure
+. concepts and rules

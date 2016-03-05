@@ -27,38 +27,40 @@ var opendolphin;
     var Tag = (function () {
         function Tag() {
         }
+        //Implemented as function so that it will never be changed from outside
+        /** The actual value of the attribute. This is the default if no tag is given.*/
         Tag.value = function () {
             return "VALUE";
         };
-
+        /** the to-be-displayed String, not the key. I18N happens on the server. */
         Tag.label = function () {
             return "LABEL";
         };
-
+        /** If the attribute represent tooltip**/
         Tag.tooltip = function () {
             return "TOOLTIP";
         };
-
+        /** "true" or "false", maps to Grails constraint nullable:false */
         Tag.mandatory = function () {
             return "MANDATORY";
         };
-
+        /** "true" or "false", maps to Grails constraint display:true */
         Tag.visible = function () {
             return "VISIBLE";
         };
-
+        /** "true" or "false" */
         Tag.enabled = function () {
             return "ENABLED";
         };
-
+        /** regular expression for local, syntactical constraints like in "rejectField" */
         Tag.regex = function () {
             return "REGEX";
         };
-
+        /** a single text; e.g. "textArea" if the String value should be displayed in a text area instead of a textField */
         Tag.widgetHint = function () {
             return "WIDGET_HINT";
         };
-
+        /** a single text; e.g. "java.util.Date" if the value String represents a date */
         Tag.valueType = function () {
             return "VALUE_TYPE";
         };
@@ -68,18 +70,17 @@ var opendolphin;
 })(opendolphin || (opendolphin = {}));
 /// <reference path="Command.ts" />
 /// <reference path="Tag.ts" />
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var opendolphin;
 (function (opendolphin) {
     var AttributeCreatedNotification = (function (_super) {
         __extends(AttributeCreatedNotification, _super);
         function AttributeCreatedNotification(pmId, attributeId, propertyName, newValue, qualifier, tag) {
-            if (typeof tag === "undefined") { tag = opendolphin.Tag.value(); }
+            if (tag === void 0) { tag = opendolphin.Tag.value(); }
             _super.call(this);
             this.pmId = pmId;
             this.attributeId = attributeId;
@@ -110,21 +111,6 @@ var opendolphin;
         return AttributeMetadataChangedCommand;
     })(opendolphin.Command);
     opendolphin.AttributeMetadataChangedCommand = AttributeMetadataChangedCommand;
-})(opendolphin || (opendolphin = {}));
-/// <reference path="Command.ts" />
-var opendolphin;
-(function (opendolphin) {
-    var BaseValueChangedCommand = (function (_super) {
-        __extends(BaseValueChangedCommand, _super);
-        function BaseValueChangedCommand(attributeId) {
-            _super.call(this);
-            this.attributeId = attributeId;
-            this.id = 'BaseValueChanged';
-            this.className = "org.opendolphin.core.comm.BaseValueChangedCommand";
-        }
-        return BaseValueChangedCommand;
-    })(opendolphin.Command);
-    opendolphin.BaseValueChangedCommand = BaseValueChangedCommand;
 })(opendolphin || (opendolphin = {}));
 /// <reference path="Command.ts" />
 var opendolphin;
@@ -168,9 +154,7 @@ var opendolphin;
             this.eventHandlers.push(eventHandler);
         };
         EventBus.prototype.trigger = function (event) {
-            this.eventHandlers.forEach(function (handle) {
-                return handle(event);
-            });
+            this.eventHandlers.forEach(function (handle) { return handle(event); });
         };
         return EventBus;
     })();
@@ -181,8 +165,7 @@ var opendolphin;
 /// <reference path="Tag.ts" />
 var opendolphin;
 (function (opendolphin) {
-    var presentationModelInstanceCount = 0;
-
+    var presentationModelInstanceCount = 0; // todo dk: consider making this static in class
     var ClientPresentationModel = (function () {
         function ClientPresentationModel(id, presentationModelType) {
             this.id = id;
@@ -192,7 +175,8 @@ var opendolphin;
             this.dirty = false;
             if (typeof id !== 'undefined' && id != null) {
                 this.id = id;
-            } else {
+            }
+            else {
                 this.id = (presentationModelInstanceCount++).toString();
             }
             this.invalidBus = new opendolphin.EventBus();
@@ -209,7 +193,6 @@ var opendolphin;
             });
             return result;
         };
-
         //add array of attributes
         ClientPresentationModel.prototype.addAttributes = function (attributes) {
             var _this = this;
@@ -225,10 +208,12 @@ var opendolphin;
                 return;
             }
             if (this.findAttributeByPropertyNameAndTag(attribute.propertyName, attribute.tag)) {
-                throw new Error("There already is an attribute with property name: " + attribute.propertyName + " and tag: " + attribute.tag + " in presentation model with id: " + this.id);
+                throw new Error("There already is an attribute with property name: " + attribute.propertyName
+                    + " and tag: " + attribute.tag + " in presentation model with id: " + this.id);
             }
             if (attribute.getQualifier() && this.findAttributeByQualifier(attribute.getQualifier())) {
-                throw new Error("There already is an attribute with qualifier: " + attribute.getQualifier() + " in presentation model with id: " + this.id);
+                throw new Error("There already is an attribute with qualifier: " + attribute.getQualifier()
+                    + " in presentation model with id: " + this.id);
             }
             attribute.setPresentationModel(this);
             this.attributes.push(attribute);
@@ -239,7 +224,6 @@ var opendolphin;
                 _this.invalidBus.trigger({ source: _this });
             });
         };
-
         ClientPresentationModel.prototype.updateDirty = function () {
             for (var i = 0; i < this.attributes.length; i++) {
                 if (this.attributes[i].isDirty()) {
@@ -250,7 +234,6 @@ var opendolphin;
             ;
             this.setDirty(false);
         };
-
         ClientPresentationModel.prototype.updateAttributeDirtyness = function () {
             for (var i = 0; i < this.attributes.length; i++) {
                 this.attributes[i].updateDirty();
@@ -259,45 +242,38 @@ var opendolphin;
         ClientPresentationModel.prototype.isDirty = function () {
             return this.dirty;
         };
-
         ClientPresentationModel.prototype.setDirty = function (dirty) {
             var oldVal = this.dirty;
             this.dirty = dirty;
             this.dirtyValueChangeBus.trigger({ 'oldValue': oldVal, 'newValue': this.dirty });
         };
-
         ClientPresentationModel.prototype.reset = function () {
             this.attributes.forEach(function (attribute) {
                 attribute.reset();
             });
         };
-
         ClientPresentationModel.prototype.rebase = function () {
             this.attributes.forEach(function (attribute) {
                 attribute.rebase();
             });
         };
-
         ClientPresentationModel.prototype.onDirty = function (eventHandler) {
             this.dirtyValueChangeBus.onEvent(eventHandler);
         };
         ClientPresentationModel.prototype.onInvalidated = function (handleInvalidate) {
             this.invalidBus.onEvent(handleInvalidate);
         };
-
         /** returns a copy of the internal state */
         ClientPresentationModel.prototype.getAttributes = function () {
             return this.attributes.slice(0);
         };
         ClientPresentationModel.prototype.getAt = function (propertyName, tag) {
-            if (typeof tag === "undefined") { tag = opendolphin.Tag.value(); }
+            if (tag === void 0) { tag = opendolphin.Tag.value(); }
             return this.findAttributeByPropertyNameAndTag(propertyName, tag);
         };
-
         ClientPresentationModel.prototype.findAttributeByPropertyName = function (propertyName) {
             return this.findAttributeByPropertyNameAndTag(propertyName, opendolphin.Tag.value());
         };
-
         ClientPresentationModel.prototype.findAllAttributesByPropertyName = function (propertyName) {
             var result = [];
             if (!propertyName)
@@ -309,7 +285,6 @@ var opendolphin;
             });
             return result;
         };
-
         ClientPresentationModel.prototype.findAttributeByPropertyNameAndTag = function (propertyName, tag) {
             if (!propertyName || !tag)
                 return null;
@@ -331,7 +306,6 @@ var opendolphin;
             ;
             return null;
         };
-
         ClientPresentationModel.prototype.findAttributeById = function (id) {
             if (!id)
                 return null;
@@ -343,7 +317,6 @@ var opendolphin;
             ;
             return null;
         };
-
         ClientPresentationModel.prototype.syncWith = function (sourcePresentationModel) {
             this.attributes.forEach(function (targetAttribute) {
                 var sourceAttribute = sourcePresentationModel.getAt(targetAttribute.propertyName, targetAttribute.tag);
@@ -363,7 +336,7 @@ var opendolphin;
 (function (opendolphin) {
     var ClientAttribute = (function () {
         function ClientAttribute(propertyName, qualifier, value, tag) {
-            if (typeof tag === "undefined") { tag = opendolphin.Tag.value(); }
+            if (tag === void 0) { tag = opendolphin.Tag.value(); }
             this.propertyName = propertyName;
             this.tag = tag;
             this.dirty = false;
@@ -382,30 +355,24 @@ var opendolphin;
             result.setBaseValue(this.getBaseValue());
             return result;
         };
-
         ClientAttribute.prototype.isDirty = function () {
             return this.dirty;
         };
-
         ClientAttribute.prototype.getBaseValue = function () {
             return this.baseValue;
         };
-
         ClientAttribute.prototype.setPresentationModel = function (presentationModel) {
             if (this.presentationModel) {
                 alert("You can not set a presentation model for an attribute that is already bound.");
             }
             this.presentationModel = presentationModel;
         };
-
         ClientAttribute.prototype.getPresentationModel = function () {
             return this.presentationModel;
         };
-
         ClientAttribute.prototype.getValue = function () {
             return this.value;
         };
-
         ClientAttribute.prototype.setValue = function (newValue) {
             var verifiedValue = ClientAttribute.checkValue(newValue);
             if (this.value == verifiedValue)
@@ -415,19 +382,17 @@ var opendolphin;
             this.setDirty(this.calculateDirty(this.baseValue, verifiedValue));
             this.valueChangeBus.trigger({ 'oldValue': oldValue, 'newValue': verifiedValue });
         };
-
         ClientAttribute.prototype.calculateDirty = function (baseValue, value) {
             if (baseValue == null) {
                 return value != null;
-            } else {
+            }
+            else {
                 return baseValue != value;
             }
         };
-
         ClientAttribute.prototype.updateDirty = function () {
             this.setDirty(this.calculateDirty(this.baseValue, this.value));
         };
-
         ClientAttribute.prototype.setDirty = function (dirty) {
             var oldVal = this.dirty;
             this.dirty = dirty;
@@ -435,7 +400,6 @@ var opendolphin;
             if (this.presentationModel)
                 this.presentationModel.updateDirty();
         };
-
         ClientAttribute.prototype.setQualifier = function (newQualifier) {
             if (this.qualifier == newQualifier)
                 return;
@@ -443,11 +407,9 @@ var opendolphin;
             this.qualifier = newQualifier;
             this.qualifierChangeBus.trigger({ 'oldValue': oldQualifier, 'newValue': newQualifier });
         };
-
         ClientAttribute.prototype.getQualifier = function () {
             return this.qualifier;
         };
-
         ClientAttribute.prototype.setBaseValue = function (baseValue) {
             if (this.baseValue == baseValue)
                 return;
@@ -456,17 +418,14 @@ var opendolphin;
             this.setDirty(this.calculateDirty(baseValue, this.value));
             this.baseValueChangeBus.trigger({ 'oldValue': oldBaseValue, 'newValue': baseValue });
         };
-
         ClientAttribute.prototype.rebase = function () {
             this.setBaseValue(this.value);
             this.setDirty(false); // this is not superfluous!
         };
-
         ClientAttribute.prototype.reset = function () {
             this.setValue(this.baseValue);
             this.setDirty(false); // this is not superfluous!
         };
-
         ClientAttribute.checkValue = function (value) {
             if (value == null || value == undefined) {
                 return null;
@@ -488,30 +447,24 @@ var opendolphin;
             }
             return result;
         };
-
         ClientAttribute.prototype.onValueChange = function (eventHandler) {
             this.valueChangeBus.onEvent(eventHandler);
             eventHandler({ "oldValue": this.value, "newValue": this.value });
         };
-
         ClientAttribute.prototype.onQualifierChange = function (eventHandler) {
             this.qualifierChangeBus.onEvent(eventHandler);
         };
-
         ClientAttribute.prototype.onDirty = function (eventHandler) {
             this.dirtyValueChangeBus.onEvent(eventHandler);
         };
-
         ClientAttribute.prototype.onBaseValueChange = function (eventHandler) {
             this.baseValueChangeBus.onEvent(eventHandler);
         };
-
         ClientAttribute.prototype.syncWith = function (sourceAttribute) {
             if (sourceAttribute) {
                 this.setQualifier(sourceAttribute.getQualifier()); // sequence is important
                 this.setBaseValue(sourceAttribute.getBaseValue());
                 this.setValue(sourceAttribute.value);
-                // syncing propertyName and tag is not needed since they must be identical anyway
             }
         };
         ClientAttribute.SUPPORTED_VALUE_TYPES = ["string", "number", "boolean"];
@@ -582,26 +535,25 @@ var opendolphin;
         return NoCommandBatcher;
     })();
     opendolphin.NoCommandBatcher = NoCommandBatcher;
-
     /** A batcher that batches the blinds (commands with no callback) and optionally also folds value changes */
     var BlindCommandBatcher = (function () {
         /** folding: whether we should try folding ValueChangedCommands */
-        function BlindCommandBatcher(folding) {
-            if (typeof folding === "undefined") { folding = true; }
+        function BlindCommandBatcher(folding, maxBatchSize) {
+            if (folding === void 0) { folding = true; }
+            if (maxBatchSize === void 0) { maxBatchSize = 50; }
             this.folding = folding;
+            this.maxBatchSize = maxBatchSize;
         }
         BlindCommandBatcher.prototype.batch = function (queue) {
             var result = [];
-            this.processNext(50, queue, result); // do not batch more than 50 commands to avoid stack overflow on recursion.
+            this.processNext(this.maxBatchSize, queue, result); // do not batch more than this.maxBatchSize commands to avoid stack overflow on recursion.
             return result;
         };
-
         // recursive impl method to side-effect both queue and batch
         BlindCommandBatcher.prototype.processNext = function (maxBatchSize, queue, batch) {
             if (queue.length < 1 || maxBatchSize < 1)
                 return;
             var candidate = queue.shift();
-
             if (this.folding && candidate.command instanceof opendolphin.ValueChangedCommand && (!candidate.handler)) {
                 var found = null;
                 var canCmd = candidate.command;
@@ -615,13 +567,18 @@ var opendolphin;
                 }
                 if (found) {
                     found.newValue = canCmd.newValue; // change existing value, do not batch
-                } else {
+                }
+                else {
                     batch.push(candidate); // we cannot merge, so batch the candidate
                 }
-            } else {
+            }
+            else {
                 batch.push(candidate);
             }
-            if (!candidate.handler && !(candidate.command['className'] == "org.opendolphin.core.comm.NamedCommand") && !(candidate.command['className'] == "org.opendolphin.core.comm.EmptyNotification")) {
+            if (!candidate.handler &&
+                !(candidate.command['className'] == "org.opendolphin.core.comm.NamedCommand") &&
+                !(candidate.command['className'] == "org.opendolphin.core.comm.EmptyNotification") // and no unknown client side effect
+            ) {
                 this.processNext(maxBatchSize - 1, queue, batch); // then we can proceed with batching
             }
         };
@@ -635,13 +592,13 @@ var opendolphin;
         function Codec() {
         }
         Codec.prototype.encode = function (commands) {
-            return JSON.stringify(commands);
+            return JSON.stringify(commands); // todo dk: look for possible API support for character encoding
         };
-
         Codec.prototype.decode = function (transmitted) {
             if (typeof transmitted == 'string') {
                 return JSON.parse(transmitted);
-            } else {
+            }
+            else {
                 return transmitted;
             }
         };
@@ -678,7 +635,6 @@ var opendolphin;
             this.className = "org.opendolphin.core.comm.CreatePresentationModelCommand";
             this.pmId = presentationModel.id;
             this.pmType = presentationModel.presentationModelType;
-
             var attrs = this.attributes;
             presentationModel.getAttributes().forEach(function (attr) {
                 attrs.push({
@@ -707,11 +663,9 @@ var opendolphin;
             }
             this.data[this.keys.indexOf(key)] = value;
         };
-
         Map.prototype.get = function (key) {
             return this.data[this.keys.indexOf(key)];
         };
-
         Map.prototype.remove = function (key) {
             if (this.containsKey(key)) {
                 var index = this.keys.indexOf(key);
@@ -721,33 +675,26 @@ var opendolphin;
             }
             return false;
         };
-
         Map.prototype.isEmpty = function () {
             return this.keys.length == 0;
         };
-
         Map.prototype.length = function () {
             return this.keys.length;
         };
-
         Map.prototype.forEach = function (handler) {
             for (var i = 0; i < this.keys.length; i++) {
                 handler(this.keys[i], this.data[i]);
             }
         };
-
         Map.prototype.containsKey = function (key) {
             return this.keys.indexOf(key) > -1;
         };
-
         Map.prototype.containsValue = function (value) {
             return this.data.indexOf(value) > -1;
         };
-
         Map.prototype.values = function () {
             return this.data.slice(0);
         };
-
         Map.prototype.keySet = function () {
             return this.keys.slice(0);
         };
@@ -798,7 +745,6 @@ var opendolphin;
 /// <reference path="EventBus.ts"/>
 /// <reference path="ClientPresentationModel.ts"/>
 /// <reference path="DeletedPresentationModelNotification.ts"/>
-/// <reference path="BaseValueChangedCommand.ts"/>
 var opendolphin;
 (function (opendolphin) {
     (function (Type) {
@@ -806,7 +752,6 @@ var opendolphin;
         Type[Type["REMOVED"] = 'REMOVED'] = "REMOVED";
     })(opendolphin.Type || (opendolphin.Type = {}));
     var Type = opendolphin.Type;
-
     var ClientModelStore = (function () {
         function ClientModelStore(clientDolphin) {
             this.clientDolphin = clientDolphin;
@@ -819,7 +764,6 @@ var opendolphin;
         ClientModelStore.prototype.getClientDolphin = function () {
             return this.clientDolphin;
         };
-
         ClientModelStore.prototype.registerModel = function (model) {
             var _this = this;
             if (model.clientSideOnly) {
@@ -832,20 +776,17 @@ var opendolphin;
                 _this.registerAttribute(attribute);
             });
         };
-
         ClientModelStore.prototype.registerAttribute = function (attribute) {
             var _this = this;
             this.addAttributeById(attribute);
             if (attribute.getQualifier()) {
                 this.addAttributeByQualifier(attribute);
             }
-
             // whenever an attribute changes its value, the server needs to be notified
             // and all other attributes with the same qualifier are given the same value
             attribute.onValueChange(function (evt) {
                 var valueChangeCommand = new opendolphin.ValueChangedCommand(attribute.id, evt.oldValue, evt.newValue);
                 _this.clientDolphin.getClientConnector().send(valueChangeCommand, null);
-
                 if (attribute.getQualifier()) {
                     var attrs = _this.findAttributesByFilter(function (attr) {
                         return attr !== attribute && attr.getQualifier() == attribute.getQualifier();
@@ -855,10 +796,9 @@ var opendolphin;
                     });
                 }
             });
-
             // all attributes with the same qualifier should have the same base value
             attribute.onBaseValueChange(function (evt) {
-                var baseValueChangeCommand = new opendolphin.BaseValueChangedCommand(attribute.id);
+                var baseValueChangeCommand = new opendolphin.ChangeAttributeMetadataCommand(attribute.id, opendolphin.Attribute.BASE_VALUE, evt.newValue);
                 _this.clientDolphin.getClientConnector().send(baseValueChangeCommand, null);
                 if (attribute.getQualifier()) {
                     var attrs = _this.findAttributesByFilter(function (attr) {
@@ -869,7 +809,6 @@ var opendolphin;
                     });
                 }
             });
-
             attribute.onQualifierChange(function (evt) {
                 var changeAttrMetadataCmd = new opendolphin.ChangeAttributeMetadataCommand(attribute.id, opendolphin.Attribute.QUALIFIER_PROPERTY, evt.newValue);
                 _this.clientDolphin.getClientConnector().send(changeAttrMetadataCmd, null);
@@ -887,13 +826,11 @@ var opendolphin;
                 this.presentationModels.put(model.id, model);
                 this.addPresentationModelByType(model);
                 this.registerModel(model);
-
                 this.modelStoreChangeBus.trigger({ 'eventType': Type.ADDED, 'clientPresentationModel': model });
                 added = true;
             }
             return added;
         };
-
         ClientModelStore.prototype.remove = function (model) {
             var _this = this;
             if (!model) {
@@ -909,13 +846,11 @@ var opendolphin;
                         _this.removeAttributeByQualifier(attribute);
                     }
                 });
-
                 this.modelStoreChangeBus.trigger({ 'eventType': Type.REMOVED, 'clientPresentationModel': model });
                 removed = true;
             }
             return removed;
         };
-
         ClientModelStore.prototype.findAttributesByFilter = function (filter) {
             var matches = [];
             this.presentationModels.forEach(function (key, model) {
@@ -927,7 +862,6 @@ var opendolphin;
             });
             return matches;
         };
-
         ClientModelStore.prototype.addPresentationModelByType = function (model) {
             if (!model) {
                 return;
@@ -945,12 +879,10 @@ var opendolphin;
                 presentationModels.push(model);
             }
         };
-
         ClientModelStore.prototype.removePresentationModelByType = function (model) {
             if (!model || !(model.presentationModelType)) {
                 return;
             }
-
             var presentationModels = this.presentationModelsPerType.get(model.presentationModelType);
             if (!presentationModels) {
                 return;
@@ -962,26 +894,21 @@ var opendolphin;
                 this.presentationModelsPerType.remove(model.presentationModelType);
             }
         };
-
         ClientModelStore.prototype.listPresentationModelIds = function () {
             return this.presentationModels.keySet().slice(0);
         };
-
         ClientModelStore.prototype.listPresentationModels = function () {
             return this.presentationModels.values();
         };
-
         ClientModelStore.prototype.findPresentationModelById = function (id) {
             return this.presentationModels.get(id);
         };
-
         ClientModelStore.prototype.findAllPresentationModelByType = function (type) {
             if (!type || !this.presentationModelsPerType.containsKey(type)) {
                 return [];
             }
-            return this.presentationModelsPerType.get(type).slice(0);
+            return this.presentationModelsPerType.get(type).slice(0); // slice is used to clone the array
         };
-
         ClientModelStore.prototype.deleteAllPresentationModelOfType = function (presentationModelType) {
             var _this = this;
             var presentationModels = this.findAllPresentationModelByType(presentationModelType);
@@ -990,7 +917,6 @@ var opendolphin;
             });
             this.clientDolphin.getClientConnector().send(new opendolphin.DeletedAllPresentationModelsOfTypeNotification(presentationModelType), undefined);
         };
-
         ClientModelStore.prototype.deletePresentationModel = function (model, notify) {
             if (!model) {
                 return;
@@ -1003,29 +929,24 @@ var opendolphin;
                 this.clientDolphin.getClientConnector().send(new opendolphin.DeletedPresentationModelNotification(model.id), null);
             }
         };
-
         ClientModelStore.prototype.containsPresentationModel = function (id) {
             return this.presentationModels.containsKey(id);
         };
-
         ClientModelStore.prototype.addAttributeById = function (attribute) {
             if (!attribute || this.attributesPerId.containsKey(attribute.id)) {
                 return;
             }
             this.attributesPerId.put(attribute.id, attribute);
         };
-
         ClientModelStore.prototype.removeAttributeById = function (attribute) {
             if (!attribute || !this.attributesPerId.containsKey(attribute.id)) {
                 return;
             }
             this.attributesPerId.remove(attribute.id);
         };
-
         ClientModelStore.prototype.findAttributeById = function (id) {
             return this.attributesPerId.get(id);
         };
-
         ClientModelStore.prototype.addAttributeByQualifier = function (attribute) {
             if (!attribute || !attribute.getQualifier()) {
                 return;
@@ -1039,7 +960,6 @@ var opendolphin;
                 attributes.push(attribute);
             }
         };
-
         ClientModelStore.prototype.removeAttributeByQualifier = function (attribute) {
             if (!attribute || !attribute.getQualifier()) {
                 return;
@@ -1055,14 +975,12 @@ var opendolphin;
                 this.attributesPerQualifier.remove(attribute.getQualifier());
             }
         };
-
         ClientModelStore.prototype.findAllAttributesByQualifier = function (qualifier) {
             if (!qualifier || !this.attributesPerQualifier.containsKey(qualifier)) {
                 return [];
             }
-            return this.attributesPerQualifier.get(qualifier).slice(0);
+            return this.attributesPerQualifier.get(qualifier).slice(0); // slice is used to clone the array
         };
-
         ClientModelStore.prototype.onModelStoreChange = function (eventHandler) {
             this.modelStoreChangeBus.onEvent(eventHandler);
         };
@@ -1093,29 +1011,27 @@ var opendolphin;
         ClientDolphin.prototype.setClientConnector = function (clientConnector) {
             this.clientConnector = clientConnector;
         };
-
         ClientDolphin.prototype.getClientConnector = function () {
             return this.clientConnector;
         };
-
         ClientDolphin.prototype.send = function (commandName, onFinished) {
             this.clientConnector.send(new opendolphin.NamedCommand(commandName), onFinished);
         };
-
+        ClientDolphin.prototype.reset = function (successHandler) {
+            this.clientConnector.reset(successHandler);
+        };
         ClientDolphin.prototype.sendEmpty = function (onFinished) {
             this.clientConnector.send(new opendolphin.EmptyNotification(), onFinished);
         };
-
         // factory method for attributes
         ClientDolphin.prototype.attribute = function (propertyName, qualifier, value, tag) {
             return new opendolphin.ClientAttribute(propertyName, qualifier, value, tag);
         };
-
         // factory method for presentation models
         ClientDolphin.prototype.presentationModel = function (id, type) {
             var attributes = [];
-            for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                attributes[_i] = arguments[_i + 2];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                attributes[_i - 2] = arguments[_i];
             }
             var model = new opendolphin.ClientPresentationModel(id, type);
             if (attributes && attributes.length > 0) {
@@ -1126,67 +1042,55 @@ var opendolphin;
             this.getClientModelStore().add(model);
             return model;
         };
-
         ClientDolphin.prototype.setClientModelStore = function (clientModelStore) {
             this.clientModelStore = clientModelStore;
         };
-
         ClientDolphin.prototype.getClientModelStore = function () {
             return this.clientModelStore;
         };
-
         ClientDolphin.prototype.listPresentationModelIds = function () {
             return this.getClientModelStore().listPresentationModelIds();
         };
-
         ClientDolphin.prototype.listPresentationModels = function () {
             return this.getClientModelStore().listPresentationModels();
         };
-
         ClientDolphin.prototype.findAllPresentationModelByType = function (presentationModelType) {
             return this.getClientModelStore().findAllPresentationModelByType(presentationModelType);
         };
-
         ClientDolphin.prototype.getAt = function (id) {
             return this.findPresentationModelById(id);
         };
-
         ClientDolphin.prototype.findPresentationModelById = function (id) {
             return this.getClientModelStore().findPresentationModelById(id);
         };
         ClientDolphin.prototype.deletePresentationModel = function (modelToDelete) {
             this.getClientModelStore().deletePresentationModel(modelToDelete, true);
         };
-
         ClientDolphin.prototype.deleteAllPresentationModelOfType = function (presentationModelType) {
             this.getClientModelStore().deleteAllPresentationModelOfType(presentationModelType);
         };
-
         ClientDolphin.prototype.updatePresentationModelQualifier = function (presentationModel) {
             var _this = this;
             presentationModel.getAttributes().forEach(function (sourceAttribute) {
                 _this.updateAttributeQualifier(sourceAttribute);
             });
         };
-
         ClientDolphin.prototype.updateAttributeQualifier = function (sourceAttribute) {
             if (!sourceAttribute.getQualifier())
                 return;
             var attributes = this.getClientModelStore().findAllAttributesByQualifier(sourceAttribute.getQualifier());
             attributes.forEach(function (targetAttribute) {
                 if (targetAttribute.tag != sourceAttribute.tag)
-                    return;
+                    return; // attributes with same qualifier and tag
                 targetAttribute.setValue(sourceAttribute.getValue()); // should always have the same value
                 targetAttribute.setBaseValue(sourceAttribute.getBaseValue()); // and same base value and so dirtyness
             });
         };
-
         ClientDolphin.prototype.tag = function (presentationModel, propertyName, value, tag) {
             var clientAttribute = new opendolphin.ClientAttribute(propertyName, null, value, tag);
             this.addAttributeToModel(presentationModel, clientAttribute);
             return clientAttribute;
         };
-
         ClientDolphin.prototype.addAttributeToModel = function (presentationModel, clientAttribute) {
             presentationModel.addAttribute(clientAttribute);
             this.getClientModelStore().registerAttribute(clientAttribute);
@@ -1194,7 +1098,6 @@ var opendolphin;
                 this.clientConnector.send(new opendolphin.AttributeCreatedNotification(presentationModel.id, clientAttribute.id, clientAttribute.propertyName, clientAttribute.getValue(), clientAttribute.getQualifier(), clientAttribute.tag), null);
             }
         };
-
         ////// push support ///////
         ClientDolphin.prototype.startPushListening = function (pushActionName, releaseActionName) {
             this.clientConnector.setPushListener(new opendolphin.NamedCommand(pushActionName));
@@ -1248,7 +1151,7 @@ var opendolphin;
     var InitializeAttributeCommand = (function (_super) {
         __extends(InitializeAttributeCommand, _super);
         function InitializeAttributeCommand(pmId, pmType, propertyName, qualifier, newValue, tag) {
-            if (typeof tag === "undefined") { tag = opendolphin.Tag.value(); }
+            if (tag === void 0) { tag = opendolphin.Tag.value(); }
             _super.call(this);
             this.pmId = pmId;
             this.pmType = pmType;
@@ -1336,7 +1239,6 @@ var opendolphin;
 /// <reference path="SavedPresentationModelNotification.ts" />
 /// <reference path="InitializeAttributeCommand.ts" />
 /// <reference path="SwitchPresentationModelCommand.ts" />
-/// <reference path="BaseValueChangedCommand.ts" />
 /// <reference path="ValueChangedCommand.ts" />
 /// <reference path="DeleteAllPresentationModelsOfTypeCommand.ts" />
 /// <reference path="DeleteAllPresentationModelsOfTypeCommand.ts" />
@@ -1349,17 +1251,18 @@ var opendolphin;
 var opendolphin;
 (function (opendolphin) {
     var ClientConnector = (function () {
-        function ClientConnector(transmitter, clientDolphin, slackMS) {
-            if (typeof slackMS === "undefined") { slackMS = 0; }
+        function ClientConnector(transmitter, clientDolphin, slackMS, maxBatchSize) {
+            if (slackMS === void 0) { slackMS = 0; }
+            if (maxBatchSize === void 0) { maxBatchSize = 50; }
             this.commandQueue = [];
             this.currentlySending = false;
-            this.commandBatcher = new opendolphin.BlindCommandBatcher(true);
             this.pushEnabled = false;
             this.waiting = false;
             this.transmitter = transmitter;
             this.clientDolphin = clientDolphin;
             this.slackMS = slackMS;
             this.codec = new opendolphin.Codec();
+            this.commandBatcher = new opendolphin.BlindCommandBatcher(true, maxBatchSize);
         }
         ClientConnector.prototype.setCommandBatcher = function (newBatcher) {
             this.commandBatcher = newBatcher;
@@ -1373,7 +1276,9 @@ var opendolphin;
         ClientConnector.prototype.setReleaseCommand = function (newCommand) {
             this.releaseCommand = newCommand;
         };
-
+        ClientConnector.prototype.reset = function (successHandler) {
+            this.transmitter.reset(successHandler);
+        };
         ClientConnector.prototype.send = function (command, onFinished) {
             this.commandQueue.push({ command: command, handler: onFinished });
             if (this.currentlySending) {
@@ -1383,7 +1288,6 @@ var opendolphin;
             }
             this.doSendNext();
         };
-
         ClientConnector.prototype.doSendNext = function () {
             var _this = this;
             if (this.commandQueue.length < 1) {
@@ -1391,12 +1295,9 @@ var opendolphin;
                 return;
             }
             this.currentlySending = true;
-
             var cmdsAndHandlers = this.commandBatcher.batch(this.commandQueue);
             var callback = cmdsAndHandlers[cmdsAndHandlers.length - 1].handler;
-            var commands = cmdsAndHandlers.map(function (cah) {
-                return cah.command;
-            });
+            var commands = cmdsAndHandlers.map(function (cah) { return cah.command; });
             this.transmitter.transmit(commands, function (response) {
                 //console.log("server response: [" + response.map(it => it.id).join(", ") + "] ");
                 var touchedPMs = [];
@@ -1405,49 +1306,51 @@ var opendolphin;
                     if (touched)
                         touchedPMs.push(touched);
                 });
-
                 if (callback) {
                     callback.onFinished(touchedPMs); // todo: make them unique?
-                    // todo dk: handling of data from datacommand
                 }
-
                 // recursive call: fetch the next in line but allow a bit of slack such that
                 // document events can fire, rendering is done and commands can batch up
-                setTimeout(function () {
-                    return _this.doSendNext();
-                }, _this.slackMS);
+                setTimeout(function () { return _this.doSendNext(); }, _this.slackMS);
             });
         };
-
         ClientConnector.prototype.handle = function (command) {
             if (command.id == "Data") {
                 return this.handleDataCommand(command);
-            } else if (command.id == "DeletePresentationModel") {
+            }
+            else if (command.id == "DeletePresentationModel") {
                 return this.handleDeletePresentationModelCommand(command);
-            } else if (command.id == "DeleteAllPresentationModelsOfType") {
+            }
+            else if (command.id == "DeleteAllPresentationModelsOfType") {
                 return this.handleDeleteAllPresentationModelOfTypeCommand(command);
-            } else if (command.id == "CreatePresentationModel") {
+            }
+            else if (command.id == "CreatePresentationModel") {
                 return this.handleCreatePresentationModelCommand(command);
-            } else if (command.id == "ValueChanged") {
+            }
+            else if (command.id == "ValueChanged") {
                 return this.handleValueChangedCommand(command);
-            } else if (command.id == "BaseValueChanged") {
-                return this.handleBaseValueChangedCommand(command);
-            } else if (command.id == "SwitchPresentationModel") {
+            }
+            else if (command.id == "SwitchPresentationModel") {
                 return this.handleSwitchPresentationModelCommand(command);
-            } else if (command.id == "InitializeAttribute") {
+            }
+            else if (command.id == "InitializeAttribute") {
                 return this.handleInitializeAttributeCommand(command);
-            } else if (command.id == "SavedPresentationModel") {
+            }
+            else if (command.id == "SavedPresentationModel") {
                 return this.handleSavedPresentationModelNotification(command);
-            } else if (command.id == "PresentationModelReseted") {
+            }
+            else if (command.id == "PresentationModelReseted") {
                 return this.handlePresentationModelResetedCommand(command);
-            } else if (command.id == "AttributeMetadataChanged") {
+            }
+            else if (command.id == "AttributeMetadataChanged") {
                 return this.handleAttributeMetadataChangedCommand(command);
-            } else if (command.id == "CallNamedAction") {
+            }
+            else if (command.id == "CallNamedAction") {
                 return this.handleCallNamedActionCommand(command);
-            } else {
+            }
+            else {
                 console.log("Cannot handle, unknown command " + command);
             }
-
             return null;
         };
         ClientConnector.prototype.handleDataCommand = function (serverCommand) {
@@ -1499,7 +1402,6 @@ var opendolphin;
                 //console.log("nothing to do. new value == old value");
                 return null;
             }
-
             // Below was the code that would enforce that value changes only appear when the proper oldValue is given.
             // While that seemed appropriate at first, there are actually valid command sequences where the oldValue is not properly set.
             // We leave the commented code in the codebase to allow for logging/debugging such cases.
@@ -1508,15 +1410,6 @@ var opendolphin;
             //                            " was set to value " + serverCommand.newValue + " even though the change was based on an outdated old value of " + serverCommand.oldValue);
             //            }
             clientAttribute.setValue(serverCommand.newValue);
-            return null;
-        };
-        ClientConnector.prototype.handleBaseValueChangedCommand = function (serverCommand) {
-            var clientAttribute = this.clientDolphin.getClientModelStore().findAttributeById(serverCommand.attributeId);
-            if (!clientAttribute) {
-                console.log("attribute with id " + serverCommand.attributeId + " not found, cannot set base value.");
-                return null;
-            }
-            clientAttribute.rebase();
             return null;
         };
         ClientConnector.prototype.handleSwitchPresentationModelCommand = function (serverCommand) {
@@ -1543,7 +1436,8 @@ var opendolphin;
                         if (attr) {
                             attribute.setValue(attr.getValue());
                         }
-                    } else {
+                    }
+                    else {
                         attributesCopy.forEach(function (attr) {
                             attr.setValue(attribute.getValue());
                         });
@@ -1595,28 +1489,24 @@ var opendolphin;
             this.clientDolphin.send(serverCommand.actionName, null);
             return null;
         };
-
         ///////////// push support ///////////////
         ClientConnector.prototype.listen = function () {
             if (!this.pushEnabled)
                 return;
             if (this.waiting)
                 return;
-
             // todo: how to issue a warning if no pushListener is set?
             this.waiting = true;
-            var me = this;
+            var me = this; // oh, boy, this took some time to find...
             this.send(this.pushListener, { onFinished: function (models) {
                     me.waiting = false;
                     me.listen();
                 }, onFinishedData: null });
         };
-
         ClientConnector.prototype.release = function () {
             if (!this.waiting)
                 return;
             this.waiting = false;
-
             // todo: how to issue a warning if no releaseCommand is set?
             this.transmitter.signal(this.releaseCommand);
         };
@@ -1626,23 +1516,22 @@ var opendolphin;
 })(opendolphin || (opendolphin = {}));
 /// <reference path="DolphinBuilder.ts"/>
 /**
-* JS-friendly facade to avoid too many dependencies in plain JS code.
-* The name of this file is also used for the initial lookup of the
-* one javascript file that contains all the dolphin code.
-* Changing the name requires the build support and all users
-* to be updated as well.
-* Dierk Koenig
-*/
+ * JS-friendly facade to avoid too many dependencies in plain JS code.
+ * The name of this file is also used for the initial lookup of the
+ * one javascript file that contains all the dolphin code.
+ * Changing the name requires the build support and all users
+ * to be updated as well.
+ * Dierk Koenig
+ */
 var opendolphin;
 (function (opendolphin) {
     // factory method for the initialized dolphin
     // Deprecated ! Use 'makeDolphin() instead
     function dolphin(url, reset, slackMS) {
-        if (typeof slackMS === "undefined") { slackMS = 300; }
+        if (slackMS === void 0) { slackMS = 300; }
         return makeDolphin().url(url).reset(reset).slackMS(slackMS).build();
     }
     opendolphin.dolphin = dolphin;
-
     // factory method to build an initialized dolphin
     function makeDolphin() {
         return new opendolphin.DolphinBuilder();
@@ -1655,9 +1544,9 @@ var opendolphin;
 var opendolphin;
 (function (opendolphin) {
     /**
-    * A transmitter that is not transmitting at all.
-    * It may serve as a stand-in when no real transmitter is needed.
-    */
+     * A transmitter that is not transmitting at all.
+     * It may serve as a stand-in when no real transmitter is needed.
+     */
     var NoTransmitter = (function () {
         function NoTransmitter() {
         }
@@ -1665,8 +1554,10 @@ var opendolphin;
             // do nothing special
             onDone([]);
         };
-
         NoTransmitter.prototype.signal = function (command) {
+            // do nothing
+        };
+        NoTransmitter.prototype.reset = function (successHandler) {
             // do nothing
         };
         return NoTransmitter;
@@ -1680,10 +1571,11 @@ var opendolphin;
 var opendolphin;
 (function (opendolphin) {
     var HttpTransmitter = (function () {
-        function HttpTransmitter(url, reset, charset, errorHandler) {
-            if (typeof reset === "undefined") { reset = true; }
-            if (typeof charset === "undefined") { charset = "UTF-8"; }
-            if (typeof errorHandler === "undefined") { errorHandler = null; }
+        function HttpTransmitter(url, reset, charset, errorHandler, supportCORS) {
+            if (reset === void 0) { reset = true; }
+            if (charset === void 0) { charset = "UTF-8"; }
+            if (errorHandler === void 0) { errorHandler = null; }
+            if (supportCORS === void 0) { supportCORS = false; }
             this.url = url;
             this.charset = charset;
             this.HttpCodes = {
@@ -1691,17 +1583,18 @@ var opendolphin;
                 success: 200
             };
             this.errorHandler = errorHandler;
+            this.supportCORS = supportCORS;
             this.http = new XMLHttpRequest();
             this.sig = new XMLHttpRequest();
-            if ("withCredentials" in this.http) {
-                this.http.withCredentials = true; // NOTE: doing this for non CORS requests has no impact
-                this.sig.withCredentials = true;
+            if (this.supportCORS) {
+                if ("withCredentials" in this.http) {
+                    this.http.withCredentials = true; // NOTE: doing this for non CORS requests has no impact
+                    this.sig.withCredentials = true;
+                }
             }
-
-            // NOTE: Browser might support CORS partially so we simply try to use 'this.http' for CORS requests instead of forbidding it
-            // NOTE: XDomainRequest for IE 8, IE 9 not supported by dolphin because XDomainRequest does not support cookies in CORS requests (which are needed for the JSESSIONID cookie)
             this.codec = new opendolphin.Codec();
             if (reset) {
+                console.log('HttpTransmitter.invalidate() is deprecated. Use ClientDolphin.reset(OnSuccessHandler) instead');
                 this.invalidate();
             }
         }
@@ -1711,55 +1604,70 @@ var opendolphin;
                 _this.handleError('onerror', "");
                 onDone([]);
             };
-
             this.http.onreadystatechange = function (evt) {
                 if (_this.http.readyState == _this.HttpCodes.finished) {
                     if (_this.http.status == _this.HttpCodes.success) {
                         var responseText = _this.http.responseText;
                         if (responseText.trim().length > 0) {
-                            try  {
+                            try {
                                 var responseCommands = _this.codec.decode(responseText);
                                 onDone(responseCommands);
-                            } catch (err) {
+                            }
+                            catch (err) {
                                 console.log("Error occurred parsing responseText: ", err);
                                 console.log("Incorrect responseText: ", responseText);
                                 _this.handleError('application', "HttpTransmitter: Incorrect responseText: " + responseText);
                                 onDone([]);
                             }
-                        } else {
+                        }
+                        else {
                             _this.handleError('application', "HttpTransmitter: empty responseText");
                             onDone([]);
                         }
-                    } else {
+                    }
+                    else {
                         _this.handleError('application', "HttpTransmitter: HTTP Status != 200");
                         onDone([]);
                     }
                 }
             };
-
             this.http.open('POST', this.url, true);
             if ("overrideMimeType" in this.http) {
                 this.http.overrideMimeType("application/json; charset=" + this.charset); // todo make injectable
             }
             this.http.send(this.codec.encode(commands));
         };
-
         HttpTransmitter.prototype.handleError = function (kind, message) {
             var errorEvent = { kind: kind, url: this.url, httpStatus: this.http.status, message: message };
             if (this.errorHandler) {
                 this.errorHandler(errorEvent);
-            } else {
+            }
+            else {
                 console.log("Error occurred: ", errorEvent);
             }
         };
-
         HttpTransmitter.prototype.signal = function (command) {
             this.sig.open('POST', this.url, true);
             this.sig.send(this.codec.encode([command]));
         };
-
+        // Deprecated ! Use 'reset(OnSuccessHandler) instead
         HttpTransmitter.prototype.invalidate = function () {
             this.http.open('POST', this.url + 'invalidate?', false);
+            this.http.send();
+        };
+        HttpTransmitter.prototype.reset = function (successHandler) {
+            var _this = this;
+            this.http.onreadystatechange = function (evt) {
+                if (_this.http.readyState == _this.HttpCodes.finished) {
+                    if (_this.http.status == _this.HttpCodes.success) {
+                        successHandler.onSuccess();
+                    }
+                    else {
+                        _this.handleError('application', "HttpTransmitter.reset(): HTTP Status != 200");
+                    }
+                }
+            };
+            this.http.open('POST', this.url + 'invalidate?', true);
             this.http.send();
         };
         return HttpTransmitter;
@@ -1779,6 +1687,8 @@ var opendolphin;
         function DolphinBuilder() {
             this.reset_ = false;
             this.slackMS_ = 300;
+            this.maxBatchSize_ = 50;
+            this.supportCORS_ = false;
         }
         DolphinBuilder.prototype.url = function (url) {
             this.url_ = url;
@@ -1792,6 +1702,14 @@ var opendolphin;
             this.slackMS_ = slackMS;
             return this;
         };
+        DolphinBuilder.prototype.maxBatchSize = function (maxBatchSize) {
+            this.maxBatchSize_ = maxBatchSize;
+            return this;
+        };
+        DolphinBuilder.prototype.supportCORS = function (supportCORS) {
+            this.supportCORS_ = supportCORS;
+            return this;
+        };
         DolphinBuilder.prototype.errorHandler = function (errorHandler) {
             this.errorHandler_ = errorHandler;
             return this;
@@ -1801,11 +1719,12 @@ var opendolphin;
             var clientDolphin = new opendolphin.ClientDolphin();
             var transmitter;
             if (this.url_ != null && this.url_.length > 0) {
-                transmitter = new opendolphin.HttpTransmitter(this.url_, this.reset_, "UTF-8", this.errorHandler_);
-            } else {
+                transmitter = new opendolphin.HttpTransmitter(this.url_, this.reset_, "UTF-8", this.errorHandler_, this.supportCORS_);
+            }
+            else {
                 transmitter = new opendolphin.NoTransmitter();
             }
-            clientDolphin.setClientConnector(new opendolphin.ClientConnector(transmitter, clientDolphin, this.slackMS_));
+            clientDolphin.setClientConnector(new opendolphin.ClientConnector(transmitter, clientDolphin, this.slackMS_, this.maxBatchSize_));
             clientDolphin.setClientModelStore(new opendolphin.ClientModelStore(clientDolphin));
             console.log("ClientDolphin initialized");
             return clientDolphin;

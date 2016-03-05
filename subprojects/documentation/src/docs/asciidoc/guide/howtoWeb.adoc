@@ -1,0 +1,34 @@
+The OpenDolphin architecture supports the sharing of applications across
+many devices. The previous chapter covered the usage of OpenDolphin for
+Java Desktop clients: JavaFX, Swing, and others.
+
+This chapter introduces the JavaScript client for OpenDolphin - commonly known as OpenDolphin.js -
+that allows to use OpenDolphin on any web page.
+
+Using OpenDolphin.js follows the exact same pattern as for Desktop clients:
+
+* create the view (HTML)
+* do the binding (JavaScript)
+
+All the rest happens on the server.
+
+link:https://www.youtube.com/watch?v=-oGEnyWN9zM[Video intro].
+
+It is a *full* implementation of the OpenDolphin architecture such that you profit from the full range
+of features exactly like for the desktop clients and sharing the *identical* server-side application logic.
+
+OpenDolphin.js does not depend on any other library (with the exception of require.js) and can thus be used
+in combination
+with any other web technology: plain HTML5, jQuery, Angular.js, GWT, vanilla.js, and whatever else you fancy.
+The library itself was implemented with the help of TypeScript and additionally provides a full
+TypeScript API for those who prefer to build their web application with that technology.
+
+If you jumped directly to this chapter, for an easy entry into OpenDolphin, we will follow the steps described in section "Web example" of the
+link:https://github.com/canoo/DolphinJumpStart[DolphinJumpStart] project.
+
+We implement a very simple application that contains only one text field and two buttons to 'save' or 'reset' the value.
+'Saving' will do nothing but printing the current field value on the server side.
+
+Both buttons are only enabled if there is really something to save/reset, i.e. the field value is dirty.
+The dirty state is also visualized via disable buttons. Resetting set the last known attribute base value.
+

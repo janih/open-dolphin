@@ -42,8 +42,12 @@
 
         // dolphin binding from presentation model to widget model
 
-        var dolphin = opendolphin.dolphin(window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/", true);
+        var dolphin = opendolphin.makeDolphin()
+                .url(window.location.protocol + "//" + window.location.host + "/dolphin-grails/dolphin/")
+                .build();
 
+        dolphin.reset({
+            onSuccess: function() {
         var addButton = document.getElementById("addButton");
         addButton.addEventListener("click", function () {
           dolphin.send("org.opendolphin.demo.Tutorial.add", null);
@@ -51,13 +55,15 @@
 
         dolphin.getClientModelStore().onModelStoreChange(function (modelStoreEvent) {
             if (modelStoreEvent.eventType != 'ADDED') return;
-            var cpm = modelStoreEvent.clientPresentationModel
+            var cpm = modelStoreEvent.clientPresentationModel;
             if (cpm.presentationModelType != "weather") return;
             $scope.addRow( {
                 temp : cpm.getAt("temperature").getValue(),
                 humid: cpm.getAt("humidity").getValue()
             })
         });
+    } // onSuccess
+    });
     });
 </script>
 

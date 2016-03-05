@@ -5,18 +5,18 @@ Dolphin consists of three parts:
 # the client module
 # the server module
 
-Both, client and server depend on the shared module.
+Both client and server modules depend on the shared module.
 
 There is an additional fourth module called "combined", which
 depends on all three modules above and allows combining them in one single
 Java virtual machine for automatic testing, debugging, profiling and demo purposes.
 
-All modules live in their own subproject with a separate source tree
+All modules live in their own subproject with separate source trees,
 and the Gradle build system is
 used to build them according to their dependency structure.
 
 Each project that uses Dolphin will most likely resemble this structure
-where the shared module may be empty (in case they is no shared knowledge
+where the shared module may be empty (in case there is no shared knowledge
 between client and server).
 
 The Dolphin team has produced a [JumpStartProject|https://github.com/canoo/DolphinJumpStart]
@@ -32,10 +32,10 @@ h4. The horizontal layering
 
 Orthogonally to the vertical structure of modules, there is a simple horizontal
 layering that spans across all modules. In consists of:
-- the common infrastructure for build automation, configurations, etc.
-- the communication layer that provides the basic implementation
-- the facade layer that provides the API
-- the demo layer that shows all Dolphin features in small examples
+- the common infrastructure for build automation, configurations, etc.;
+- the communication layer that provides the basic implementation;
+- the facade layer that provides the API;
+- the demo layer that shows all Dolphin features in small examples.
 
 The layering is visible through the respective package structure.
 

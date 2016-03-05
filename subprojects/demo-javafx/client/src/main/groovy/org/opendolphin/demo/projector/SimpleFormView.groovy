@@ -64,10 +64,18 @@ class SimpleFormView {
     }
 }
 
+
+/** Abstract Factory pattern */
+interface IProjector {
+    IPresentation createFrame(IPresentation root, double width, double height)
+    IPresentation createSimpleForm(String pmId)
+}
+
 interface IPresentation {
     void setVisible(boolean visible)
     Object getWidget()
 }
+
 class JavaFxPresentation implements IPresentation {
     javafx.scene.Node node
     void setVisible(boolean visible) {
@@ -87,12 +95,6 @@ class JavaFxStage implements IPresentation {
     Stage getWidget() {
         return stage
     }
-}
-
-/** Abstract Factory pattern */
-interface IProjector {
-    IPresentation createFrame(IPresentation root, double width, double height)
-    IPresentation createSimpleForm(String pmId)
 }
 
 class JavaFxProjector implements IProjector {

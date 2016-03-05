@@ -1,6 +1,6 @@
 Any reasonably sized UI will have not only single presentation models but many of the same type.
 
-Let's assume that the application displays a list of vehicles where each vehicle is a
+Let's assume that the application displays a list of vehicles, where each vehicle is a
 presentation model instance of type "vehicle".
 
 The list view must add a new row whenever a new vehicle becomes available and must
@@ -12,17 +12,30 @@ be notified whenever a presentation model is added to or removed from the store.
 The model store defines the managed object space for presentation models.
 
 There are two such stores: one on the client and one on the server.
-Both are automatically synchronized by OpenDolphin.
+These are automatically synchronized by OpenDolphin.
 
 Conceptually, one can see the model store as
-- a distributed, in-memory, no-sql database with only two tables (presentation model and attribute)
-- a specialized event bus (event provider is only the store itself and only ModelStoreEvents are issued)
+- a distributed, in-memory, no-sql database with only two tables (presentation model and attribute);
+- a specialized event bus (event provider is only the store itself and only ModelStoreEvents are issued).
+
+Continuing the database analogy, the Presentation Model "table" contains columns for:
+- a unique identifier, and
+- an optional type.
+
+The Attribute "table" contains columns for:
+- a unique identifier;
+- a property name;
+- a tag, which defaults to "VALUE";
+- an optional qualifier;
+- the current value, which may be a String, Number, Character, Boolean, or Date;
+- the base value, used to determine if the current value is dirty; and
+- the ID of the presentation model to which the attribute belongs.
 
 The application programmer should not access the model store directly
-but only through the facade layer, see [Usage|Dolphin].
+but only through the facade layer; see [Usage|Dolphin].
 
 The model store is used internally as a value change listener to all known attributes in order to
-- consistently update all attributes of the same _qualifier_
-- notify the server about changes
+- consistently update all attributes of the same _qualifier_;
+- notify the server about changes.
 
-Now, let's have a look how the client-server split is designed in OpenDolphin.
+Now let's have a look how the client-server split is designed in OpenDolphin.

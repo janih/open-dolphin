@@ -21,19 +21,23 @@ package org.opendolphin
 class LogConfig {
 
     private static final Logger ROOT_LOGGER = Logger.getLogger("")
+    private static final Logger DOLPHIN_LOGGER = Logger.getLogger("org.opendolphin")
 
     static noLogs() {
-        logOnLevel(ROOT_LOGGER, Level.OFF)
+        logOnLevel(DOLPHIN_LOGGER, Level.OFF)
     }
 
     static logCommunication() {
-        logOnLevel(ROOT_LOGGER, Level.INFO)
+        logOnLevel(DOLPHIN_LOGGER, Level.INFO)
     }
 
     static logOnLevel(Level level) {
-        logOnLevel(ROOT_LOGGER, level)
+        logOnLevel(DOLPHIN_LOGGER, level)
     }
 
+    /**
+     * One may choose to use DOLPHIN_LOGGER or ROOT_LOGGER.
+     */
     static logOnLevel(Logger logger, Level level) {
         logger.level = level
         logger.handlers.each { it.setLevel(level) }

@@ -1,0 +1,54 @@
+= Dolphin Quick Reference
+:stylesheet: ./../stylesheet/dolphin.css
+:toc: left
+:sectnums:
+
+Welcome to the OpenDolphin quick reference
+
+The 3 most important interfaces of Open Dolphin are
+
+* Dolphin
+* PresentationModel
+* Attribute
+
+All three interfaces are defined in the dolphin-core module.
+In addition to the core model, Open Dolphin provides a module for the client and the server side.
+Each module contains a specialization of the interfaces.
+The dolphin-client module contains the ClientDolphin, ClientPresentationModel and ClientAttribute interfaces.
+
+ifeval::["{backend}"=="html5"]
+link:./../guide/UserGuide.html[User Guide]
+===========================================
+endif::[]
+
+
+Quick Reference
+===============
+
+== Action
+include::action/action.adoc[]
+
+== Attribute
+include::attribute/attribute.adoc[]
+
+=== Create
+include::attribute/create.adoc[Create]
+
+=== Dirty
+include::attribute/dirty.adoc[Dirty]
+
+=== Qualifier
+include::attribute/qualifier.adoc[Qualifier]
+
+== Binding
+include::binding/binding.adoc[]
+
+== Command
+include::command/command.adoc[]
+
+== EventBus
+include::eventBus/eventBus.adoc[]
+
+== Presentation Model
+include::presentationModel/create.adoc[Create]
+

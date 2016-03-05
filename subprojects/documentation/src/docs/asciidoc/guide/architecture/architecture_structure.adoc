@@ -1,0 +1,53 @@
+*Modules define the vertical structure*
+
+Dolphin consists of three parts:
+
+. the shared module
+. the client module
+. the server module
+
+Both, client and server depend on the shared module.
+
+There is an additional fourth module called "combined", which
+depends on all three modules above and allows combining them in one single
+Java virtual machine for automatic testing, debugging, profiling and demo purposes.
+
+All modules live in their own subproject with a separate source tree
+and the Gradle build system is
+used to build them according to their dependency structure.
+
+Each project that uses Dolphin will most likely resemble this structure
+where the shared module may be empty (in case they is no shared knowledge
+between client and server).
+
+The Dolphin team has produced a link:https://github.com/canoo/DolphinJumpStart[JumpStartProject]
+that suggests a best-practice project setup for Dolphin-enabled applications, either with
+
+* a Maven build or
+* a Gradle build.
+
+Dolphin itself comes with a substantial list of demos in the subproject "demo-javafx".
+It is highly recommended to have a look at the demos in order to understand
+how we expect Dolphin to be used.
+
+*The horizontal layering*
+
+Orthogonally to the vertical structure of modules, there is a simple horizontal
+layering that spans across all modules. In consists of:
+
+* the common infrastructure for build automation, configurations, etc.
+* the communication layer that provides the basic implementation
+* the facade layer that provides the API
+* the demo layer that shows all Dolphin features in small examples
+
+The layering is visible through the respective package structure.
+
+WARNING: The application programmer should only use the facade layer.
+
+The figure below summarizes the vertical and horizontal structuring
+
+image::./img/OpenDolphin-Architecture-Structure.png[width=500,height=500]
+
+While the structural part of the Dolphin architecture is rather
+obvious and straight-forward, the concepts and rules that stand behind
+its inception require a bit of explanation, which is the topic of the next section.

@@ -11,7 +11,6 @@
 /// <reference path="EventBus.ts"/>
 /// <reference path="ClientPresentationModel.ts"/>
 /// <reference path="DeletedPresentationModelNotification.ts"/>
-/// <reference path="BaseValueChangedCommand.ts"/>
 
 module opendolphin {
 
@@ -83,7 +82,8 @@ module opendolphin {
             });
             // all attributes with the same qualifier should have the same base value
             attribute.onBaseValueChange((evt:ValueChangedEvent)=> {
-                var baseValueChangeCommand:BaseValueChangedCommand = new BaseValueChangedCommand(attribute.id);
+                var baseValueChangeCommand:ChangeAttributeMetadataCommand =
+                    new ChangeAttributeMetadataCommand(attribute.id, Attribute.BASE_VALUE, evt.newValue);
                 this.clientDolphin.getClientConnector().send(baseValueChangeCommand, null);
                 if (attribute.getQualifier()) {
                     var attrs = this.findAttributesByFilter((attr:ClientAttribute) => {

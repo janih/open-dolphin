@@ -1,0 +1,56 @@
+NOTE: #TODO# Pending code example and explanation
+
+Open dolphin client and server can access the same presentation model. Both can read data from the model or edit data in the model and
+synchronization between client and server will be automatically managed by open dolphin.
+But on top of it Open Dolphin supports also multiple clients having one and only one application on the server side
+made from OpenDolphin actions.
+
+So with Open dolphin it's possible to have different clients sharing in real-time the same business logic and model.
+
+[ditaa]
+----
+  /-------------------\         /-------------------\
+  |                   |         |                   |
+  |      Client       |         |      Client       |
+  |                   |         |                   |
+  \-------------------/         \-------------------/
+            ^                              ^
+            |                              |
+            |                              |
+            |                              |
+            v                              v
+  /----------------------\         /----------------------\
+  |  Presentation Model  |         |  Presentation Model  |
+  \----------------------/         \----------------------/
+             ^                             ^
+client       | sync                        |sync
+-------------|-----------------------------|----------------------
+server       |                             |
+             |                             |
+ +-----------|----------=------------------|-------------------+
+ | Event Bus |                             |                   |
+ |           v                             v                   |
+ | /----------------------\  sync  /----------------------\    |
+ | |  Presentation Model  |<------>|  Presentation Model  |    |
+ | \----------------------/        \----------------------/    |
+ |           ^                             ^                   |
+ \-=---------|---------------=-------------|--------=----------+
+             |                             |
+   Read/write|                             |
+             |                             |
+     /----------------------------------------------------\
+     |                                                    |
+     |                     Server                         |
+     |                                                    |
+     \----------------------------------------------------/
+
+----
+
+Asynchronous events on server-side are distributed through an event bus. The typical use cases for this event bus are
+
+* Instant visualization of server side events
+* Consistent visualization of transient data across many clients
+* Cross-client notifications
+
+See also the use case link:./../guide/UserGuide.html#_one_application_on_multiple_devices[many devices] guide.
+

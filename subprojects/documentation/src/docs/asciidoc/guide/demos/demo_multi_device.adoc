@@ -1,0 +1,26 @@
+Since version 0.9, OpenDolphin can display the same application on many different
+devices at the same time, including personal computers, laptops, tablets, and smartphones.
+
+One such example is https://klondike.canoo.com/dolphin-grails/demo/js/teammember/TeamMemberDetails.html[the team-members live demo]
+that you can connect to
+
+* from a JavaFX client
+* through the browser
+* from a tablet
+* from a smartphone
+
+image::./img/dolphin_pics/OpenDolphin-Demo-Multi-Device.png[]
+
+The way to achieve this is to have
+
+* one and only one application on the server side made from OpenDolphin actions
+* various client-specific views, in this case JavaFX and JavaScript where the HTML5/JavaScript part can be natively packaged for mobile devices.
+
+See also: link:https://www.youtube.com/watch?v=mBv6q3tVfn8[demo video].
+
+The multi-device capability of OpenDolphin is the basis for many other use cases:
+
+* <<Follow-me applications with re-connect,follow-me applications>>
+* <<Team applications for collaborative work,team applications>>
+* <<Floating workstations in a point-of-sale solution,point-of-sale applications>>
+* <<Integration of many technologies into one app,multi-technology integration>>

@@ -1,23 +1,76 @@
 A dolphin application has a client and a server module.
-As we will see in [remote config|guide:config_remote] and [standalone config|guide:config_standalone]
+As we will see in [remote config|guide:config_remote] and [standalone config|guide:config_standalone],
 this does not necessarily mean that client and server live in different VMs, but they can.
 
-With OpenDolphin, the client is responsible to visualize presentation models,
-the server is responsible to manage the presentation model data.
+With OpenDolphin, the client is responsible for visualizing presentation models,
+and the server is responsible for managing the presentation model data.
 
-In order to keep client and server [model store|guide:concepts_model_store] consistent,
-one must be chosen as the master and the dolphin team has chosen the client to be that master.
+OpenDolphin provides two techniques to keep client and server [model store|guide:concepts_model_store] synchronized.
+You may use either technique or mix the two.
 
-All changes *first* happen *on the client*. Then the server is notified, and he updates automatically.
+h4. First technique: Client initiates all changes to the model store
+Using the first technique, the client model store is regarded as the master.
+All changes *first* happen *on the client*. Then the server is notified, and it automatically makes identical changes
+to its model store.
 
 Any server-side changes happen by the server sending a [command|guide:concepts_commands] to the client
-instructing him which change to apply.
+instructing it which change to apply.
 
-All communication between client and server happens *asynchronously* no matter whether an in-memory or
+To use the first technique, restrict server-side code to using <name>Command methods. (See DefaultServerDolphin class
+for a list of these commands.)  These *Command methods merely send a command from the server to the client;
+the client will execute the command against the client's model store, and send a command back to the server which
+will cause the server's model store to synchronize.
+
+h4. Second technique: Client or Server may initiate changes to the model store
+Using the second technique, the programming model on the server side becomes equivalent to that of the client side.
+As an example: you no longer need to call
+{code}
+// send client a command to change the value of an attribute;
+// the client will do so and send an identical command back to the server,
+// at which time the server will make the same change to the attribute in its model store:
+changeValueCommand(attribute, value);
+{code}
+on the server side, but you can directly use
+{code}
+// immediate state change
+attribute.setValue(value);
+{code}
+which will immediately change the attribute value on the server side _and_ send the appropriate command
+to the client.
+
+This approach has the following properties:
+- any trailing code on the server side can now rely on the updated state
+- any property change listeners are immediately called
+- any model store listeners are immediately called
+
+{note}
+You get a full reactive *event-driven programming model* in the normally request-response oriented
+Java enterprise world.
+{note}
+
+{warning}
+The "strong" approach of the first technique
+(i.e., never changing the server state but only sending commands to the client)
+has the (undocumented) effect that server actions are transactional: in case of server side exceptions,
+no change is sent to the client. Either all or no changes are executed.
+
+You can still have the same behavior by restricting yourself to the first technique;
+but if you use the second technique, changes will no
+longer be transactional and server-side exceptions need application-specific handling.
+{warning}
+The "strong" approach of the first technique can easily enforce that the client is always the master.
+As soon as you do any immediate server-side change, there may be conflicts when client-state changes
+while the same state is modified on the server.
+
+OpenDolphin detects these conflicts and ensures that the client side always wins.
+
+h4. Communication and Threading
+Regardless of the technique used, all communication between client and server happens *asynchronously*,
+no matter whether an in-memory or
 remote configuration is used.
 
 Despite the asynchronous communication, OpenDolphin guarantees notification delivery in the same
-sequence as they originated.
+sequence as the command messages originated.
 
 OpenDolphin assumes the client to have an event model and the server to live in a request-response model.
 OpenDolphin bridges these two worlds.
@@ -25,13 +78,13 @@ OpenDolphin bridges these two worlds.
 Despite the asynchronous communication between client (view) and server (controller), all
 processing that takes place as a result of this communication is automatically executed inside the client's
 UI thread.
-Especially all changes to the client model store, client presentation models, and attributes are subject to
-this thread-confined approach. Thus, all binding events will be fired in the UI thread and the
+In particular, all changes to the client model store, client presentation models, and attributes are subject to
+this thread-confined approach. Thus, all binding events will be fired on the UI thread, and the
 views are automatically updated correctly.
 
-Likewise, on the server (controller) side all actions are executed in a thread-confined manner, i.e.
-there is at most one action at a time being executed and per roundtrip all actions are executed in the
+Likewise, on the server (controller) side, all actions are executed in a thread-confined manner, i.e.
+there is at most one action at a time being executed, and per round trip, all actions are executed in the
 same thread.
 
-With the clear structure and division of responsibilities that OpenDolphin imposes onto the application
-a lot of otherwise common headaches around proper thread handling disappear.
+With the clear structure and division of responsibilities that OpenDolphin imposes on the application,
+many otherwise common headaches around proper thread handling disappear.

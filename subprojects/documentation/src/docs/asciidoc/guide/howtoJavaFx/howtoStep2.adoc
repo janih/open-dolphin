@@ -1,0 +1,133 @@
+In step 2 we refactor the JavaFX application into
+link:https://github.com/canoo/DolphinJumpStart/blob/master/combined/src/main/java/step_2/JumpStart.java[step2.JumpStart]
+to make use of OpenDolphin.
+
+The visual appearance and the behavior has not changed
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-step1.png[]
+
+but the code has.
+
+As an intermediate step, we have put the OpenDolphin setup and the usage in the same place.
+Don't worry if this looks ugly. We will clean it up in a minute.
+
+Focus on these lines in the code:
+
+We create a presentation model with the distinctive name "input" and an attribute for the "text" property.
+
+[source,java]
+PresentationModel input = clientDolphin.presentationModel("input", new ClientAttribute("text"));
+
+Note that we do _not_ define a "JumpStartPresentationModel" since presentation models in OpenDolphin
+are totally generic.
+
+Behind the scenes (no pun intended) happens quite a lot:
+
+* the input presentation model is added to the client model store (with indexes being updated)
+* the client dolphin registers itself as a property change listener to the value of the "text" attribute
+* the server dolphin is asynchronously notified about the creation, which you can observe in the logs
+* the server dolphin asynchronously updates its model store accordingly.
+
+While this happens, we bind the text property of the TextField (this is a JavaFX property) to the "text" attribute of
+the input presentation model
+
+[source,java]
+JFXBinder.bind("text").of(field).to("text").of(input);
+
+Note the fluent API for setting up the binding.
+
+[WARNING]
+====
+The above is plain Java. When we use Groovy, we can make use of Groovy's command chain syntax
+that allows writing the *exact same code* as
+
+[source,groovy]
+bind "text" of field to "text" of input
+
+====
+
+Finally, the action handler that was part of the (client) view before now moves to the
+(server) controller. We register it as an "action" on the server-dolphin.
+
+[source,java]
+config.getServerDolphin().action("PrintText", new NamedCommandHandler() {
+    public void handleCommand(NamedCommand namedCommand, List<Command> commands) {
+        Object text = serverDolphin.getAt("input").getAt("text").getValue();
+        System.out.println("server text field contains: " + text);
+    }
+});
+
+
+WARNING: Note that the (client) view and the (server) controller *do not share any objects!*
+
+The dolphin server action must therefore ask the server-dolphin for the "text" value
+of the "input" presentation model before he can print it.
+
+Triggering the server action becomes the remaining statement in the button's onAction handler.
+
+[source,java]
+button.setOnAction(new EventHandler<ActionEvent>() {
+    public void handle(ActionEvent actionEvent) {
+        clientDolphin.send("PrintText");
+    }
+});
+
+
+When we now start the application we see in the log:
+
+[source]
+----
+[INFO] C: transmitting Command: CreatePresentationModel pmId input pmType null attributes [[propertyName:text, id:761947653, qualifier:null, value:null, tag:VALUE]]
+[INFO] S:     received Command: CreatePresentationModel pmId input pmType null attributes [[propertyName:text, id:761947653, qualifier:null, value:null, tag:VALUE]]
+[INFO] C: transmitting Command: ValueChanged attr:761947653, null ->
+[INFO] S:     received Command: ValueChanged attr:761947653, null ->
+[INFO] C: server responded with 0 command(s): []
+[INFO] C: server responded with
+{code}
+----
+
+The C prefixes illustrate statements that are logged from the Client. S prefixes denote statements that are logged from the Server.
+
+The log statements are telling us that the presentation model has been created and the value changed from null to an empty String,
+the JavaFX default value for text fields.
+
+Let's enter "abcd":
+
+[source]
+----
+[INFO] C: transmitting Command: ValueChanged attr:761947653,  -> a
+[INFO] S:     received Command: ValueChanged attr:761947653,  -> a
+[INFO] C: server responded with 0 command(s): []
+[INFO] C: transmitting Command: ValueChanged attr:761947653, a -> ab
+[INFO] S:     received Command: ValueChanged attr:761947653, a -> ab
+[INFO] C: server responded with 0 command(s): []
+[INFO] C: transmitting Command: ValueChanged attr:761947653, ab -> abc
+[INFO] S:     received Command: ValueChanged attr:761947653, ab -> abc
+[INFO] C: server responded with 0 command(s): []
+[INFO] C: transmitting Command: ValueChanged attr:761947653, abc -> abcd
+[INFO] S:     received Command: ValueChanged attr:761947653, abc -> abcd
+[INFO] C: server responded with 0 command(s): []
+----
+
+Every single change is asynchronously sent to the server dolphin. Note that the user interface *does not block*.
+
+Finally, we hit the button
+
+[source]
+----
+[INFO] C: transmitting Command: PrintText
+server text field contains: abcd
+[INFO] S:     received Command: PrintText
+[INFO] C: server responded with 0 command(s): []
+----
+
+Our server action performs its printing action *asynchronously*, particularly not in the UI thread!
+You can see the asynchronous behavior by the line ordering in the log above.
+If it were synchronous, lines 2 and 3 would never be in this order.
+
+Note that even though all the logic runs in-memory, we have the first benefit from OpenDolphin:
+
+WARNING: All actions are executed *asynchronously outside the UI thread*.
+We cannot accidentally block it by long-running or failed operations, which is a common error in UI development.
+
+With the first dolphinized application running, let's clean up and add a bit more OpenDolphin goodness.

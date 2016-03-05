@@ -17,21 +17,13 @@
 package org.opendolphin.demo
 
 import javafx.application.Platform
-import javafx.beans.value.ChangeListener
 import javafx.event.EventHandler
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
-import jfxtras.labs.scene.control.gauge.Radial
-import jfxtras.labs.scene.control.gauge.StyleModel
 import org.opendolphin.core.client.ClientDolphin
-import org.opendolphin.core.client.comm.OnFinishedHandlerAdapter
-
-import java.beans.PropertyChangeEvent
-import java.beans.PropertyChangeListener
+import org.opendolphin.core.client.comm.OnFinishedDataAdapter
 
 import static groovyx.javafx.GroovyFX.start
-import static jfxtras.labs.scene.control.gauge.Gauge.FrameDesign.CHROME
-import static org.opendolphin.binding.JFXBinder.bind
 import static org.opendolphin.demo.DemoStyle.blueStyle
 /**
 
@@ -99,7 +91,7 @@ class SmallFootprintView {
 
 
             Closure longPoll
-            longPoll = { updateDolphin.send "poll.sfTrigger", new OnFinishedHandlerAdapter(){
+            longPoll = { updateDolphin.send "poll.sfTrigger", new OnFinishedDataAdapter(){
                 @Override
                 void onFinishedData(List<Map> data) {
                     for (map in data) {

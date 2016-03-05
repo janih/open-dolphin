@@ -34,6 +34,7 @@ module opendolphin {
 
             this.codec = new Codec();
             if (reset) {
+                console.log('HttpTransmitter.invalidate() is deprecated. Use ClientDolphin.reset(OnSuccessHandler) instead');
                 this.invalidate();
             }
         }
@@ -97,8 +98,24 @@ module opendolphin {
             this.sig.send(this.codec.encode([command]));
         }
 
+        // Deprecated ! Use 'reset(OnSuccessHandler) instead
         invalidate() {
             this.http.open('POST', this.url + 'invalidate?', false);
+            this.http.send();
+        }
+        reset(successHandler:OnSuccessHandler) {
+            this.http.onreadystatechange = (evt:ProgressEvent) => {
+                if (this.http.readyState == this.HttpCodes.finished) {
+                    if (this.http.status == this.HttpCodes.success) {
+                        successHandler.onSuccess();
+                    }
+                    else {
+                        this.handleError('application', "HttpTransmitter.reset(): HTTP Status != 200");
+                    }
+                }
+            };
+
+            this.http.open('POST', this.url + 'invalidate?', true);
             this.http.send();
         }
 

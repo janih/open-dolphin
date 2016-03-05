@@ -1,0 +1,17 @@
+== tbd Configuration and Setup
+include::config.adoc[]
+
+=== Standalone in-memory usage
+include::config/config_standalone.adoc[]
+
+=== Remote setup
+include::config/config_remote.adoc[]
+
+== Developer Zone
+include::devzone.adoc[]
+
+=== Dolphin Project
+include::devzone/devzone_dolphinProject.adoc[]
+
+=== Javascript Client
+include::devzone/devzone_buildJs.adoc[]

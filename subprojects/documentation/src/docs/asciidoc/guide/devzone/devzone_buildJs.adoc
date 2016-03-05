@@ -1,0 +1,88 @@
+
+The following sections describe how to build the OpenDolphin javascript client and how to publish it so that it can be consumed by applications.
+
+The Javascript client is implemented in Typescript and located in `subprojects/client-javascript`.
+Make sure you have npm and typescript installed.
+
+==== Building
+
+To *build it* open a terminal in that folder and call
+----
+..\..\gradlew compileTypeScript
+----
+
+which will produce `build\opendolphin.js`.
+
+If you want to *run the grails-demos* make sure to this files is copied to the appropriate place using:
+----
+..\..\gradlew updateGrailsJs
+----
+
+The javascript client is available via bintray and via a bower module and in webjar form.
+So whenever there is a new version of opendolphin.js it needs to be uploaded to these sources.
+The next sections describe how to do this
+
+==== Publish opendolphin.js to bintray
+
+Source: https://bintray.com/opendolphin/resources/opendolphin/view
+
+Publishing currently is a manual process:
+
+* Copy `build\opendolphin.js` to `opendolphin-VERSION.js` (e.g. opendolphin-1.0-RC2B3.js, see the files tab for a previous version on bintray for guidance)
+* Upload the file to bintray via browser(using the _Upload Files_ link).
+* Do the same with the _map_ file
+
+==== Publish opendolphin.js to bower module
+
+* clone https://github.com/canoo/open-dolphin-js-bower-repo
+* Follow these instructions: https://github.com/canoo/open-dolphin-js-bower-repo#make-a-new-release
+
+==== Publishing the webjar
+
+To *produce the webjar* for OpenDolphin call
+----
+..\..\gradlew jar
+----
+
+which will result in: `build/libs/opendolphinjs-${version}.jar`.
+Make sure you have specified the desired new version in `subprojects/client-javascript/dolphin-client-javascript.gradle`.
+Example:
+----
+version = '1.0-RC2B4-SNAPSHOT'
+----
+
+To be able to use this webjar first *install it to your local maven repository* (~/.m2) by calling
+----
+../../gradlew -i publishToMavenLocal
+----
+
+When you have successfully tested the webjar (e.g. by using a locally running application) you are ready to *publish it to bintray*.
+
+[NOTE]
+To be able to publish to bintray you need to be a member of the bintray opendolphin organisation.
+
+Remove `-SNAPSHOT` from _version_ and then invoke:
+----
+../../gradlew -i bintrayUpload
+----
+and confirm the publishing notification on the bintray website (otherwise it will be automatically removed again after a couple of hours).
+
+Now test your app against the published version.
+
+
+==== Project/Artifact Dependencies
+
+* *opendolphin.js* (ODJS)
+** https://bintray.com/opendolphin/resources/opendolphin/view[Bintray opendolphin.js artifact]
+** https://github.com/canoo/open-dolphin-js-bower-repo[Bower Module]
+** https://github.com/svene/open-dolphin-examples/tree/master/od_simple_js[od_simple_js]
+** https://github.com/svene/open-dolphin-examples/tree/master/od_session_keepalive[od_session_keepalive]
+** https://github.com/svene/open-dolphin-examples/tree/master/od_cors_example[od_cors_example]
+** https://github.com/svene/open-dolphin-examples/tree/master/od_webonly_errorhandling[od_webonly_errorhandling]
+** https://github.com/canoo/open-dolphin-lazybones-templates[OD-lazybones templates]
+** *ODJS-webjar* https://bintray.com/opendolphin/mavenrepo/open-dolphin-client-javascript/view[artifact on bintray], dependency: `'org.open-dolphin:client-javascript:1.0-RC2B3'`
+*** https://github.com/svene/open-dolphin-examples/tree/master/od_simple_js_webjar[Simple Webjar Demo]
+*** https://github.com/canoo/open-dolphin-ng[OD-NG]
+**** https://github.com/svene/open-dolphin-examples/tree/master/od_angular_js[od_angular_js]
+*** https://github.com/canoo/open-dolphin-gwt[open-dolphin-gwt]
+**** https://github.com/canoo/dolphin_gwt_spike[open-dolphin-gwt Demo Application]

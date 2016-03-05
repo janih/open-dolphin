@@ -1,0 +1,94 @@
+*Use Case*
+
+Sometimes a value change in lets say a text field should immediately update all
+dependent views (a label, a frame title) -
+but sometimes only when a certain event occurs: button clicked, enter pressed, focus change and the likes.
+
+Sometimes the binding is unidirectional, sometimes bidirectional.
+
+*Approach*
+
+OpenDolphin bindings are always immediate.
+When the source value changes the target value is updated immediately.
+
+If you need a deferred update, you do not use binding at all but provide the respective
+event handler to copy the value from the source to the target, usually by setting the
+value of an attribute.
+
+Bindings are always unidirectional.
+If you need bidirectional binding, you use two binding statements, one for either direction.
+
+*Demo*
+
+The demo looks like
+
+image::./img/dolphin_pics/OpenDolphin-Demo-singleAttMultBindings.png[]
+
+When you edit the text field, the header is immediately updated.
+
+Label and frame title are only updated when hitting enter in the text field or when clicking the button.
+
+Please see the full link:https://github.com/canoo/open-dolphin/blob/master/subprojects/demo-javafx/client/src/main/groovy/org/opendolphin/demo/SingleAttributeMultipleBindingsView.groovy[demo sources].
+
+OpenDolphin bindings always go from source to target.
+This code makes sure that whenever the title attribute of the presentation model changes,
+the title of the frame is updated:
+
+[source,groovy]
+----
+bind TITLE of pm to FX.TITLE of primaryStage   // <1>
+----
+<1> groovy style
+
+The same is true for the label, but here we are more Java-stylish:
+
+[source,java]
+----
+bind(TITLE).of(pm).to(FX.TEXT).of(label) // <1>
+----
+<1> java fluent-interface style
+
+The input text field shall always show the value of the title attribute:
+
+[source,groovy]
+bind TITLE of pm to FX.TEXT of input
+
+Hitting enter or clicking the button shall copy the value of the text input field
+to the attribute and thus trigger update of all bound views.
+We share the same event handler for the onAction of the text input field and
+the submit button:
+
+[source, groovy]
+def copyFieldToPm = { pm[TITLE].value = sgb.input.text } as EventHandler
+sgb.input.onAction  = copyFieldToPm
+sgb.submit.onAction = copyFieldToPm
+
+
+_Corner case_:
+If we need a mixture of both immediate and deferred update, then we have a bit of
+a problem. We can resolve it by directly binding the views (ignoring the attribute):
+
+[source,groovy]
+----
+bind FX.TEXT of input to FX.TEXT of header // <1>
+----
+<1> auto-update the header with every keystroke
+
+The views now act as one "combined" view, but this situation should be avoided since
+we do not want the views to know each other. They shall only know their attributes.
+
+_Variant_:
+A second way of approaching the above is binding the text field back to the title
+attribute, which will automatically trigger updates of all dependent views with
+every keystroke. This is effectively a bidirectional binding:
+
+[source,groovy]
+----
+bind TEXT of input to TITLE of pm // <1>
+----
+<1> It is an alternative that updates the pm with every keystroke and thus all bound listeners
+    bind TEXT of input to TITLE of pm
+
+
+
+

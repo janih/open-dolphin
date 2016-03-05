@@ -1,0 +1,22 @@
+OpenDolphin applications can serve many different client technologies and keep them instantly up to date.
+We have seen that for <<One application on multiple devices,many devices>> and <<Team applications for collaborative work,team>> applications.
+
+These capabilities also allow to have clients that are made up from a combination of very different technologies
+and tool kits, let's say Swing, JavaFX, SWT, and HTML5. Integrating those technologies on the client side
+can be difficult because of different concurrency models and assumptions about the execution environment.
+It is safer and more practical to keep them
+totally independent on the client side - just like OpenDolphin is decoupling all its views.
+The integration then happens technology-independent on the server side.
+
+Multi-technology applications are sometimes needed to use the best of each world, e.g.
+
+* JavaFX for general structure, interactivity, layout, effects, animation, and 3D
+* Swing for self-made or acquired custom components
+* HTML5 for great charts and other visualizations
+
+They are also often seen in the transition phase when migrating smoothly from one UI technology to the next.
+
+OpenDolphin allows to keep all the various parts "pluggable" and fully distinct while providing
+an integrated up-to-date visualization.
+
+NOTE: #TODO# link to integrated-advisor demo

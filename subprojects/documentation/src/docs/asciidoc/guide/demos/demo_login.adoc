@@ -1,0 +1,24 @@
+
+The login demo is a short intro that explains the general approach of OpenDolphin
+without any code.
+
+#TODO review audio doesn't work [demo_login.adoc]#
+Open this short video in a separate window: link:http://people.canoo.com/mittie/DolphinAnimatedSlide.mov[login demo]
+
+When watching the video, please pay attention to the following parts:
+
+* first, an action is registered on the server side
+* a presentation model is created on the client side with attributes for username, password, and loggedIn status
+* the presentation model _automatically_ sent to the server
+* the client creates a view for the login
+* the view binds against the attributes
+* when the user enters a name, this _automatically_ changes the attribute on _both_ client and server side
+* the communication happens asynchronously; the user *does not have to wait* before entering the password
+* in the very same manner, the password gets transferred
+* the user clicks on the login button
+* a command is sent to the server which triggers the login action
+* this reads username and password and sets the loggedIn status to TRUE (*)
+* the status change is automatically mirrored on the client
+* the login view disappears since its visible property is bound against the not-loggedIn attribute
+
+(*) technically, the server sends a ValueChangedCommand to the client but this is an implementation detail.

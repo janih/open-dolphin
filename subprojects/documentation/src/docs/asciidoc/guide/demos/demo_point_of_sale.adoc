@@ -1,0 +1,19 @@
+For "point-of-sale" applications it is typical that you have fewer workstations than
+people using them, for example:
+
+* cash registers in a shop
+* workstations in a restaurant
+* desktop computers in a hospital
+
+In such a setting, you may start your work at one workstation, service the customer,
+return to the workstation only to find it occupied by a co-worker, and complete the
+transaction at some other workstation that happens to be available.
+
+You certainly want to take your working context with you!
+
+OpenDolphin makes this possible by combining the strategies that we have seen for
+<<Follow-me applications with re-connect,follow-me>> and <<Team applications for collaborative work,team>> applications.
+
+NOTE: #TODO# link to demo
+
+NOTE: #TODO# link to video

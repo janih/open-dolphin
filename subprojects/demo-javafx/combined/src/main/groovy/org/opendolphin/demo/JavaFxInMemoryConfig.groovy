@@ -21,18 +21,27 @@ import org.opendolphin.core.client.comm.InMemoryClientConnector
 import org.opendolphin.core.client.comm.JavaFXUiThreadHandler
 import org.opendolphin.core.comm.DefaultInMemoryConfig
 
+import java.lang.reflect.Field
 
 class JavaFxInMemoryConfig extends DefaultInMemoryConfig {
 
     JavaFxInMemoryConfig() {
         def batcher = new BlindCommandBatcher(deferMillis: 400, mergeValueChanges: true)
-        clientDolphin.clientConnector = new InMemoryClientConnector(clientDolphin, batcher)
 
+        clientDolphin.clientConnector = new InMemoryClientConnector(clientDolphin, serverDolphin.serverConnector, batcher)
         clientDolphin.clientConnector.sleepMillis = 100
-        clientDolphin.clientConnector.serverConnector = serverDolphin.serverConnector
 
         clientDolphin.clientConnector.uiThreadHandler = new JavaFXUiThreadHandler()
         serverDolphin.registerDefaultActions()
-    }
 
+        // Mac-specific hack for java 7 on el capitan
+        try {
+            Class<?> macFontFinderClass = Class.forName("com.sun.t2k.MacFontFinder");
+            Field psNameToPathMap = macFontFinderClass.getDeclaredField("psNameToPathMap");
+            psNameToPathMap.setAccessible(true);
+            psNameToPathMap.set(null, new HashMap<String, String>());
+        } catch (Exception e) {
+            // ignore
+        }
+    }
 }

@@ -14,9 +14,7 @@
 		<link rel="apple-touch-icon" sizes="114x114" href="${resource(dir: 'images', file: 'apple-touch-icon-retina.png')}">
 
 
-    <script data-main="${resource(dir: 'dolphin', file: 'opendolphin.js')}"
-            src="${resource(dir: 'libs', file: 'require.js')}">
-    </script>
+	<script type="text/javascript" src="${resource(dir: 'dolphin', file: 'opendolphin.js')}"></script>
     <link  href="${resource(dir: 'css',  file: 'bootstrap.min.css')}" rel="stylesheet">
 
 		<g:layoutHead/>

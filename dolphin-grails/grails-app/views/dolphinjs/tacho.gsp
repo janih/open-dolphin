@@ -72,9 +72,13 @@
 </script>
 
 <script>
-    require([ 'opendolphin' ], function (dol) {
+    var dolphin = opendolphin.makeDolphin()
+        .url("${dolphinUrl}")
+        .slackMS(50) // almost no slack for read-only views
+        .build();
 
-        var dolphin = dol.dolphin("${dolphinUrl}", true, 50);         // almost no slack for read-only views
+    dolphin.reset({
+        onSuccess: function() {
 
         var speedAttr = dolphin.attribute("speed", "train.speed", 0); // todo dk: put in constants
         dolphin.presentationModel("${pmId}", undefined, speedAttr);
@@ -93,6 +97,7 @@
             longPoll();
         });
 
+        } // onSuccess
     });
 </script>
 

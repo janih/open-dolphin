@@ -11,7 +11,7 @@ Technically, this is done via the standard Java @PropertyChangeListener@ type.
 In other words, attributes are @Observable@.
 
 In addition to the value, attributes provide more information about the value, e.g.
-whether the value is _dirty_ (i.e. it differs from the _base value_).
+whether the value is _dirty_ (i.e., it differs from the _base value_).
 The dirty state is observable such that you can bind against it.
 As soon as at least one attribute of a presentation model is dirty, that presentation
 model is also considered dirty.
@@ -26,10 +26,10 @@ are automatically updated.
 
 Qualifiers are a prerequisite for [stable bindings|guide:concepts_binding].
 
-Since version 0.4 Dolphin attributes can be tagged in order to describe the meaning of
-the value. The @Tag@ enumeration provides all possible tags with @VALUE@ being the default.
+Dolphin attributes can be tagged in order to describe the meaning of
+the value. The @Tag@ enumeration provides all possible tags, with @VALUE@ being the default.
 Tags can be used to e.g. describe whether the person firstname is a @MANDATORY@ attribute,
 whether it is @ENABLED@, @VISIBLE@, and so on.
-Attributes with a tag are observable in the usual way.
+All attributes, even those with a non-default tag, are observable in the usual way.
 
 See also [Usage|Attribute] and [API doc|api:org.opendolphin.core.Attribute].

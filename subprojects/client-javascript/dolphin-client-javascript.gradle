@@ -21,22 +21,21 @@
 
 buildscript {
     repositories {
+        mavenLocal()
         jcenter()
-        mavenCentral()
-		maven {
-			url 'https://github.com/sothmann/typescript-gradle-plugin/raw/mavenrepo/'
-		}
     }
     dependencies {
-		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.6'
+        classpath 'com.moowork.gradle:gradle-node-plugin:0.6'
     }
 }
 
 plugins {
     id "com.jfrog.bintray" version "1.0"
+    id "de.richsource.gradle.plugins.typescript" version "1.7.1"
 }
 
-apply plugin: 'typescript'
+// used to enable run node scripts
+apply plugin: 'com.moowork.node'
 
 // used to produce webjar:
 apply plugin: 'java'
@@ -70,12 +69,24 @@ task jsZip (type: Zip) {
 }
 
 compileTypeScript {
-	source = 'js/dolphin'
-	outputDir = file('js/dolphin')
-	module = 'amd'
+	source    = file 'js/dolphin'
+	outputDir = file 'js/dolphin'
+	module    = 'AMD' // one of AMD, COMMONJS, SYSTEM, UMD
 	sourcemap = true
-	out = file('build/opendolphin.js')
+	out       = file 'build/opendolphin.js'
 }
+
+npm_install {
+    args = ['--prefix=./testrunner','--loglevel', 'warn']
+}
+
+task runKarmaJsTestRunner(dependsOn: [npm_install], type: Exec) {
+    description 'Execute js test runner karma'
+    commandLine 'sh', '-c', 'cd ./testrunner && ./node_modules/karma/bin/karma start'
+}
+
+//include js unit tests into project build lifecycle
+test.dependsOn runKarmaJsTestRunner
 
 task install (dependsOn: [compileTypeScript, jsZip, updateGrailsJs])
 

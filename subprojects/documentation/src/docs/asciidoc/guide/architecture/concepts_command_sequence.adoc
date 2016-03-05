@@ -1,0 +1,135 @@
+We have seen that OpenDolphin uses commands for the communication between
+views and controllers, that commands are sent in strict sequence even though they
+are executed asynchronously, and that commands may have an *onFinishedHandler*
+attached to it.
+
+It goes without saying that any onFinished handler is only executed after the
+controller action is finished. Therefore the name.
+
+But despite the sequence guarantees that OpenDolphin gives you, there are
+a few things to consider about the asynchronous programming model where it is
+inherently different from procedural, UI-blocking code.
+
+Let us first have a look at a typical chain of events.
+
+*The sequence of independent commands*
+
+The figure below depicts the chain of events that happens when three independent commands A, B, and C
+are sent in immediate sequence. Time goes from top to bottom and the three columns represent three concurrent
+processing units: the command queue, the controller actions (can even be remote), and the onFinished activity after the
+action returned.
+
+image::./img/OpenDolphin-Command-Sequence-default.png[]
+
+
+*1)* A, B, and C sit in the command queue (column 1).
+
+*2)* A is removed from the queue and its actions are processed outside the UI thread, maybe even remotely on the server
+(column 2). B and C remain in the queue (column 1).
+
+*3)* All A actions are finished and the onFinished handler is called (column 3).
+_While A.onFinished is executed inside the UI thread_ B was removed from the queue and the B actions are
+processed concurrently outside the UI thread (column 2).
+
+The execution of A.onFinished often triggers further commands (A1 and A2) that are fed into the queue (column 1)
+just like any other ordinary command.
+
+WARNING: At this point the B actions are processed without the effects of A being visible.
+*B must not depend on the effects of A!*
+
+*4, 5, 6, 7)* Emptying out the command queue.
+
+Let's summarize the behavior so far
+
+* commands are always processed in the strict sequence in which they appear in the command queue
+* the onFinished handler is always executed after the respective action is finished
+* a command is only processed after the preceding one has finished its actions (but not necessarily its onFinished handlers)
+* an onFinished handler is only executed after the preceding onFinished handler is finished
+
+Wouldn't it all be simpler if we waited for A to completely finish including all actions that it may possibly spawn
+before processing B like in procedural programming?
+*No*. This would mean that we have to block the queue during that time, which in turn would block the UI -
+and blocking the UI is the worst you can do.
+
+"_But what if B depends on the effects of A_?" This is when we need the onFinishedHandler
+as explained in the next section.
+
+*When commands depend on previous ones*
+
+Let's assume that A creates a presentation model and B changes a value in that model.
+Then B depends on A and we have to make sure that at the time when the B action is processed all effects of A
+are visible, i.e. the presentation model is available in the model store.
+
+This is when we place the sending of the B command in the onFinished handler of the A command.
+So instead of
+
+[source]
+clientDolphin.send "A"
+clientDolphin.send "B"
+clientDolphin.send "C"
+
+we do
+
+[source]
+clientDolphin.send "A", {
+    println "Hey, we are inside the onFinished handler!"
+    clientDolphin.send "B"
+}
+clientDolphin.send "C"
+
+The figure below shows the resulting command sequence:
+
+image::./img/OpenDolphin-Command-Sequence-onFinished.png[]
+
+Note row number *3*. Only in the course of A.onFinished being executed (column 3) is the B command added to the
+command queue (column 1) and _guaranteed after_ A1 and A2, which notify the server of the created presentation model.
+So all relevant state is properly updated when B's actions (*6*) and onFinished handler (*7*) are called.
+
+*Practical considerations*
+
+Asynchronous programming models all have in common that when some logic is dependent on some asynchronous task
+there is a callback like the onFinished handler involved.
+
+This leads to the question of what to do with a chain of dependencies. Does that automatically lead to
+deeply nested callback structures that are difficult to write and understand? Not necessarily.
+
+Various solution are on the market (i.e. "promises") but OpenDolphin has a simple way where we do not need to
+understand another concept. We simply send an extra command.
+
+This command doesn't need to do anything, only provide us with an onFinished handler such that we can add us
+to the command queue at the appropriate time when all is ready.
+You guessed it: such a command already exits. It is the EmptyCommand
+and you can send it via the ClientDolphin's *sync* method.
+
+
+So even if you have a dependency chain like A <- B <- C there is no need to write
+
+[source]
+clientDolphin.send "A", {
+    clientDolphin.send "B", {
+        clientDolphin.send "C"
+    }
+}
+
+but you can issue the command in this context-free fashion:
+
+[source]
+clientDolphin.send "A"
+clientDolphin.sync { clientDolphin.send "B" }
+clientDolphin.sync { clientDolphin.send "C" }
+
+Likewise, when B and C depend on A but not on each other (A <- B, A <- C) you can code this as
+
+[source]
+clientDolphin.send "A"
+clientDolphin.sync {
+    clientDolphin.send "B"
+    clientDolphin.send "C"
+}
+
+The above has the additional effect that when B has finished, C will immediately follow
+without any other command possibly sneeking in between the two,
+no matter whether it originates from user input or preceding commands.
+In that sense you can see the *sync* as enclosing an atomic operation.
+
+See also link:./../ref/command/usage.html[Usage of Command]

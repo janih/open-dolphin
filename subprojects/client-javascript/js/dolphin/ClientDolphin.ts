@@ -27,6 +27,10 @@ module opendolphin {
             this.clientConnector.send(new NamedCommand(commandName), onFinished);
         }
 
+        reset(successHandler:OnSuccessHandler) {
+            this.clientConnector.reset(successHandler);
+        }
+
         sendEmpty(onFinished:OnFinishedHandler) {
             this.clientConnector.send(new EmptyNotification(), onFinished);
         }

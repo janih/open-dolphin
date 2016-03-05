@@ -37,6 +37,7 @@ import static groovyx.gpars.GParsPool.withPool
 
 @Log
 abstract class ClientConnector {
+    boolean strictMode = true // disallow value changes that are based on improper old values
     Codec codec
     UiThreadHandler uiThreadHandler // must be set from the outside - toolkit specific
 
@@ -48,13 +49,13 @@ abstract class ClientConnector {
     }
 
     protected final ClientDolphin clientDolphin
-    protected final CommandBatcher commandBatcher
+    protected final ICommandBatcher commandBatcher
 
     ClientConnector(ClientDolphin clientDolphin) {
         this(clientDolphin, null)
     }
 
-    ClientConnector(ClientDolphin clientDolphin, CommandBatcher commandBatcher) {
+    ClientConnector(ClientDolphin clientDolphin, ICommandBatcher commandBatcher) {
         this.clientDolphin = clientDolphin
         this.commandBatcher = commandBatcher ?: new CommandBatcher()
 
@@ -91,7 +92,7 @@ abstract class ClientConnector {
         flow.start(1)
     }
 
-    protected getClientModelStore() {
+    protected ClientModelStore getClientModelStore() {
         clientDolphin.clientModelStore
     }
 
@@ -125,9 +126,12 @@ abstract class ClientConnector {
             }
         }
         def callback = commandsAndHandlers.first().handler // there can only be one relevant handler anyway
-        if (callback) {
+        // added != null check instead of using simple Groovy truth because of NPE through GROOVY-7709
+        if (callback !=null) {
             callback.onFinished((List<ClientPresentationModel>) touchedPresentationModels.unique { ((ClientPresentationModel) it).id })
-            callback.onFinishedData(touchedDataMaps)
+            if (callback instanceof OnFinishedData) {
+                callback.onFinishedData(touchedDataMaps)
+            }
         }
     }
 
@@ -186,7 +190,7 @@ abstract class ClientConnector {
 
     @CompileStatic
     ClientPresentationModel handle(CreatePresentationModelCommand serverCommand) {
-        if (((ClientModelStore) clientModelStore).containsPresentationModel(serverCommand.pmId)) {
+        if (clientModelStore.containsPresentationModel(serverCommand.pmId)) {
             throw new IllegalStateException("There already is a presentation model with id '$serverCommand.pmId' known to the client.")
         }
         List<ClientAttribute> attributes = []
@@ -207,7 +211,7 @@ abstract class ClientConnector {
         if (serverCommand.clientSideOnly) {
             model.clientSideOnly = true
         }
-        ((ClientModelStore)clientModelStore).add(model)
+        clientModelStore.add(model)
         clientDolphin.updateQualifiers(model)
         return model
     }
@@ -221,24 +225,13 @@ abstract class ClientConnector {
         if (attribute.value?.toString() == serverCommand.newValue?.toString()) {
             return null
         }
-        if (attribute.value?.toString() != serverCommand.oldValue?.toString()) {
+        if (strictMode && attribute.value?.toString() != serverCommand.oldValue?.toString()) {
             // todo dk: think about sending a RejectCommand here to tell the server about a possible lost update
             log.warning "C: attribute with id '$serverCommand.attributeId' and value '$attribute.value' cannot be set to new value '$serverCommand.newValue' because the change was based on an outdated old value of '$serverCommand.oldValue'."
             return null
         }
         log.info "C: updating '$attribute.propertyName' id '$serverCommand.attributeId' from '$attribute.value' to '$serverCommand.newValue'"
         attribute.value = serverCommand.newValue
-        return null // this command is not expected to be sent explicitly, so no pm needs to be returned
-    }
-
-    ClientPresentationModel handle(BaseValueChangedCommand serverCommand) {
-        Attribute attribute = clientModelStore.findAttributeById(serverCommand.attributeId)
-        if (!attribute) {
-            log.warning "C: attribute with id '$serverCommand.attributeId' not found, cannot set initial value."
-            return null
-        }
-        log.info "C: updating id '$serverCommand.attributeId' setting initialValue to '$attribute.value'"
-        attribute.rebase()
         return null // this command is not expected to be sent explicitly, so no pm needs to be returned
     }
 

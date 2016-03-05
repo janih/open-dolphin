@@ -1,0 +1,68 @@
+Other important feature of open dolphin are server commands.
+
+In open dolphin commands:
+
+* Are generic.
+* Notifications from the client to the server are sent as commands.
+* Instructions from the server to the client are sent as commands.
+* Commands are sent asynchronously. When sending a command you can provide an _OnFinishedHandler_ that is called back
+as soon as the command has returned. The list of all presentation models that were affected by that command are passed
+as an argument into the callback method.
+* Commands are always sent in strict sequence. We can rely on all value changes are
+synchronized to the server model store before a command is processed on the server that depends on these values.
+
+A command is registered in an action of a controller. The client can send commands to the server by an action name
+when an event is triggered.
+
+[ditaa]
+----
+     /-------------------\                  /-------------------\
+     |                   |  Command         |                   |
+     |     Client        |----------------->|     Server        |
+     |                   |                ^ |                   |
+     \-------------------/                | \-------------------/
+                                          |
+                                          Action
+----
+
+In a server command the presentation models can be accessed and modified.
+So for example it's possible to define a save command.
+Once the client triggers that command, current content of presentation model is converted into business entities and stored into the DB.
+
+== Triggering a command from the Client
+
+Client dolphin interface provides a java-friendly convenience method for sending a named command and
+a groovy-friendly convenience method for sending a named command that expects only presentation model responses
+
+Java example
+[source,java]
+----
+clientDolphin.send("saveActionName", new OnFinishedHandlerAdapter() {
+  @Override
+  public void onFinished(List<ClientPresentationModel> presentationModels) {
+     // list of all presentation models that were affected by that command is passed
+     // as an argument into the callback methods.
+  }
+});
+----
+
+Groovy example
+[source, groovy]
+----
+serverDolphin.action("saveActionName", (command, response) -> {
+   //  logic
+}
+----
+
+Web example
+[source,html]
+----
+saveButton.onclick = function () {
+   dolphin.send("saveActionName", {
+       onFinished: function (models) {
+          // list of all presentation models that were affected by that command is passed
+          // as an argument into the callback methods.
+        }
+   });
+};
+----

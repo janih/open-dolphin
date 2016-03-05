@@ -1,0 +1,41 @@
+_Binding_ is just another word for an event listener listening to an event source.
+
+OpenDolphin supports binding between attributes and arbitrary other objects where
+most of the time, these other objects are views - with the notable exception of
+the dolphin infrastructure itself, which automatically listens for value changes
+in order to notify the server.
+
+While OpenDolphin is independent on any specific UI toolkit and works out-of-the-box
+with every technology that understands PropertyChangeListeners (i.e. SWT and
+Eclipse RCP), it provides special binding facilities for
+
+* JavaFx and
+* Swing
+
+Bindings can work in both directions such that a view automatically
+reflects any change in an attribute value or such that an attribute value is
+automatically updated with every user input to a UI component.
+
+An important design goal of OpenDolphin is to keep bindings stable.
+
+For the typical use cases it should not be necessary to "unbind" or "rebind", not even
+for use cases where a selection changes the to-be-displayed information, commonly
+known as master-detail views.
+
+Master-detail views come in many flavors:
+
+* a list or table row selection with an associated detail view (often forms) for the row info
+* a map or chart item selection with details per selected item
+* a tabbed pane with the individual details (often forms) per tab
+
+OpenDolphin allows to bind the detail view against a stable _placeholder_
+presentation model that is automatically synchronized (both read and write)
+with the selection.
+
+WARNING: The detail view *never* has to change its binding!
+
+In fact, this feature goes beyond master-detail views and applies to all
+referential structures, which otherwise are a very difficult to handle
+consistently in a user interface.
+
+See also link:./../ref/binding/usage.html[Usage of Binding].

@@ -1,0 +1,30 @@
+While <<Follow-me applications with re-connect,follow-me>> applications provide the technical basis for a new kind of _personal_
+working style, even whole teams can leverage this capability to achieve a _collaborative_ working style with
+team applications of the next generation.
+
+OpenDolphin allows that the whole team can work from many locations with many devices but still (optionally)
+live sharing what everybody is doing in real-time. When you see what other team members are doing, it becomes
+much easier to avoid conflicts and double work while at the same time one can correct errors, offer help and
+get help from others.
+
+Consider for example this scenario:
+
+* You are in a customer meeting, closing a deal. You capture the initial contract data on your tablet.
+* A back office worker recognizes what you are doing, completing and correcting the contract information _while you are at it_.
+* With the contract being complete, you let the customer sign it on the tablet.
+
+There are literally countless other scenarios:
+
+* collaboratively editing a document (think Google Wave, Google Docs, or SubEthaEdit)
+* sharing an app with your customer to instantly see the effect of various order sizes, discount rates, etc.
+* sharing a stock ticker app where an expert selects "hot stocks" that the trader should pay attention to
+* collaboratively managing a pool of resources where adding/removing of items can lead to buffer overruns or underruns that need to be re-balanced
+* capturing meeting minutes by all participants together such that there is implicit agreement
+* even a mere chat is a kind of team application.
+An interactively shared application can very much enhance customer bonding, increase work efficiency, and foster team spirit.
+
+Link to live link:https://klondike.canoo.com/dolphin-grails/demo/ts/Chatter.html[chat demo].
+
+link:https://www.youtube.com/watch?v=ZFFF2Dpa7Vs[Team app demos video]
+
+NOTE: #TODO# images

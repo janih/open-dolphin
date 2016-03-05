@@ -1,0 +1,38 @@
+== Introduction
+include::introduction.adoc[]
+
+=== Latest changes
+include::introduction/changes.adoc[]
+
+=== Credits
+include::introduction/credits.adoc[]
+
+== Architecture
+include::architecture.adoc[]
+
+=== The OpenDolphin structure
+include::architecture/architecture_structure.adoc[]
+
+=== The concept of presentation models
+include::architecture/concepts_presentation_model.adoc[]
+
+=== The purpose of attributes
+include::architecture/concepts_attributes.adoc[]
+
+=== Stable bindings
+include::architecture/concepts_binding.adoc[]
+
+=== Collections of presentation models and the model store
+include::architecture/concepts_model_store.adoc[]
+
+=== Understanding the client-server split and threading model
+include::architecture/concepts_remoting.adoc[]
+
+=== Communicating via Commands
+include::architecture/concepts_commands.adoc[]
+
+=== Relying on the command sequence
+include::architecture/concepts_command_sequence.adoc[]
+
+=== Discussion
+include::architecture/concepts_discussion.adoc[]

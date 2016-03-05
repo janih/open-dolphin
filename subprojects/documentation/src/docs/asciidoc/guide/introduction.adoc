@@ -1,0 +1,60 @@
+OpenDolphin is a Model-View-Controller architecture that enforces strict decoupling between
+Views and Controllers. They can never refer directly to each other. Their sole mean of communication
+is through shared _Presentation Models_.
+
+The separation enables the use of remoting between Views and Controllers. They can run on different machines while
+OpenDolphin cares for synchronizing the Presentation Models between them.
+
+.OpenDolphin introduces remoting between Views and Controllers by means of shared Presentation Models
+[ditaa]
+----
+      Client                                           Server
+ /--------------\                                 /--------------\
+ |              |                                 |              |
+ |     View     |                                 |  Controller  |
+ |              |                                 |              |
+ |   /-------------------+               +-------------------\   |
+ |   |                   |  OpenDolphin  |                   |   |
+ \---| PresentationModel |<------------->| PresentationModel |---/
+     |                   |               |                   |
+     \-------------------+               +-------------------/
+----
+
+The net effect is that Controllers - which embody the _application logic_ - can live in a
+Java Enterprise environment while the Views can display the user interface with all the
+capabilities of a local device, be it in the browser or through native Desktop technologies.
+
+Because they live in the enterprise environment, controllers have direct, efficient access
+to all enterprise resources. They are themselves an important resource since they control
+*what* is displayed to the user by providing the respective Presentation Models.
+
+Views live on the client device and determine *how* to display Presentation Models
+to the user. To that end, they can leverage the full range of their device features.
+
+
+*Responsibilities*
+
+* Server
+** What to display
+** Business logic + presentation logic incl. workflow
+
+* Client
+** How to display
+** visualize state + transitions
+
+
+*Collaboration*
+
+* Presentation model is synchronized by Dolphin
+* Communication follows the Command Pattern
+* Client may send application-specific commands, i.e on button pressed
+* Server reacts through presentation model changes
+
+*Key effects*
+
+* Fully exploits native client capabilities, i.e JavaFX
+* Enforces clean structures
+* Protects investment in application logic
+
+Throughout this documentation, we will refer to this introduction and especially the
+section on <<Architecture>> expands on the value of clean structures.

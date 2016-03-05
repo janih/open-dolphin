@@ -1,0 +1,91 @@
+We finish the application with some more refactorings in
+link:https://github.com/canoo/DolphinJumpStart/blob/master/client/src/main/java/step_6/TutorialApplication.java[step6.TutorialApplication]
+and some tweaks to the view such that it appears like
+
+image::./img/dolphin_pics/OpenDolphin-HowTo-step6.png[]
+
+The true value of the change is not visible in a screenshot, though, since it is in the behavior.
+The modified background color of the text field appears as soon as it becomes dirty and is
+set back to the original state when the dirty state is set back.
+
+To make this happen, we enhance the binding with a little trick in the converter that
+adds the "dirty" style class to the text field when needed and removes it otherwise.
+
+[source,java]
+Converter converter = new Converter<Boolean,Boolean>() {
+    public Boolean convert(Boolean dirty) {
+        if (dirty) {
+            textField.getStyleClass().add("dirty");
+        } else {
+            textField.getStyleClass().remove("dirty");
+        }
+        return null;
+    }
+};
+JFXBinder.bindInfo("dirty").of(textAttributeModel).using(converter).to("style").of(textField);
+
+
+The tutorial.css contains the definition of that style, which makes the code very flexible
+should we later decide to visualize the dirty state differently.
+
+[source,css]
+----
+.root {
+    -fx-background-color: linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.15) 100%);
+}
+#content {
+    -fx-padding : 20;
+    -fx-spacing : 10;
+}
+.dirty {
+    -fx-background-color: papayawhip;
+}
+----
+
+
+Once we have the view code so nicely refactored to be free of any other responsibility,
+we can spend some extra brain cycles on improving the look and feel, both when
+visualizing state but also for emphasizing state transitions.
+
+*Reset by shaking the field*
+
+When we click the "reset" button, the dirty value is replaced by the last known base value
+and a "shake" animation is played on the text field.
+
+A shake is a rotation of the field around its center by an angle from -3 to +3 degrees.
+This is done 3 times during 100 ms each. It makes for a funny effect.
+
+[source,java]
+----
+final Transition fadeIn = RotateTransitionBuilder.create().node(textField).toAngle(0).duration(Duration.millis(200)).build();
+final Transition fadeOut = RotateTransitionBuilder.create().node(textField).fromAngle(-3).interpolator(Interpolator.LINEAR).
+        toAngle(3).cycleCount(3).duration(Duration.millis(100)).
+        onFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                textAttributeModel.getAt(ATT_FIRSTNAME).reset();
+                fadeIn.playFromStart();
+            }
+        }).build();
+
+reset.setOnAction(new EventHandler<ActionEvent>() {
+    @Override
+    public void handle(ActionEvent actionEvent) {
+        fadeOut.playFromStart();
+    }
+});
+----
+
+Note that the transition is only created once but played as often as you click the button.
+
+*Yes, director!*
+
+The server (controller) part has been divided in two classes: the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_6/TutorialAction.java[step6.TutorialAction]
+that contains only one application-specific action and the
+link:https://github.com/canoo/DolphinJumpStart/blob/master/server/src/main/java/step_6/TutorialDirector.java[step6.TutorialDirector]
+who selects which actors should appear in the play, i.e. registers actions with the server dolphin.
+
+This distinction makes it easier to evolve the application when new actions come into play since the
+server adapter (servlet) doesn't have to change when the list of actions changes as we will see in a minute.
+
