@@ -19,8 +19,8 @@ import java.util.HashMap;
 public class TeamStarter {
     public static void main(String[] args) throws Exception {
 
-        final String servletUrl = "http://localhost:8080/dolphin-grails/dolphin/";
-//        final String servletUrl = "https://klondike.canoo.com/dolphin-grails/dolphin/";
+//        final String servletUrl = "http://localhost:8080/dolphin-grails/dolphin/";
+        final String servletUrl = "https://klondike.canoo.com/dolphin-grails/dolphin/";
 
         ClientDolphin clientDolphin = new ClientDolphin();
         clientDolphin.setClientModelStore(new ClientModelStore(clientDolphin));
