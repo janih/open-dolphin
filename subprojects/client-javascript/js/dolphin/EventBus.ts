@@ -18,7 +18,7 @@ module opendolphin {
         }
 
         /**
-         * Unregisters eventHanlder from this EventBus.
+         * Unregisters eventHandler from this EventBus.
          * @param eventHandler
         */
         unregister(eventHandler) {
