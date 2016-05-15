@@ -17,6 +17,10 @@ module opendolphin {
             }
         }
 
+        /**
+         * Unregisters eventHanlder from this EventBus.
+         * @param eventHandler
+        */
         unregister(eventHandler) {
           let idx = this.eventHandlers.indexOf(eventHandler);
           if (idx > -1) {
