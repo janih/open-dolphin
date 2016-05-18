@@ -131,6 +131,23 @@ module opendolphin {
             this.areIdentical(pm, pm1);
         }
 
+        modelChangeListenersGetDisposed() {
+            var pm1 = new ClientPresentationModel("id1", "type");
+
+            var clientDolphin = new ClientDolphin();
+            var clientModelStore = new ClientModelStore(clientDolphin);
+
+            var called = false;
+            var dispose = clientModelStore.onModelStoreChangeForType("type", (evt:ModelStoreEvent) => {
+                called = true;
+            })
+            dispose();
+
+            clientModelStore.addPresentationModelByType(pm1);
+
+            this.isFalse(called);
+        }
+
         addAndRemovePresentationModelByType() {
             var pm1 = new ClientPresentationModel("id1", "type");
             var pm2 = new ClientPresentationModel("id2", "type");
