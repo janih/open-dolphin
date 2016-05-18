@@ -192,7 +192,6 @@ module opendolphin {
             clientModelStore.removeAttributeById(attr1);
             var result1 = clientModelStore.findAttributeById(attr1.id);
             this.areIdentical(result1, undefined);
-
         }
 
         addAndRemoveClientAttributeByQualifier() {
@@ -227,8 +226,6 @@ module opendolphin {
             this.areIdentical(clientAttrs1.length, 1);
             this.areIdentical(clientAttrs1[0].getQualifier(), "qual1");
             this.areIdentical(clientAttrs1[1], undefined);
-
-
         }
 
         checkAttributeBaseValueChangeForSameQualifier(){
@@ -265,8 +262,6 @@ module opendolphin {
             this.areIdentical(clientAttr2.getValue(), "Test");
             this.areIdentical(clientAttr2.getBaseValue(), "Test");
             this.isFalse(clientAttr2.isDirty());
-
-
         }
 
     }
