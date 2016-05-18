@@ -2,20 +2,12 @@
 /// <reference path="EventBus.ts" />
 /// <reference path="Tag.ts" />
 ///<reference path="Dispose.ts"/>
-///<reference path="Map.ts"/>
 
 module opendolphin {
 
     export interface ValueChangedEvent {
         oldValue;
         newValue;
-    }
-
-    export const enum ValueChangedEventType {
-        valueChange,
-        qualifierChange,
-        dirtyValueChange,
-        baseValueChange,
     }
 
     export class ClientAttribute {
@@ -27,18 +19,17 @@ module opendolphin {
         private baseValue           : any;
         private qualifier           : string;
         private presentationModel   : ClientPresentationModel;
-        private eventBuses          : Map<ValueChangedEventType,EventBus<ValueChangedEvent>>;
+        private valueChangeBus      : EventBus<ValueChangedEvent>;
+        private qualifierChangeBus  : EventBus<ValueChangedEvent>;
+        private dirtyValueChangeBus : EventBus<ValueChangedEvent>;
+        private baseValueChangeBus  : EventBus<ValueChangedEvent>;
 
         constructor(public propertyName:string, qualifier:string, value:any, public tag:string = Tag.value()) {
             this.id = "" + (ClientAttribute.clientAttributeInstanceCount++) + "C";
-
-            this.eventBuses = new Map<ValueChangedEventType, EventBus<ValueChangedEvent>>();
-            // Would love to do this in a loop, but TS Enums do not support this :-(
-            this.eventBuses.put(ValueChangedEventType.valueChange,      new EventBus());
-            this.eventBuses.put(ValueChangedEventType.qualifierChange,  new EventBus());
-            this.eventBuses.put(ValueChangedEventType.dirtyValueChange, new EventBus());
-            this.eventBuses.put(ValueChangedEventType.baseValueChange,  new EventBus());
-
+            this.valueChangeBus = new EventBus();
+            this.qualifierChangeBus = new EventBus();
+            this.dirtyValueChangeBus = new EventBus();
+            this.baseValueChangeBus = new EventBus();
             this.setValue(value);
             this.setBaseValue(value);
             this.setQualifier(qualifier);
@@ -80,12 +71,7 @@ module opendolphin {
             var oldValue = this.value;
             this.value = verifiedValue;
             this.setDirty(this.calculateDirty(this.baseValue, verifiedValue));
-            this.eventBus(ValueChangedEventType.valueChange).
-                trigger({ 'oldValue': oldValue, 'newValue': verifiedValue });
-        }
-
-        private eventBus(eventType: ValueChangedEventType):EventBus<ValueChangedEvent> {
-            return this.eventBuses.get(eventType);
+            this.valueChangeBus.trigger({ 'oldValue': oldValue, 'newValue': verifiedValue });
         }
 
         private calculateDirty(baseValue:any, value:any):boolean {
@@ -103,8 +89,7 @@ module opendolphin {
         private setDirty(dirty:boolean) {
             var oldVal = this.dirty;
             this.dirty = dirty;
-            this.eventBus(ValueChangedEventType.dirtyValueChange)
-                .trigger({ 'oldValue': oldVal, 'newValue': this.dirty });
+            this.dirtyValueChangeBus.trigger({ 'oldValue': oldVal, 'newValue': this.dirty });
             if (this.presentationModel) this.presentationModel.updateDirty();
         }
 
@@ -112,8 +97,7 @@ module opendolphin {
             if (this.qualifier == newQualifier) return;
             var oldQualifier = this.qualifier;
             this.qualifier = newQualifier;
-            this.eventBus(ValueChangedEventType.qualifierChange)
-                .trigger({ 'oldValue': oldQualifier, 'newValue': newQualifier });
+            this.qualifierChangeBus.trigger({ 'oldValue': oldQualifier, 'newValue': newQualifier });
         }
 
         getQualifier(): string{
@@ -125,8 +109,7 @@ module opendolphin {
             var oldBaseValue = this.baseValue;
             this.baseValue = baseValue;
             this.setDirty(this.calculateDirty(baseValue, this.value));
-            this.eventBus(ValueChangedEventType.baseValueChange)
-                .trigger({ 'oldValue': oldBaseValue, 'newValue': baseValue });
+            this.baseValueChangeBus.trigger({ 'oldValue': oldBaseValue, 'newValue': baseValue });
         }
 
         rebase() {
@@ -162,21 +145,20 @@ module opendolphin {
         }
 
         onValueChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
-            let disposeFunc = this.eventBus(ValueChangedEventType.valueChange).onEvent(eventHandler);
             eventHandler({"oldValue": this.value, "newValue": this.value});
-            return disposeFunc;
+            return this.valueChangeBus.onEvent(eventHandler);
         }
 
         onQualifierChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
-            return this.eventBus(ValueChangedEventType.qualifierChange).onEvent(eventHandler);
+            return this.qualifierChangeBus.onEvent(eventHandler);
         }
 
-        onDirty(eventHandler:(event:ValueChangedEvent) => void): Dispose {
-            return this.eventBus(ValueChangedEventType.dirtyValueChange).onEvent(eventHandler);
+        onDirty(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
+            return this.dirtyValueChangeBus.onEvent(eventHandler);
         }
 
         onBaseValueChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
-            return this.eventBus(ValueChangedEventType.baseValueChange).onEvent(eventHandler);
+            return this.baseValueChangeBus.onEvent(eventHandler);
         }
 
         syncWith(sourceAttribute:ClientAttribute) {

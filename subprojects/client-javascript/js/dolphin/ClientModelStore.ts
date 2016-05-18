@@ -289,11 +289,12 @@ module opendolphin {
             return this.attributesPerQualifier.get(qualifier).slice(0);// slice is used to clone the array
         }
 
-        onModelStoreChange(eventHandler:(event:ModelStoreEvent) => void) {
-            this.modelStoreChangeBus.onEvent(eventHandler);
+        onModelStoreChange(eventHandler:(event:ModelStoreEvent) => void) : Dispose {
+            return this.modelStoreChangeBus.onEvent(eventHandler);
         }
-        onModelStoreChangeForType(presentationModelType:String, eventHandler:(event:ModelStoreEvent) => void) {
-            this.modelStoreChangeBus.onEvent( pmStoreEvent => {
+
+        onModelStoreChangeForType(presentationModelType:String, eventHandler:(event:ModelStoreEvent) => void) : Dispose {
+            return this.modelStoreChangeBus.onEvent( pmStoreEvent => {
                 if (pmStoreEvent.clientPresentationModel.presentationModelType == presentationModelType) {
                     eventHandler(pmStoreEvent);
                 }
