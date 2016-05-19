@@ -1,6 +1,7 @@
 /// <reference path="ClientPresentationModel.ts" />
 /// <reference path="EventBus.ts" />
 /// <reference path="Tag.ts" />
+///<reference path="Dispose.ts"/>
 
 module opendolphin {
 
@@ -143,21 +144,21 @@ module opendolphin {
             return result;
         }
 
-        onValueChange(eventHandler:(event:ValueChangedEvent) => void) {
-            this.valueChangeBus.onEvent(eventHandler);
+        onValueChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
             eventHandler({"oldValue": this.value, "newValue": this.value});
+            return this.valueChangeBus.onEvent(eventHandler);
         }
 
-        onQualifierChange(eventHandler:(event:ValueChangedEvent) => void) {
-            this.qualifierChangeBus.onEvent(eventHandler);
+        onQualifierChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
+            return this.qualifierChangeBus.onEvent(eventHandler);
         }
 
-        onDirty(eventHandler:(event:ValueChangedEvent) => void) {
-            this.dirtyValueChangeBus.onEvent(eventHandler);
+        onDirty(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
+            return this.dirtyValueChangeBus.onEvent(eventHandler);
         }
 
-        onBaseValueChange(eventHandler:(event:ValueChangedEvent) => void) {
-            this.baseValueChangeBus.onEvent(eventHandler);
+        onBaseValueChange(eventHandler:(event:ValueChangedEvent) => void) : Dispose {
+            return this.baseValueChangeBus.onEvent(eventHandler);
         }
 
         syncWith(sourceAttribute:ClientAttribute) {
