@@ -31,6 +31,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 import org.codehaus.groovy.runtime.StackTraceUtils
 
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 
 import static groovyx.gpars.GParsPool.withPool
@@ -74,7 +75,9 @@ abstract class ClientConnector {
 
             def answer = null
 
-            Runnable transmitter = { answer = transmit(commands) }
+            Runnable transmitter = {
+                answer = transmit(commands)
+            }
             Runnable postWorker  = { trayOut << [response: answer, request: commandsAndHandlers] }
             doExceptionSafe(transmitter, postWorker)
         }
@@ -329,20 +332,20 @@ abstract class ClientConnector {
     /** whether listening for push events should be done at all. */
     protected boolean pushEnabled = false;
 
-    /** whether we currently wait for push events (internal state) and may need to release */
-    protected boolean waiting = false;
+    /** the number of push commands in the sending queue */
+    protected AtomicInteger pushesInQueue = new AtomicInteger(0);
 
     /** listens for the pushListener to return. The pushListener must be set and pushEnabled must be true. */
     protected void listen() {
         if (!pushEnabled) return // allow the loop to end
-        if (waiting) return      // avoid second call while already waiting (?) -> two different push actions not supported
-        waiting = true
+        if (pushesInQueue.get() > 0) return      // avoid second call while already waiting (?) -> two different push actions not supported
+        pushesInQueue.incrementAndGet()
         send(pushListener, new OnFinishedHandlerAdapter() {
             @Override
             void onFinished(List<ClientPresentationModel> presentationModels) {
                 // we do nothing here nor do we register a special handler.
                 // The server may have sent commands, though, even CallNamedActionCommand.
-                waiting = false
+                pushesInQueue.decrementAndGet()
                 listen() // not a real recursion; is added to event queue
             }
         })
@@ -352,10 +355,9 @@ abstract class ClientConnector {
      *  Does nothing in case that the push listener is not active.
      * */
     protected void release() {
-        if (!waiting) {
+        if (pushesInQueue.get() < 1) {
             return      // there is no point in releasing if we do not wait. Avoid excessive releasing.
         }
-        waiting = false // release is under way
         withPool {
             def transmitAsynchronously = this.&transmit.asyncFun()
             transmitAsynchronously([releaseCommand]) // sneaks by the strict command sequence
