@@ -13,6 +13,7 @@
 /// <reference path="../test/dolphin/ClientModelStoreTests.ts"/>
 /// <reference path="../test/dolphin/CodecTest.ts"/>
 /// <reference path="../test/dolphin/DolphinBuilderTest.ts"/>
+///<reference path="../test/dolphin/EventBusTests.ts"/>
 
 
 // new instance of tsUnit
@@ -39,6 +40,7 @@ module allTests {
         test.addTestClass(new opendolphin.ClientModelStoreTests(), "ClientModelStoreTests");
         test.addTestClass(new opendolphin.CodecTest(), "CodecTest");
         test.addTestClass(new opendolphin.DolphinBuilderTest(), "DolphinBuilder");
+        test.addTestClass(new opendolphin.EventBusTests(), "EventBus");
 
         var result = test.run();
 

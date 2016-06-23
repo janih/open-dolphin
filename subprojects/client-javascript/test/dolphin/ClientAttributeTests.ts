@@ -12,7 +12,21 @@ module opendolphin {
             this.areNotIdentical(ca1.id, ca2.id);
         }
 
-        valueListenersAreCalled() {
+        valueChangeListenersGetDisposed() {
+            var attr = new ClientAttribute("prop", "qual", 0);
+            var callCount = -1; // Should be zero to begin with, but onValueChange does trigger event on registration!
+
+            var dispose = attr.onValueChange( (evt: ValueChangedEvent) => {
+                ++callCount;
+            } );
+
+            dispose();
+            attr.setValue(1);
+
+            this.areIdentical(0, callCount);
+        }
+
+        valueChangeListenersAreCalled() {
             var attr = new ClientAttribute("prop", "qual", 0);
 
             var spoofedOld = -1;
@@ -32,7 +46,20 @@ module opendolphin {
 
         }
 
-        attributeListenersAreCalled() {
+        qualifierChangeListenersGetDisposed() {
+            var attr = new ClientAttribute("prop", "qual", 0);
+            var called = false;
+            var dispose = attr.onQualifierChange((evt:ValueChangedEvent) => {
+                called = true;
+            })
+
+            dispose();
+            attr.setQualifier("qual_change");
+
+            this.isFalse(called);
+        }
+
+        qualifierChangeListenersAreCalled() {
             var attr = new ClientAttribute("prop", "qual", 0);
 
             var spoofedOldQfr;
@@ -47,7 +74,38 @@ module opendolphin {
             this.areIdentical(spoofedNewQfr, "qual_change")
         }
 
-        valueListenersDoNotInterfere() {
+        baseValueChangeListenersGetDisposed() {
+            var attr = new ClientAttribute("prop", "qual", "base");
+
+            var called = false;
+            var dispose = attr.onBaseValueChange((evt:ValueChangedEvent) => {
+                called = true;
+            })
+            dispose();
+
+            attr.setBaseValue("baseValue change");
+
+            this.isFalse(called);
+        }
+
+        baseValueChangeListenersAreCalled() {
+            var attr = new ClientAttribute("prop", "qual", "base");
+
+            var spoofedOldBaseValue = "";
+            var spoofedNewBaseValue = "";
+
+            attr.onBaseValueChange((evt:ValueChangedEvent) => {
+                spoofedOldBaseValue = evt.oldValue;
+                spoofedNewBaseValue = evt.newValue;
+            })
+
+            attr.setBaseValue("baseValue change");
+
+            this.areIdentical(spoofedOldBaseValue, "base")
+            this.areIdentical(spoofedNewBaseValue, "baseValue change")
+        }
+
+        valueChangeListenersDoNotInterfere() {
             var attr1 = new ClientAttribute("prop", "qual1", 0);
             var attr2 = new ClientAttribute("prop", "qual2", 0);
 
@@ -68,8 +126,21 @@ module opendolphin {
 
         }
 
-        checkDirtyListener() {
+        dirtyChangeListenersGetDisposed() {
             var attr = new ClientAttribute("prop", "qual1", 0);
+
+            var called = false;
+            var dispose = attr.onDirty((evt:ValueChangedEvent) => {
+                called = true;
+            });
+            dispose();
+            attr.setValue(1);
+
+            this.isFalse(called);
+        }
+
+        checkDirtyChangeListener() {
+            var attr = new ClientAttribute("prop", "qual1", false);
 
             var dirtyFirst = false;
             attr.onDirty((evt:ValueChangedEvent) => {
@@ -81,6 +152,7 @@ module opendolphin {
                 dirtySecond = evt.newValue;
             });
 
+            attr.setValue(true);
             this.areIdentical(dirtyFirst, dirtySecond);
         }
 

@@ -105,11 +105,12 @@ module opendolphin {
             });
         }
 
-        onDirty(eventHandler:(event:ValueChangedEvent) => void) {
-            this.dirtyValueChangeBus.onEvent(eventHandler);
+        onDirty(eventHandler:(event:ValueChangedEvent) => void) : Dispose{
+            return this.dirtyValueChangeBus.onEvent(eventHandler);
         }
-        onInvalidated(handleInvalidate:(InvalidationEvent) => void) {
-            this.invalidBus.onEvent(handleInvalidate);
+
+        onInvalidated(handleInvalidate:(InvalidationEvent) => void) : Dispose {
+            return this.invalidBus.onEvent(handleInvalidate);
         }
 
         /** returns a copy of the internal state */
