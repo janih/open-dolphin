@@ -28,6 +28,8 @@ class StarterUtil {
         def connector = new HttpClientConnector(dolphin, batcher, url)
         connector.codec = new JsonCodec()
         dolphin.clientConnector = connector
+
+        org.opendolphin.demo.util.StarterUtil.macFontWorkaround()
         return dolphin
     }
 }

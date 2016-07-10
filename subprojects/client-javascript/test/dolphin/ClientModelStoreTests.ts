@@ -131,6 +131,23 @@ module opendolphin {
             this.areIdentical(pm, pm1);
         }
 
+        modelChangeListenersGetDisposed() {
+            var pm1 = new ClientPresentationModel("id1", "type");
+
+            var clientDolphin = new ClientDolphin();
+            var clientModelStore = new ClientModelStore(clientDolphin);
+
+            var called = false;
+            var dispose = clientModelStore.onModelStoreChangeForType("type", (evt:ModelStoreEvent) => {
+                called = true;
+            })
+            dispose();
+
+            clientModelStore.addPresentationModelByType(pm1);
+
+            this.isFalse(called);
+        }
+
         addAndRemovePresentationModelByType() {
             var pm1 = new ClientPresentationModel("id1", "type");
             var pm2 = new ClientPresentationModel("id2", "type");
@@ -175,7 +192,6 @@ module opendolphin {
             clientModelStore.removeAttributeById(attr1);
             var result1 = clientModelStore.findAttributeById(attr1.id);
             this.areIdentical(result1, undefined);
-
         }
 
         addAndRemoveClientAttributeByQualifier() {
@@ -210,8 +226,6 @@ module opendolphin {
             this.areIdentical(clientAttrs1.length, 1);
             this.areIdentical(clientAttrs1[0].getQualifier(), "qual1");
             this.areIdentical(clientAttrs1[1], undefined);
-
-
         }
 
         checkAttributeBaseValueChangeForSameQualifier(){
@@ -248,8 +262,6 @@ module opendolphin {
             this.areIdentical(clientAttr2.getValue(), "Test");
             this.areIdentical(clientAttr2.getBaseValue(), "Test");
             this.isFalse(clientAttr2.isDirty());
-
-
         }
 
     }

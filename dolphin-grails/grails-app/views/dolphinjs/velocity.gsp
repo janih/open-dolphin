@@ -35,36 +35,34 @@
 <a href="https://github.com/canoo/open-dolphin/blob/master/dolphin-grails/grails-app/views/dolphinjs/velocity.gsp">source code</a>
 </div>
 <script >
-  require([ ], function () {
 
-    var request = new XMLHttpRequest();
-    var url = "${velocityUrl}";
+var request = new XMLHttpRequest();
+var url = "${velocityUrl}";
 
-    // update the label and send slider changes to the server
-    var rangeInput = document.getElementById("${range}");
-    rangeInput.addEventListener("input", function () {
-      document.getElementById("${label}").innerHTML = "value: "+rangeInput.value;
-      request.open('GET', url + "?value=" + rangeInput.value, true);
+// update the label and send slider changes to the server
+var rangeInput = document.getElementById("${range}");
+rangeInput.addEventListener("input", function () {
+  document.getElementById("${label}").innerHTML = "value: "+rangeInput.value;
+  request.open('GET', url + "?value=" + rangeInput.value, true);
+  request.send();
+});
+
+// send tilt changes to the server
+if (window.DeviceOrientationEvent) {
+  var lastOrientation = 0;
+  console.log("DeviceOrientation is supported");
+  window.addEventListener('deviceorientation', function (eventData) {
+    // gamma is the left-to-right tilt in degrees, where right is positive
+    var newOrientation = (Math.floor(Number(eventData.gamma))) % 100;
+    if (newOrientation !== lastOrientation) {
+      lastOrientation = newOrientation;
+      request.open('GET', url + "?value=" + newOrientation, true);
+      document.getElementById("${label}").innerHTML = "value: "+newOrientation;
       request.send();
-    });
-
-    // send tilt changes to the server
-    if (window.DeviceOrientationEvent) {
-      var lastOrientation = 0;
-      console.log("DeviceOrientation is supported");
-      window.addEventListener('deviceorientation', function (eventData) {
-        // gamma is the left-to-right tilt in degrees, where right is positive
-        var newOrientation = (Math.floor(Number(eventData.gamma))) % 100;
-        if (newOrientation !== lastOrientation) {
-          lastOrientation = newOrientation;
-          request.open('GET', url + "?value=" + newOrientation, true);
-          document.getElementById("${label}").innerHTML = "value: "+newOrientation;
-          request.send();
-        }
-      }, true);
     }
+  }, true);
+}
 
-  });
 </script>
 
 </body>

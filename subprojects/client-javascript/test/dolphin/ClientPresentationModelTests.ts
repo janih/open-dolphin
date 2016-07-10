@@ -31,6 +31,22 @@ module opendolphin {
             this.areIdentical(pm1.getAttributes()[0], firstAttribute);
         }
 
+        invalidatedListenersGetDisposed() {
+            var pm1 = new ClientPresentationModel(undefined,undefined);
+            var clientAttribute = new ClientAttribute("prop", "qual", 0);
+            pm1.addAttribute(clientAttribute);
+
+            var called = false;
+            var dispose = pm1.onInvalidated((event:InvalidationEvent) => {
+                called = true;
+            });
+            dispose();
+
+            clientAttribute.setValue("newValue");
+
+            this.isFalse(called);
+        }
+
         invalidateClientPresentationModelEvent(){
             var pm1 = new ClientPresentationModel(undefined,undefined);
             var clientAttribute = new ClientAttribute("prop", "qual", 0);
@@ -61,6 +77,40 @@ module opendolphin {
 
             //PM should be dirty
             this.areIdentical(pm.isDirty(),true);
+        }
+
+        dirtyListenersGetDisposed() {
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca = new ClientAttribute("prop1","qual1","value1","VALUE");
+
+            var called = false;
+            var dispose = pm.onDirty((evt:ValueChangedEvent) => {
+                called = true;
+            });
+            dispose();
+
+            pm.addAttribute(ca);
+
+            this.isFalse(called);
+        }
+
+        dirtyPresentationModelEvent() {
+            var pm = new ClientPresentationModel(undefined,undefined);
+            var ca = new ClientAttribute("prop1","qual1","value1","VALUE");
+            pm.addAttribute(ca);
+
+            var spoofedOldValue = false;
+            var spoofedNewValue = false;
+
+            pm.onDirty((evt:ValueChangedEvent) => {
+                spoofedOldValue = evt.oldValue;
+                spoofedNewValue = evt.newValue;
+            })
+
+            ca.setValue("newValue"); // triggers dirty on pm
+
+            this.isFalse(spoofedOldValue);
+            this.isTrue(spoofedNewValue);
         }
 
         checkPresentationModelIsDirtyAfterRebase(){

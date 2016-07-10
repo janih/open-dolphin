@@ -1,11 +1,11 @@
 package org.opendolphin.server.adapter
 
 import org.opendolphin.core.comm.Codec
-import org.opendolphin.core.server.ServerConnector
 import org.opendolphin.core.server.DefaultServerDolphin
+import org.opendolphin.core.server.ServerConnector
+import org.opendolphin.core.server.ServerModelStore
 import spock.lang.Specification
 
-import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
@@ -13,13 +13,32 @@ import java.util.logging.Level
 
 class DolphinServletSpec extends Specification {
 
+    private Codec codec = Mock()
+    private ServerModelStore serverModelStore = Mock()
+    private HttpServletRequest request = Mock()
+    private HttpServletResponse response = Mock()
+    private HttpSession session = Mock(HttpSession)
+
+    def setup() {
+        BufferedReader reader = new BufferedReader(new StringReader(' '))
+        Writer writer = new PrintWriter(new StringWriter())
+
+        codec.encode(_) >> ''
+        codec.decode(_) >> []
+
+        request.getSession() >> { session }
+        request.getReader() >> reader
+
+        response.getWriter() >> writer
+    }
+
     void "calling doPost in new session must reach registration of custom actions - no logging"() {
         given:
         DolphinServlet.log.level = Level.OFF // for full branch coverage
-        def (servlet, req, resp) = mockServlet(null)
+        def servlet = mockServlet(null)
 
         when:
-        servlet.doPost(req, resp)
+        servlet.doPost(request, response)
 
         then:
         servlet.registerReached
@@ -28,65 +47,51 @@ class DolphinServletSpec extends Specification {
     void "calling doPost in new session must reach registration of custom actions - all logging for branch coverage"() {
         given:
         DolphinServlet.log.level = Level.ALL // for full branch coverage
-        def (servlet, req, resp) = mockServlet(null)
+        def servlet = mockServlet(null)
 
         when:
-        servlet.doPost(req, resp)
+        servlet.doPost(request, response)
 
         then:
         servlet.registerReached
-
     }
 
     void "calling doPost in existing session must not reach registration of custom actions"() {
         given:
         DolphinServlet.log.level = Level.ALL // for full branch coverage
-        def (servlet, req, resp) = mockServlet(new DefaultServerDolphin(null, mockServerConnector()))
+        def connector = new ServerConnector(serverModelStore: serverModelStore, codec: codec)
+        def servlet = mockServlet(new DefaultServerDolphin(serverModelStore, connector))
 
         when:
-        servlet.doPost(req, resp)
+        servlet.doPost(request, response)
 
         then:
-        servlet.registerReached == false
-
+        !servlet.registerReached
     }
 
-    def mockServerConnector() {
-        [
-            getCodec: { [encode: {}, decode: { [null] }] as Codec },
-            receive: { [] },
-            serverModelStore: { setCurrentResponse: { } }
-        ] as ServerConnector
-    }
-
-    def mockServlet(DefaultServerDolphin serverDolphin) {
-        DefaultServerDolphin.metaClass.getServerConnector = {-> mockServerConnector() }
-
+    TestDolphinServlet mockServlet(DefaultServerDolphin serverDolphin) {
         def servlet = new TestDolphinServlet()
-        def session = [
-            setAttribute : { key, value -> },
-            getAttribute : { serverDolphin },
-            getId : { null }
-        ] as HttpSession
-        def reader = new BufferedReader({} as Reader)
-        reader.metaClass.getText = {-> ' '}
-        def req = [ getSession: {session}, getReader: { reader }, setCharacterEncoding: { } ] as HttpServletRequest
-        def oS = {} as ServletOutputStream
-        oS.metaClass.leftShift = {}
-        oS.metaClass.close = {->}
-        def resp = [ getOutputStream: { oS } ] as HttpServletResponse
-        return [ servlet, req, resp ]
+        session.getAttribute(_) >> serverDolphin
+        return servlet
     }
 
-}
+    class TestDolphinServlet extends DolphinServlet {
+        boolean registerReached
 
-class TestDolphinServlet extends DolphinServlet {
-    boolean registerReached
+        @Override
+        protected Codec createCodec() {
+            DolphinServletSpec.this.codec
+        }
 
-    @Override
-    protected void registerApplicationActions(DefaultServerDolphin serverDolphin) {
-        registerReached = true
+        @Override
+        protected ServerModelStore createServerModelStore() {
+            DolphinServletSpec.this.serverModelStore
+        }
+
+        @Override
+        protected void registerApplicationActions(DefaultServerDolphin serverDolphin) {
+            registerReached = true
+        }
     }
-
-    def getLog = [info: {}]
 }
+

@@ -21,7 +21,7 @@ import org.opendolphin.core.client.comm.InMemoryClientConnector
 import org.opendolphin.core.client.comm.JavaFXUiThreadHandler
 import org.opendolphin.core.comm.DefaultInMemoryConfig
 
-import java.lang.reflect.Field
+import static org.opendolphin.demo.util.StarterUtil.*
 
 class JavaFxInMemoryConfig extends DefaultInMemoryConfig {
 
@@ -34,14 +34,9 @@ class JavaFxInMemoryConfig extends DefaultInMemoryConfig {
         clientDolphin.clientConnector.uiThreadHandler = new JavaFXUiThreadHandler()
         serverDolphin.registerDefaultActions()
 
-        // Mac-specific hack for java 7 on el capitan
-        try {
-            Class<?> macFontFinderClass = Class.forName("com.sun.t2k.MacFontFinder");
-            Field psNameToPathMap = macFontFinderClass.getDeclaredField("psNameToPathMap");
-            psNameToPathMap.setAccessible(true);
-            psNameToPathMap.set(null, new HashMap<String, String>());
-        } catch (Exception e) {
-            // ignore
-        }
+
+        macFontWorkaround()
     }
+
+
 }
