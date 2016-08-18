@@ -46,7 +46,7 @@ class HttpClientConnectorTests extends GroovyTestCase {
 
     void testSignal() {
         connector.setReleaseCommand(new SignalCommand("test signal"))
-        connector.waiting = true
+        connector.pushIsInQueue.set(true)
         CountDownLatch httpWasCalled = new CountDownLatch(1)
         connector.signalHttpClient = new DefaultHttpClient() {
             @Override
@@ -66,7 +66,7 @@ class HttpClientConnectorTests extends GroovyTestCase {
 
     void testSignalWithBadReturnCodeMustThrowException() {
         connector.setReleaseCommand(new SignalCommand("test signal"))
-        connector.waiting = true
+        connector.pushIsInQueue.set(true)
         CountDownLatch httpWasCalled = new CountDownLatch(1)
         connector.signalHttpClient = new DefaultHttpClient() {
             @Override
