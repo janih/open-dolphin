@@ -28,11 +28,12 @@ import java.text.SimpleDateFormat
 class JsonCodec implements Codec {
 
 
-    public static final String DATE_TYPE_KEY = Date.toString();
+    public static final String DATE_TYPE_KEY   = Date.toString();
     public static final String BIGDECIMAL_TYPE_KEY = BigDecimal.toString();
-    public static final String FLOAT_TYPE_KEY = Float.toString();
+    public static final String FLOAT_TYPE_KEY  = Float.toString();
     public static final String DOUBLE_TYPE_KEY = Double.toString();
-    public static final String ISO8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    public static final String LONG_TYPE_KEY   = Long.toString();
+    public static final String ISO8601_FORMAT  = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
     @Override
     String encode(List<Command> commands) {
@@ -79,6 +80,10 @@ class JsonCodec implements Codec {
         } else if (result instanceof Double) {
             def map = [:];
             map[DOUBLE_TYPE_KEY] = Double.toString(result);
+            result = map
+        } else if (result instanceof Long) {
+            def map = [:];
+            map[LONG_TYPE_KEY] = Long.toString(result);
             result = map
         }
         return result
@@ -135,6 +140,9 @@ class JsonCodec implements Codec {
             } else
             if (encodedValue.containsKey(DOUBLE_TYPE_KEY)) {
                 result = Double.parseDouble(encodedValue[DOUBLE_TYPE_KEY]);
+            } else
+            if (encodedValue.containsKey(LONG_TYPE_KEY)) {
+                result = Long.parseLong(encodedValue[LONG_TYPE_KEY]);
             }
         }
         return result;

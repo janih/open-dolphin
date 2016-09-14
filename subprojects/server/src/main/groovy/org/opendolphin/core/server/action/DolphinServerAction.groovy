@@ -18,6 +18,7 @@ package org.opendolphin.core.server.action
 
 import org.opendolphin.core.Tag
 import org.opendolphin.core.comm.Command
+import org.opendolphin.core.comm.InitializeAttributeCommand
 import org.opendolphin.core.server.DTO
 import org.opendolphin.core.server.ServerAttribute
 import org.opendolphin.core.server.DefaultServerDolphin
@@ -32,12 +33,36 @@ abstract class DolphinServerAction implements ServerAction {
     DefaultServerDolphin serverDolphin
     List<Command> dolphinResponse
 
-
+    /**
+     * @Deprecated use presentationModelCommand. Will be removed in 1.0 final!
+     */
     void presentationModel(String id, String presentationModelType, DTO dto) {
+        presentationModelCommand(id, presentationModelType, dto)
+    }
+
+    /**
+     * Advises the client to create a presentation model.
+     * Does <b>not</b> create a presentation model instantly such that it would appear in the model store right
+     * after calling this method! This only happens after client roundtrip.
+     */
+    void presentationModelCommand(String id, String presentationModelType, DTO dto) {
         DefaultServerDolphin.presentationModelCommand(dolphinResponse, id, presentationModelType, dto)
     }
 
+
+    /**
+     * @Deprecated use changeValueCommand. Will be removed in 1.0 final!
+     */
     void changeValue(ServerAttribute attribute, value) {
+        changeValueCommand(attribute, value)
+    }
+
+    /**
+     * Advises the client to set the attribute to the provided value.
+     * Does <b>not</b> change the value instantly such that the new value would be instantly visible or value
+     * change listeners would be triggered! This only happens after client roundtrip.
+     */
+    void changeValueCommand(ServerAttribute attribute, value) {
         DefaultServerDolphin.changeValueCommand(dolphinResponse, attribute, value)
     }
 

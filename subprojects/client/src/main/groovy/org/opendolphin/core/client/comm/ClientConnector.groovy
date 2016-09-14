@@ -31,6 +31,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 import org.codehaus.groovy.runtime.StackTraceUtils
 
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 
@@ -333,19 +334,19 @@ abstract class ClientConnector {
     protected boolean pushEnabled = false;
 
     /** the number of push commands in the sending queue */
-    protected AtomicInteger pushesInQueue = new AtomicInteger(0);
+    protected AtomicBoolean pushIsInQueue = new AtomicBoolean(false);
 
     /** listens for the pushListener to return. The pushListener must be set and pushEnabled must be true. */
     protected void listen() {
         if (!pushEnabled) return // allow the loop to end
-        if (pushesInQueue.get() > 0) return      // avoid second call while already waiting (?) -> two different push actions not supported
-        pushesInQueue.incrementAndGet()
+        if (pushIsInQueue.get()) return      // avoid second call while already waiting (?) -> two different push actions not supported
+        pushIsInQueue.set(true)
         send(pushListener, new OnFinishedHandlerAdapter() {
             @Override
             void onFinished(List<ClientPresentationModel> presentationModels) {
                 // we do nothing here nor do we register a special handler.
                 // The server may have sent commands, though, even CallNamedActionCommand.
-                pushesInQueue.decrementAndGet()
+                pushIsInQueue.set(false)
                 listen() // not a real recursion; is added to event queue
             }
         })
@@ -355,7 +356,7 @@ abstract class ClientConnector {
      *  Does nothing in case that the push listener is not active.
      * */
     protected void release() {
-        if (pushesInQueue.get() < 1) {
+        if (! pushIsInQueue.get()) {
             return      // there is no point in releasing if we do not wait. Avoid excessive releasing.
         }
         withPool {
